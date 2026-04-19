@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 
-
 public class Data {
 
 	private Object data [][];
@@ -62,12 +61,30 @@ public class Data {
 
 	      }
 		    sc.close();
+	}
 
+	private int getNumberOfExamples() {
+		return numberOfExamples;
+	}
 
+	private int getNumberOfExplanatoryAttributes() {
+		return explanatorySet.length;
+	}
 
+	private Double getClassValue(int exampleIndex) {
+		return (Double)data[exampleIndex][4];
+	}
 
+	private Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
+		return data[exampleIndex][attributeIndex];
+	}
 
+	private Attribute getExplanatoryAttribute(int index) {
+		return explanatorySet[index];
+	}
 
+	private ContinuousAttribute getClassAttribute() {
+		return classAttribute;
 	}
 
 	public String toString(){
