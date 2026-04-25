@@ -72,7 +72,7 @@ public class Data {
 	}
 
 	private Double getClassValue(int exampleIndex) {
-		return (Double)data[exampleIndex][4];
+		return (Double)data[exampleIndex][explanatorySet.length];
 	}
 
 	private Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
