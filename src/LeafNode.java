@@ -1,7 +1,7 @@
 class LeafNode extends Node {
     private Double predictedClassValue;
 
-    LeafNode(Data trainingSet, int beginExampleIndex, int endExampleIndex) {
+    private LeafNode(Data trainingSet, int beginExampleIndex, int endExampleIndex) {
         super(trainingSet, beginExampleIndex, endExampleIndex);
         double sum = 0;
         for (int i = beginExampleIndex; i <= endExampleIndex; i++) {
@@ -14,11 +14,11 @@ class LeafNode extends Node {
         return predictedClassValue;
     }
 
-    public int getNumberOfChildren() {
+    private int getNumberOfChildren() {
         return 0;
     }
 
-    public String toString() {
+    private String toString() {
         return "LEAF : class=" + predictedClassValue + " " + super.toString();
     }
 }
