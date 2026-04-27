@@ -16,7 +16,7 @@ abstract class Node {
 			sumClassVarSq += Math.pow(trainingSet.getClassValue(i), 2);
 			sumSqClassVar += trainingSet.getClassValue(i);
 		}
-		root_var = sumClassVarSq - (Math.pow(sumSqClassVar, 2) / (this.endExampleIndex -  this.beginExampleIndex + 1));
+		variance = sumClassVarSq - (Math.pow(sumSqClassVar, 2) / (this.endExampleIndex -  this.beginExampleIndex + 1));
 	}
 
 	private int getIdNode() {
@@ -31,13 +31,14 @@ abstract class Node {
 		return endExampleIndex;
 	}
 
-	private double getVariance() {
+	double getVariance() {
 		return variance;
 	}
 
-	private abstract int getNumberOfChildren();
+	abstract int getNumberOfChildren();
 
-	private String toString() {
-		return new String("beginExampleIndex: " + beginExampleIndex + " endExampleIndex: " + endExampleIndex + " variance: " + variance);
+	public String toString() {
+		String u = "Nodo: [Examples:" + beginExampleIndex + "-" + endExampleIndex + "] variance:" + variance;
+		return u;
 	}
 }

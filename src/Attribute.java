@@ -7,7 +7,7 @@ abstract class Attribute {
 		this.index = index;
 	}
 
-	private String getName() {
+	String getName() {
 		return this.name;
 	}
 

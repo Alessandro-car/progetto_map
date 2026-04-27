@@ -20,7 +20,7 @@ abstract class SplitNode extends Node {
 			this.comparator=comparator;
 		}
 		int getBeginindex(){
-			return beginIndex;			
+			return beginIndex;
 		}
 		int getEndIndex(){
 			return endIndex;
@@ -34,26 +34,26 @@ abstract class SplitNode extends Node {
 		 String getComparator(){
 			return comparator;
 		}
-	
-		
+
+
 	}
 
-	Attribute attribute;	
+	Attribute attribute;
 
 	SplitInfo mapSplit[];
-	
+
 	double splitVariance;
-		
+
 	abstract void setSplitInfo(Data trainingSet,int beginExampelIndex, int endExampleIndex, Attribute attribute);
-	
-	abstract int testCondition (Object value);
-	
+
+	abstract int testCondition(Object value);
+
 	SplitNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, Attribute attribute){
 			super(trainingSet, beginExampleIndex,endExampleIndex);
 			this.attribute=attribute;
 			trainingSet.sort(attribute, beginExampleIndex, endExampleIndex); // order by attribute
 			setSplitInfo(trainingSet, beginExampleIndex, endExampleIndex, attribute);
-						
+
 			//compute variance
 			splitVariance=0;
 			for(int i=0;i<mapSplit.length;i++){
@@ -61,38 +61,38 @@ abstract class SplitNode extends Node {
 					splitVariance+=(localVariance);
 			}
 	}
-	
+
 	Attribute getAttribute(){
 		return attribute;
 	}
-	
+
 	double getVariance(){
 		return splitVariance;
 	}
-	
+
 	int getNumberOfChildren(){
 		return mapSplit.length;
 	}
-	
+
 	SplitInfo getSplitInfo(int child){
 		return mapSplit[child];
 	}
 
-	
+
 	String formulateQuery(){
 		String query = "";
 		for(int i=0;i<mapSplit.length;i++)
 			query+= (i + ":" + attribute + mapSplit[i].getComparator() +mapSplit[i].getSplitValue())+"\n";
 		return query;
 	}
-	
+
 	public String toString(){
-		String v= "SPLIT : attribute=" +attribute +" "+ super.toString()+  " Split Variance: " + getVariance()+ "\n" ;
-		
+		String v= "SPLIT : attribute=" + attribute.getName() +" "+ super.toString()+  " Split Variance: " + getVariance()+ "\n" ;
+
 		for(int i=0;i<mapSplit.length;i++){
 			v+= "\t"+mapSplit[i]+"\n";
 		}
-		
+
 		return v;
 	}
 }

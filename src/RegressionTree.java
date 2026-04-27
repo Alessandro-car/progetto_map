@@ -15,10 +15,9 @@ class RegressionTree {
 	}
 
 	private SplitNode determineBestSplitNode(Data trainingSet, int begin, int end) {
-		SplitNode bestNode = null;
+		DiscreteNode bestNode = null;
 		for (int i = 0; i < trainingSet.getNumberOfExplanatoryAttributes(); i++) {
-			DiscreteNode currentNode = new DiscreteNode(trainingSet, begin, end,
-					(DiscreteAttribute) trainingSet.getExplanatoryAttribute(i));
+			DiscreteNode currentNode = new DiscreteNode(trainingSet, begin, end, (DiscreteAttribute) trainingSet.getExplanatoryAttribute(i));
 			if (bestNode == null || currentNode.getVariance() < bestNode.getVariance()) {
 				bestNode = currentNode;
 			}
@@ -27,7 +26,7 @@ class RegressionTree {
 		return bestNode;
 	}
 
-	private void learnTree(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
+	void learnTree(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
 		if (isLeaf(trainingSet, begin, end, numberOfExamplesPerLeaf)) {
 			root = new LeafNode(trainingSet, begin, end);
 		} else {
@@ -47,13 +46,13 @@ class RegressionTree {
 		}
 	}
 
-	private void printTree() {
-		System.out.println("********* TREE **********\n");
+	void printTree() {
+		System.out.println("\n********* TREE **********\n");
 		System.out.println(toString());
 		System.out.println("*************************\n");
 	}
 
-	private String toString(){
+	public String toString(){
 		String tree=root.toString()+"\n";
 
 		if( root instanceof LeafNode){
@@ -67,16 +66,16 @@ class RegressionTree {
 		return tree;
 	}
 
-	private void printRules() {
+	void printRules() {
 		System.out.println("********* RULES **********");
 		if (root instanceof LeafNode) {
 			System.out.println("==> Class=" + ((LeafNode) root).getPredictedClassValue());
 		} else {
 			for (int i = 0; i < root.getNumberOfChildren(); i++) {
 				SplitNode splitRoot = (SplitNode) root;
-				String condition = splitRoot.getAttribute()
+				String condition = splitRoot.getAttribute().getName()
 						+ splitRoot.getSplitInfo(i).getComparator()
-						+ splitRoot.getSplitInfo(i).getSplitValue();
+						+ splitRoot.getSplitInfo(i).getSplitValue().toString();
 				childTree[i].printRules(condition);
 			}
 		}
@@ -89,9 +88,9 @@ class RegressionTree {
 		} else {
 			for (int i = 0; i < root.getNumberOfChildren(); i++) {
 				SplitNode splitRoot = (SplitNode) root;
-				String condition = splitRoot.getAttribute()
+				String condition = splitRoot.getAttribute().getName()
 						+ splitRoot.getSplitInfo(i).getComparator()
-						+ splitRoot.getSplitInfo(i).getSplitValue();
+						+ splitRoot.getSplitInfo(i).getSplitValue().toString();
 				childTree[i].printRules(current + " AND " + condition);
 			}
 		}

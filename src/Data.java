@@ -63,23 +63,23 @@ public class Data {
 		    sc.close();
 	}
 
-	private int getNumberOfExamples() {
+	int getNumberOfExamples() {
 		return numberOfExamples;
 	}
 
-	private int getNumberOfExplanatoryAttributes() {
+	int getNumberOfExplanatoryAttributes() {
 		return explanatorySet.length;
 	}
 
-	private Double getClassValue(int exampleIndex) {
+	Double getClassValue(int exampleIndex) {
 		return (Double)data[exampleIndex][explanatorySet.length];
 	}
 
-	private Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
+	Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
 		return data[exampleIndex][attributeIndex];
 	}
 
-	private Attribute getExplanatoryAttribute(int index) {
+	Attribute getExplanatoryAttribute(int index) {
 		return explanatorySet[index];
 	}
 
@@ -182,24 +182,4 @@ public class Data {
 		}
 
 	}
-
-	public static void main(String args[])throws FileNotFoundException{
-		Data trainingSet=new Data("servo.dat");
-		System.out.println(trainingSet);
-
-
-
-		for(int jColumn=0;jColumn<trainingSet.getNumberOfExplanatoryAttributes();jColumn++)
-		{
-			System.out.println("ORDER BY "+trainingSet.getExplanatoryAttribute(jColumn));
-			trainingSet.quicksort(trainingSet.getExplanatoryAttribute(jColumn),0 , trainingSet.getNumberOfExamples()-1);
-			System.out.println(trainingSet);
-		}
-
-
-
-
-
-	}
-
 }
