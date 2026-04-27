@@ -9,7 +9,6 @@ abstract class Node {
 		this.beginExampleIndex = beginExampleIndex;
 		this.endExampleIndex = endExampleIndex;
 		this.idNode = idNodeCount++;
-		double root_var = 0.0;
 		double sumClassVarSq = 0.0;
 		double sumSqClassVar = 0.0;
 		for (int i = this.beginExampleIndex; i <= this.endExampleIndex; i++) {
