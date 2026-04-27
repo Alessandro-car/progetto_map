@@ -53,11 +53,16 @@ class RegressionTree {
 		System.out.println("*************************\n");
 	}
 
-	private String toString() {
-		String tree = root.toString() + "\n";
-		if (!(root instanceof LeafNode)) {
-			for (int i = 0; i < childTree.length; i++)
-				tree += childTree[i];
+	private String toString(){
+		String tree=root.toString()+"\n";
+
+		if( root instanceof LeafNode){
+
+		}
+		else //split node
+		{
+			for(int i=0;i<childTree.length;i++)
+				tree +=childTree[i];
 		}
 		return tree;
 	}
