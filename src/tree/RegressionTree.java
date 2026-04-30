@@ -2,7 +2,6 @@ package tree;
 
 import data.Data;
 import data.DiscreteAttribute;
-import utility.Keyboard;
 
 /**
  * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
@@ -92,30 +91,6 @@ public class RegressionTree {
 				}
 			} else {
 				root = new LeafNode(trainingSet, begin, end);
-			}
-		}
-	}
-
-	/**
-	 * Visualizza le informazioni di ciascuno split dell'albero
-	 * e per il corrispondente attributo acquisisce il valore dell'esempio da predire da tastiera.
-	 * <p>
-	 * Il metodo solleva l'eccezione {@code UnknownValueException} qualora la risposta dell'utente non permetta di
-	 * selezionare un ramo valido del nodo di split.
-	 * @return Ritorna il valore predetto del corrispondente attributo.
-	 *
-	 **/
-	Double predictClass() throws UnknownValueException {
-		if (root instanceof LeafNode) {
-			return ((LeafNode) root).getPredictedClassValue();
-		} else {
-			int risp;
-			System.out.println(((SplitNode) root).formulateQuery());
-			risp = Keyboard.readInt();
-			if (risp == -1 || risp >= root.getNumberOfChildren()) {
-				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
-			} else {
-				return childTree[risp].predictClass();
 			}
 		}
 	}
