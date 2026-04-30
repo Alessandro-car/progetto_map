@@ -1,5 +1,6 @@
 import data.Data;
 import tree.RegressionTree;
+import utility.Keyboard;
 import java.io.FileNotFoundException;
 
 /**
@@ -25,7 +26,9 @@ class MainTest {
 	 * @throws FileNotFoundException Se il file di input {@code servo.dat} non viene trovato.
 	 */
 	public static void main(String[] args) throws FileNotFoundException{
-		Data trainingSet = new Data("servo.dat");
+		System.out.println("Training set:");
+		String filename = Keyboard.readString();
+		Data trainingSet = new Data(filename);
 
 		RegressionTree tree =new RegressionTree(trainingSet);
 
@@ -33,6 +36,13 @@ class MainTest {
 
 		tree.printTree();
 
+		char repeat = 'y';
+		while (repeat == 'y') {
+			System.out.println("Starting prediction phase!");
+			tree.predictClass();
+			System.out.println("Would you repeat? (y/n)");
+			repeat = Keyboard.readChar();
+		}
 	}
 
 }
