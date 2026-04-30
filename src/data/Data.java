@@ -1,3 +1,5 @@
+package data;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -38,7 +40,7 @@ public class Data {
 	 * @throws FileNotFoundException Se il file non viene trovato nel percorso indicato.
 	*  @throws RuntimeException Se il formato dello schema del file non è corretto.
 	 */
-	Data(String fileName)throws FileNotFoundException{
+	public Data(String fileName)throws FileNotFoundException{
 		  File inFile = new File (fileName);
 		  Scanner sc = new Scanner (inFile);
 	      String line = sc.nextLine();
@@ -88,7 +90,7 @@ public class Data {
 	 * Restituisce il numero di esempi caricati nel dataset.
 	 * @return Numero di righe della matrice {@code data}
 	 */
-	int getNumberOfExamples() {
+	public int getNumberOfExamples() {
 		return numberOfExamples;
 	}
 
@@ -96,7 +98,7 @@ public class Data {
 	 * Restituisce il numero di attributi esplicativi.
 	 * @return Lunghezza dell'array {@code explanatorySet}
 	 */
-	int getNumberOfExplanatoryAttributes() {
+	public int getNumberOfExplanatoryAttributes() {
 		return explanatorySet.length;
 	}
 
@@ -106,7 +108,7 @@ public class Data {
 	 * @return Il valore continuo della classe per l'esempio indicato.
 	 *
 	 */
-	Double getClassValue(int exampleIndex) {
+	public Double getClassValue(int exampleIndex) {
 		return (Double)data[exampleIndex][explanatorySet.length];
 	}
 
@@ -116,7 +118,7 @@ public class Data {
 	 * @param attributeIndex Indice dell'attributo esplicativo nella tabella.
 	 * @return L'oggetto rappresentante il valore cercato
 	 */
-	Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
+	public Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
 		return data[exampleIndex][attributeIndex];
 	}
 
@@ -126,7 +128,7 @@ public class Data {
 	 * @return L'oggetto {@link Attribute} richiesto.
 	 *
 	 */
-	Attribute getExplanatoryAttribute(int index) {
+	public Attribute getExplanatoryAttribute(int index) {
 		return explanatorySet[index];
 	}
 
@@ -159,7 +161,7 @@ public class Data {
 	 * @param beginExampleIndex Indice iniziale dell'intervallo di righe.
 	 * @param endExampleIndex Indice finale dell'intervallo di righe.
 	 */
-	void sort(Attribute attribute, int beginExampleIndex, int endExampleIndex){
+	public void sort(Attribute attribute, int beginExampleIndex, int endExampleIndex){
 			quicksort(attribute, beginExampleIndex, endExampleIndex);
 	}
 

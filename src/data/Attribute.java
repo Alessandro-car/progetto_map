@@ -1,7 +1,9 @@
+package data;
+
 /**
  * La classe {@code Attribute} modella un generico attributo <b>continuo</b> o <b>discreto</b>
  */
-abstract class Attribute {
+public abstract class Attribute {
 	/**
 	* Nome simbolico dell'attributo
 	*/
@@ -35,7 +37,14 @@ abstract class Attribute {
 	 * Restituisce il valore del membro {@code index}
 	 * @return Identificativo numerico dell'attributo
 	*/
-	int getIndex() {
+	public int getIndex() {
 		return this.index;
+	}
+
+	/**
+	 * @return Rappresentazione testaule completa di un generico attributo
+	 **/
+	public String toString() {
+		return this.name;
 	}
 }

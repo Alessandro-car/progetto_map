@@ -1,10 +1,14 @@
+package tree;
+
+import data.Data;
+import data.DiscreteAttribute;
 /**
  * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
  * <p>
  * Implementa le fasi di apprendimento dell'albero attraverso il metodo {@link #learnTree}
  * e fornisce funzionalità per la stampa della struttura e delle regole indotte.
  */
-class RegressionTree {
+public class RegressionTree {
 	/** Il nodo radice dell'albero (o del sotto-albero corrente). */
 	private Node root;
 	/** Array di sotto-alberi figli, uno per ogni ramo dello split. */
@@ -23,7 +27,7 @@ class RegressionTree {
 	 * della dimensione del dataset.
 	 * * @param trainingSet Il dataset di addestramento completo.
 	 */
-	RegressionTree(Data trainingSet) {
+	public RegressionTree(Data trainingSet) {
 		learnTree(trainingSet, 0, trainingSet.getNumberOfExamples() - 1,
 				trainingSet.getNumberOfExamples() * 10 / 100);
 	}
@@ -93,7 +97,7 @@ class RegressionTree {
 	/**
 	 * Stampa a console l'intera struttura dell'albero.
 	 */
-	void printTree() {
+	public void printTree() {
 		System.out.println("\n********* TREE **********\n");
 		System.out.println(toString());
 		System.out.println("*************************\n");
@@ -117,14 +121,14 @@ class RegressionTree {
 	/**
 	 * Stampa a console le regole di regressione dedotte dall'albero.
 	 */
-	void printRules() {
+	public void printRules() {
 		System.out.println("********* RULES **********");
 		if (root instanceof LeafNode) {
 			System.out.println("==> Class=" + ((LeafNode) root).getPredictedClassValue());
 		} else {
 			for (int i = 0; i < root.getNumberOfChildren(); i++) {
 				SplitNode splitRoot = (SplitNode) root;
-				String condition = splitRoot.getAttribute().getName()
+				String condition = splitRoot.getAttribute().toString()
 						+ splitRoot.getSplitInfo(i).getComparator()
 						+ splitRoot.getSplitInfo(i).getSplitValue().toString();
 				childTree[i].printRules(condition);
@@ -143,7 +147,7 @@ class RegressionTree {
 		} else {
 			for (int i = 0; i < root.getNumberOfChildren(); i++) {
 				SplitNode splitRoot = (SplitNode) root;
-				String condition = splitRoot.getAttribute().getName()
+				String condition = splitRoot.getAttribute().toString()
 						+ splitRoot.getSplitInfo(i).getComparator()
 						+ splitRoot.getSplitInfo(i).getSplitValue().toString();
 				childTree[i].printRules(current + " AND " + condition);

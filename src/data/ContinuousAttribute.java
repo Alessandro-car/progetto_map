@@ -1,3 +1,5 @@
+package data;
+
 /**
  * La classe {@code ContinuousAttribute} estende la classe {@link Attribute}
  * <p>

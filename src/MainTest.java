@@ -1,3 +1,5 @@
+import data.Data;
+import tree.RegressionTree;
 import java.io.FileNotFoundException;
 
 /**
@@ -23,9 +25,9 @@ class MainTest {
 	 * @throws FileNotFoundException Se il file di input {@code servo.dat} non viene trovato.
 	 */
 	public static void main(String[] args) throws FileNotFoundException{
-		Data trainingSet= new Data("servo.dat");
+		Data trainingSet = new Data("servo.dat");
 
-		RegressionTree tree=new RegressionTree(trainingSet);
+		RegressionTree tree =new RegressionTree(trainingSet);
 
 		tree.printRules();
 

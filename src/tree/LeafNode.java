@@ -1,3 +1,7 @@
+package tree;
+
+import data.Data;
+
 /**
  * La classe {@code LeafNode} modella un nodo terminale dell'albero.
  * Una foglia non effettua ulteriori split e contiene il valore predetto per gli esempi che ricadono nel suo intervallo.

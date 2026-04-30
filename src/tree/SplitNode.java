@@ -1,3 +1,8 @@
+package tree;
+
+import data.Data;
+import data.Attribute;
+
 /**
  * La classe astratta {@code SplitNode} modella un nodo di split nell'albero di decisione.
  * <p>
@@ -163,7 +168,7 @@ abstract class SplitNode extends Node {
 
 	/** @return Rappresentazione testuale completa del nodo di split. */
 	public String toString(){
-		String v= "SPLIT : attribute=" + attribute.getName() +" "+ super.toString()+  " Split Variance: " + getVariance()+ "\n" ;
+		String v= "SPLIT : attribute=" + attribute +" "+ super.toString()+  " Split Variance: " + getVariance()+ "\n" ;
 		for(int i = 0; i < mapSplit.length; i++){
 			v += "\t" + mapSplit[i] + "\n";
 		}

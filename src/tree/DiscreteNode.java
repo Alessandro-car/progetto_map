@@ -1,3 +1,5 @@
+package tree;
+import data.*;
 /**
  * La classe {@code DiscreteNode} modella un nodo di split relativo a un attributo discreto.
  * <p>
@@ -7,7 +9,7 @@
  * La classe {@code DiscreteNode} estende la classe {@code SplitNode}.
  */
 
-class DiscreteNode extends SplitNode {
+public class DiscreteNode extends SplitNode {
 
 		/**
 		 * Invoca il costruttore della superclasse per inizializzare i dati e avviare la generazione delle informazioni di split.

@@ -1,3 +1,7 @@
+package tree;
+
+import data.Data;
+
 /**
  * La classe astratta {@code Node} modella un nodo dell'albero di decisione.
  * Rappresenta un sottoinsieme del dataset individuato da un intervallo di indici.

@@ -1,10 +1,12 @@
+package data;
+
 /**
  * La classe {@code DiscreteAttribute} rappresenta un attributo i cui valori appartengono a un insieme finito di simboli.
  * <p>
  * La classe {@code DiscreteAttribute} estende la classe {@link Attribute}.
  * */
 
-class DiscreteAttribute extends Attribute {
+public class DiscreteAttribute extends Attribute {
 
 	/**
 	 * Array di oggetti, uno per ciascun valore che l'attributo può assumere
