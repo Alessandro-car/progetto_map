@@ -38,14 +38,15 @@ public class Data {
 	 *
 	 * @param fileName Il percorso del file contenente il dataset.
 	 * @throws FileNotFoundException Se il file non viene trovato nel percorso indicato.
-	*  @throws RuntimeException Se il formato dello schema del file non è corretto.
+	*  @throws TrainingDataException Se il formato dello schema del file non è corretto.
 	 */
-	public Data(String fileName)throws FileNotFoundException{
+	public Data(String fileName)throws FileNotFoundException, TrainingDataException{
 		  File inFile = new File (fileName);
 		  Scanner sc = new Scanner (inFile);
 	      String line = sc.nextLine();
+
 	      if(!line.contains("@schema"))
-	    	  throw new RuntimeException("Errore nello schema");
+	    	  throw new TrainingDataException("Lo schema non e' presente nel file: " + fileName);
 	      String s[] = line.split(" ");
 
 		  //popolare explanatory Set
@@ -66,11 +67,16 @@ public class Data {
 	    	  iAttribute++;
 	    	  line = sc.nextLine();
 	      }
+		  if(classAttribute == null){ //verifica su target
+			throw new TrainingDataException("Il training set e' privo di variabili target numerica");
+		  }
 
 		  //avvalorare numero di esempi
 	      //@data 167
 	      numberOfExamples = new Integer(line.split(" ")[1]);
-
+		if (numberOfExamples == 0){
+			throw new TrainingDataException("Il training set e' vuoto");
+		}
 	      //popolare data
 	      data = new Object[numberOfExamples][explanatorySet.length+1];
 	      short iRow = 0;
