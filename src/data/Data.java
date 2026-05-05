@@ -41,56 +41,56 @@ public class Data {
 	*  @throws TrainingDataException Se il formato dello schema del file non è corretto.
 	 */
 	public Data(String fileName)throws FileNotFoundException, TrainingDataException{
-		  File inFile = new File (fileName);
-		  Scanner sc = new Scanner (inFile);
-	      String line = sc.nextLine();
+		File inFile = new File (fileName);
+		Scanner sc = new Scanner (inFile);
+		String line = sc.nextLine();
 
-	      if(!line.contains("@schema"))
-	    	  throw new TrainingDataException("Lo schema non e' presente nel file: " + fileName);
-	      String s[] = line.split(" ");
+		if(!line.contains("@schema"))
+			throw new TrainingDataException("Lo schema non e' presente nel file: " + fileName);
+		String s[] = line.split(" ");
 
-		  //popolare explanatory Set
-	      //@schema 4
-		  explanatorySet = new Attribute[new Integer(s[1])];
-		  short iAttribute = 0;
-	      line = sc.nextLine();
-	      while(!line.contains("@data")){
-	    	  s = line.split(" ");
-	    	  if(s[0].equals("@desc"))
-	    	  { // aggiungo l'attributo allo spazio descrittivo
-		    		//@desc motor discrete A,B,C,D,E
-		    		  String discreteValues[] = s[2].split(",");
-		    		  explanatorySet[iAttribute] = new DiscreteAttribute(s[1], iAttribute, discreteValues);
-		      }
-	    	  else if(s[0].equals("@target"))
-	    			  classAttribute = new ContinuousAttribute(s[1], iAttribute);
-	    	  iAttribute++;
-	    	  line = sc.nextLine();
-	      }
-		  if(classAttribute == null){ //verifica su target
+			//popolare explanatory Set
+				//@schema 4
+		explanatorySet = new Attribute[new Integer(s[1])];
+		short iAttribute = 0;
+		line = sc.nextLine();
+		while(!line.contains("@data")){
+			s = line.split(" ");
+			if(s[0].equals("@desc"))
+			{ // aggiungo l'attributo allo spazio descrittivo
+				//@desc motor discrete A,B,C,D,E
+					String discreteValues[] = s[2].split(",");
+					explanatorySet[iAttribute] = new DiscreteAttribute(s[1], iAttribute, discreteValues);
+			}
+			else if(s[0].equals("@target"))
+					classAttribute = new ContinuousAttribute(s[1], iAttribute);
+			iAttribute++;
+			line = sc.nextLine();
+		}
+		if(classAttribute == null){ //verifica su target
 			throw new TrainingDataException("Il training set e' privo di variabili target numerica");
-		  }
+		}
 
-		  //avvalorare numero di esempi
-	      //@data 167
-	      numberOfExamples = new Integer(line.split(" ")[1]);
+			//avvalorare numero di esempi
+			//@data 167
+		numberOfExamples = new Integer(line.split(" ")[1]);
 		if (numberOfExamples == 0){
 			throw new TrainingDataException("Il training set e' vuoto");
 		}
-	      //popolare data
-	      data = new Object[numberOfExamples][explanatorySet.length+1];
-	      short iRow = 0;
-	      while (sc.hasNextLine())
-	      {
-	    	  line = sc.nextLine();
-	    	  // assumo che attributi siano tutti discreti
-	    	  s = line.split(","); //E,E,5,4, 0.28125095
-	    	  for(short jColumn = 0; jColumn < s.length-1; jColumn++)
-	    		  data[iRow][jColumn] = s[jColumn];
-	    	  data[iRow][s.length-1] = new Double(s[s.length-1]);
-	    	  iRow++;
-	      }
-		    sc.close();
+		//popolare data
+		data = new Object[numberOfExamples][explanatorySet.length+1];
+		short iRow = 0;
+		while (sc.hasNextLine())
+		{
+			line = sc.nextLine();
+			// assumo che attributi siano tutti discreti
+			s = line.split(","); //E,E,5,4, 0.28125095
+			for(short jColumn = 0; jColumn < s.length-1; jColumn++)
+				data[iRow][jColumn] = s[jColumn];
+			data[iRow][s.length-1] = new Double(s[s.length-1]);
+			iRow++;
+		}
+		sc.close();
 	}
 	/**
 	 * Restituisce il numero di esempi caricati nel dataset.

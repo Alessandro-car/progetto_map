@@ -105,7 +105,7 @@ public class RegressionTree {
 	 * @return Ritorna il valore predetto del corrispondente attributo.
 	 *
 	 **/
-	Double predictClass() throws UnknownValueException {
+	public Double predictClass() throws UnknownValueException {
 		if (root instanceof LeafNode) {
 			return ((LeafNode) root).getPredictedClassValue();
 		} else {

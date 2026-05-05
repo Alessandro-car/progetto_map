@@ -1,5 +1,7 @@
 import data.Data;
+import data.TrainingDataException;
 import tree.RegressionTree;
+import tree.UnknownValueException;
 import utility.Keyboard;
 import java.io.FileNotFoundException;
 
@@ -28,21 +30,31 @@ class MainTest {
 	public static void main(String[] args) throws FileNotFoundException{
 		System.out.println("Training set:");
 		String filename = Keyboard.readString();
-		Data trainingSet = new Data(filename);
+		Data trainingSet = null;
+		try {
+			trainingSet = new Data(filename);
+			RegressionTree tree =new RegressionTree(trainingSet);
 
-		RegressionTree tree =new RegressionTree(trainingSet);
+			tree.printRules();
 
-		tree.printRules();
+			tree.printTree();
 
-		tree.printTree();
-
-		char repeat = 'y';
-		while (repeat == 'y') {
-			System.out.println("Starting prediction phase!");
-			tree.predictClass();
-			System.out.println("Would you repeat? (y/n)");
-			repeat = Keyboard.readChar();
+			char repeat = 'y';
+			while (repeat == 'y') {
+				System.out.println("Starting prediction phase!");
+				try {
+					Double prediction = tree.predictClass();
+					System.out.println(prediction);
+				} catch (UnknownValueException e) {
+					System.out.println(e);
+				}
+				System.out.println("Would you repeat? (y/n)");
+				repeat = Keyboard.readChar();
+			}
+		} catch (TrainingDataException e) {
+			System.out.println(e);
+		}	catch (FileNotFoundException e) {
+			System.out.println(e);
 		}
 	}
-
 }

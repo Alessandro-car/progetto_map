@@ -1,7 +1,7 @@
-package src.tree;
+package tree;
 
 public class UnknownValueException extends Exception {
-    UnknownValueException(String message) {
+    public UnknownValueException(String message) {
         super(message);
     }
 }
