@@ -43,52 +43,58 @@ public class Data {
 	 *
 	 * @param fileName Il percorso del file contenente il dataset.
 	 * @throws FileNotFoundException Se il file non viene trovato nel percorso indicato.
-	*  @throws TrainingDataException Se lo schema è mancante, il target è assente o il training set è vuoto
+	*  @throws TrainingDataException Se il formato dello schema del file non è corretto.
 	 */
-	public Data(String fileName)throws FileNotFoundException{
-		  File inFile = new File (fileName);
-		  Scanner sc = new Scanner (inFile);
-	      String line = sc.nextLine();
-	      if(!line.contains("@schema"))
-	    	  throw new RuntimeException("Errore nello schema");
-	      String s[] = line.split(" ");
+	public Data(String fileName) throws TrainingDataException, FileNotFoundException {
+		File inFile = new File (fileName);
+		Scanner sc = new Scanner (inFile);
+		String line = sc.nextLine();
 
-		  //popolare explanatory Set
-	      //@schema 4
-		  short iAttribute = 0;
-	      line = sc.nextLine();
-	      while(!line.contains("@data")){
-	    	  s = line.split(" ");
-	    	  if(s[0].equals("@desc"))
-	    	  { // aggiungo l'attributo allo spazio descrittivo
-		    		//@desc motor discrete A,B,C,D,E
-		    		  Set<String> discreteValues = new TreeSet<>(Arrays.asList(s[2].split(",")));
-		    		  explanatorySet.add(new DiscreteAttribute(s[1], iAttribute, discreteValues));
-		      }
-	    	  else if(s[0].equals("@target"))
-	    			  classAttribute = new ContinuousAttribute(s[1], iAttribute);
-	    	  iAttribute++;
-	    	  line = sc.nextLine();
-	      }
+		if(!line.contains("@schema"))
+			throw new TrainingDataException("Lo schema non e' presente nel file: " + fileName);
+		String s[] = line.split(" ");
 
-		  //avvalorare numero di esempi
-	      //@data 167
-	      numberOfExamples = new Integer(line.split(" ")[1]);
+			//popolare explanatory Set
+				//@schema 4
+		short iAttribute = 0;
+		line = sc.nextLine();
+		while(!line.contains("@data")){
+			s = line.split(" ");
+			if(s[0].equals("@desc"))
+			{ // aggiungo l'attributo allo spazio descrittivo
+				//@desc motor discrete A,B,C,D,E
+					Set<String> discreteValues = new TreeSet<>(Arrays.asList(s[2].split(",")));
+					explanatorySet.add(new DiscreteAttribute(s[1], iAttribute, discreteValues));
+			}
+			else if(s[0].equals("@target"))
+					classAttribute = new ContinuousAttribute(s[1], iAttribute);
+			iAttribute++;
+			line = sc.nextLine();
+		}
+		if(classAttribute == null){ //verifica su target
+			throw new TrainingDataException("Il training set e' privo di variabili target numerica");
+		}
 
-	      //popolare data
-	      data = new Object[numberOfExamples][explanatorySet.size()+1];
-	      short iRow = 0;
-	      while (sc.hasNextLine())
-	      {
-	    	  line = sc.nextLine();
-	    	  // assumo che attributi siano tutti discreti
-	    	  s = line.split(","); //E,E,5,4, 0.28125095
-	    	  for(short jColumn = 0; jColumn < s.length-1; jColumn++)
-	    		  data[iRow][jColumn] = s[jColumn];
-	    	  data[iRow][s.length-1] = new Double(s[s.length-1]);
-	    	  iRow++;
-	      }
-		    sc.close();
+			//avvalorare numero di esempi
+			//@data 167
+		numberOfExamples = new Integer(line.split(" ")[1]);
+		if (numberOfExamples == 0){
+			throw new TrainingDataException("Il training set e' vuoto");
+		}
+		//popolare data
+		data = new Object[numberOfExamples][explanatorySet.size()+1];
+		short iRow = 0;
+		while (sc.hasNextLine())
+		{
+			line = sc.nextLine();
+			// assumo che attributi siano tutti discreti
+			s = line.split(","); //E,E,5,4, 0.28125095
+			for(short jColumn = 0; jColumn < s.length-1; jColumn++)
+				data[iRow][jColumn] = s[jColumn];
+			data[iRow][s.length-1] = new Double(s[s.length-1]);
+			iRow++;
+		}
+		sc.close();
 	}
 	/**
 	 * Restituisce il numero di esempi caricati nel dataset.
