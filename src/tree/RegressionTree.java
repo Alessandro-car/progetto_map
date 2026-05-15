@@ -2,6 +2,8 @@ package tree;
 
 import data.Data;
 import data.DiscreteAttribute;
+import utility.Keyboard;
+import java.util.TreeSet;
 
 /**
  * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
@@ -26,7 +28,7 @@ public class RegressionTree {
 	 * <p>
 	 * Calcola automaticamente un numero minimo di esempi per foglia pari al 10%
 	 * della dimensione del dataset.
-	 * * @param trainingSet Il dataset di addestramento completo.
+	 * @param trainingSet Il dataset di addestramento completo.
 	 */
 	public RegressionTree(Data trainingSet) {
 		learnTree(trainingSet, 0, trainingSet.getNumberOfExamples() - 1,
@@ -47,20 +49,22 @@ public class RegressionTree {
 
 	/**
 	 * Analizza tutti gli attributi esplicativi e seleziona quello che genera
-	 * lo split con la varianza minore.
+	 * lo split con la varianza minore, usando un {@link TreeSet} per ordinare
+	 * automaticamente i nodi rispetto alla {@code splitVariance}.
 	 * @param trainingSet Il dataset di addestramento.
 	 * @param begin       Indice iniziale dell'intervallo.
 	 * @param end         Indice finale dell'intervallo.
-	 * @return Il miglior {@link SplitNode} trovato.
+	 * @return Il miglior {@link SplitNode} trovato (quello con splitVariance minima).
 	 */
 	private SplitNode determineBestSplitNode(Data trainingSet, int begin, int end) {
-		DiscreteNode bestNode = null;
+		TreeSet<SplitNode> ts = new TreeSet<SplitNode>();
 		for (int i = 0; i < trainingSet.getNumberOfExplanatoryAttributes(); i++) {
-			DiscreteNode currentNode = new DiscreteNode(trainingSet, begin, end, (DiscreteAttribute) trainingSet.getExplanatoryAttribute(i));
-			if (bestNode == null || currentNode.getVariance() < bestNode.getVariance()) {
-				bestNode = currentNode;
-			}
+			DiscreteNode currentNode = new DiscreteNode(trainingSet, begin, end,
+					(DiscreteAttribute) trainingSet.getExplanatoryAttribute(i));
+			ts.add(currentNode);
 		}
+		// Il TreeSet ordina per splitVariance crescente: il primo elemento è il nodo migliore
+		SplitNode bestNode = ts.first();
 		trainingSet.sort(bestNode.getAttribute(), begin, end);
 		return bestNode;
 	}
@@ -96,6 +100,29 @@ public class RegressionTree {
 	}
 
 	/**
+	 * Visualizza le informazioni di ciascuno split dell'albero
+	 * e per il corrispondente attributo acquisisce il valore dell'esempio da predire da tastiera.
+	 * <p>
+	 * Il metodo solleva l'eccezione {@code UnknownValueException} qualora la risposta dell'utente non permetta di
+	 * selezionare un ramo valido del nodo di split.
+	 * @return Ritorna il valore predetto del corrispondente attributo.
+	 */
+	public Double predictClass() throws UnknownValueException {
+		if (root instanceof LeafNode) {
+			return ((LeafNode) root).getPredictedClassValue();
+		} else {
+			int risp;
+			System.out.println(((SplitNode) root).formulateQuery());
+			risp = Keyboard.readInt();
+			if (risp == -1 || risp >= root.getNumberOfChildren()) {
+				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
+			} else {
+				return childTree[risp].predictClass();
+			}
+		}
+	}
+
+	/**
 	 * Stampa a console l'intera struttura dell'albero.
 	 */
 	public void printTree() {
@@ -105,16 +132,13 @@ public class RegressionTree {
 	}
 
 	/** @return Una rappresentazione testuale del nodo radice dell'albero */
-	public String toString(){
-		String tree=root.toString()+"\n";
+	public String toString() {
+		String tree = root.toString() + "\n";
+		if (root instanceof LeafNode) {
 
-		if( root instanceof LeafNode){
-
-		}
-		else //split node
-		{
-			for(int i=0;i<childTree.length;i++)
-				tree +=childTree[i];
+		} else {
+			for (int i = 0; i < childTree.length; i++)
+				tree += childTree[i];
 		}
 		return tree;
 	}
