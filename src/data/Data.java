@@ -38,7 +38,7 @@ public class Data {
 	 *
 	 * @param fileName Il percorso del file contenente il dataset.
 	 * @throws FileNotFoundException Se il file non viene trovato nel percorso indicato.
-	*  @throws TrainingDataException Se il formato dello schema del file non è corretto.
+	*  @throws TrainingDataException Se lo schema è mancante, il target è assente o il training set è vuoto
 	 */
 	public Data(String fileName)throws FileNotFoundException, TrainingDataException{
 		File inFile = new File (fileName);
