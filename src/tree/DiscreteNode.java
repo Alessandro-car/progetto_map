@@ -1,5 +1,6 @@
 package tree;
 import data.*;
+import java.util.ArrayList;
 /**
  * La classe {@code DiscreteNode} modella un nodo di split relativo a un attributo discreto.
  * <p>
@@ -43,7 +44,7 @@ public class DiscreteNode extends SplitNode {
             }
         }
 
-        mapSplit = new SplitInfo[numberOfDistinctValues];
+        mapSplit = new ArrayList<SplitInfo>(numberOfDistinctValues);
 
         int splitIndex = 0;
         int partitionBegin = beginExampleIndex;
@@ -53,23 +54,29 @@ public class DiscreteNode extends SplitNode {
             Object val = trainingSet.getExplanatoryValue(i, attribute.getIndex());
 
             if (!val.equals(currentGroupValue)) {
-                mapSplit[splitIndex] = new SplitInfo(
-                        currentGroupValue,
-                        partitionBegin,
-                        i - 1,
-                        splitIndex
-
-                );
+								mapSplit.add(
+									splitIndex,
+									new SplitInfo(
+										currentGroupValue,
+										partitionBegin,
+										i - 1,
+										splitIndex
+									)
+								);
                 splitIndex++;
                 partitionBegin = i;
                 currentGroupValue = val;
             }
         }
-        mapSplit[splitIndex] =  new SplitInfo(
-                        currentGroupValue,
-                        partitionBegin,
-                        endExampleIndex,
-                        splitIndex);
+				mapSplit.add(
+					splitIndex,
+					new SplitInfo(
+						currentGroupValue,
+						partitionBegin,
+						endExampleIndex,
+						splitIndex
+					)
+				);
     }
 
 		/**
