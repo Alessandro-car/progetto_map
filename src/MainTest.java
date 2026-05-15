@@ -3,7 +3,6 @@ import data.TrainingDataException;
 import tree.RegressionTree;
 import tree.UnknownValueException;
 import utility.Keyboard;
-import java.io.FileNotFoundException;
 
 /**
  * Classe principale del programma per il test delle funzionalità di apprendimento.
@@ -27,7 +26,7 @@ class MainTest {
 	 * @param args Argomenti della riga di comando (non utilizzati).
 	 * @throws FileNotFoundException Se il file di input {@code servo.dat} non viene trovato.
 	 */
-	public static void main(String[] args) throws FileNotFoundException{
+	public static void main(String[] args) {
 		System.out.println("Training set:");
 		String filename = Keyboard.readString();
 		Data trainingSet = null;
@@ -52,8 +51,6 @@ class MainTest {
 				repeat = Keyboard.readChar();
 			}
 		} catch (TrainingDataException e) {
-			System.out.println(e);
-		}	catch (FileNotFoundException e) {
 			System.out.println(e);
 		}
 	}

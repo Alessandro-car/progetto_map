@@ -42,12 +42,17 @@ public class Data {
 	 * Il file deve seguire un formato specifico con sezioni {@code @schema}, {@code @desc}/{@code @target} e {@code @data}.
 	 *
 	 * @param fileName Il percorso del file contenente il dataset.
-	 * @throws FileNotFoundException Se il file non viene trovato nel percorso indicato.
 	*  @throws TrainingDataException Se il formato dello schema del file non è corretto.
 	 */
-	public Data(String fileName) throws TrainingDataException, FileNotFoundException {
+	public Data(String fileName) throws TrainingDataException {
 		File inFile = new File (fileName);
-		Scanner sc = new Scanner (inFile);
+		Scanner sc;
+		try {
+			sc = new Scanner (inFile);
+		} catch (FileNotFoundException e) {
+			throw new TrainingDataException(e.toString());
+		}
+
 		String line = sc.nextLine();
 
 		if(!line.contains("@schema"))
