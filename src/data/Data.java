@@ -68,7 +68,7 @@ public class Data {
 			if(s[0].equals("@desc"))
 			{ // aggiungo l'attributo allo spazio descrittivo
 				//@desc motor discrete A,B,C,D,E
-					if (s.length < 2) {
+					if (s.length == 2) {
 						explanatorySet.add(new ContinuousAttribute(s[1], iAttribute));
 					} else {
 						Set<String> discreteValues = new TreeSet<>(Arrays.asList(s[2].split(",")));
