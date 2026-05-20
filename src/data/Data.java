@@ -68,8 +68,19 @@ public class Data {
 			if(s[0].equals("@desc"))
 			{ // aggiungo l'attributo allo spazio descrittivo
 				//@desc motor discrete A,B,C,D,E
-					Set<String> discreteValues = new TreeSet<>(Arrays.asList(s[2].split(",")));
-					explanatorySet.add(new DiscreteAttribute(s[1], iAttribute, discreteValues));
+
+					Object firstValue;
+					try {
+						firstValue = Double.parseDouble(s[2].split(",")[0]);
+					} catch (NumberFormatException e) {
+						firstValue = s[2].split(",")[0];
+					}
+					if (firstValue instanceof Double) {
+						explanatorySet.add(new ContinuousAttribute(s[1], iAttribute));
+					} else {
+						Set<String> discreteValues = new TreeSet<>(Arrays.asList(s[2].split(",")));
+						explanatorySet.add(new DiscreteAttribute(s[1], iAttribute, discreteValues));
+					}
 			}
 			else if(s[0].equals("@target"))
 					classAttribute = new ContinuousAttribute(s[1], iAttribute);
@@ -92,10 +103,12 @@ public class Data {
 		while (sc.hasNextLine())
 		{
 			line = sc.nextLine();
-			// assumo che attributi siano tutti discreti
 			s = line.split(","); //E,E,5,4, 0.28125095
 			for(short jColumn = 0; jColumn < s.length-1; jColumn++)
-				data[iRow][jColumn] = s[jColumn];
+				if (explanatorySet.get(jColumn) instanceof ContinuousAttribute)
+					data[iRow][jColumn] = Double.parseDouble(s[jColumn]);
+				else
+					data[iRow][jColumn] = s[jColumn];
 			data[iRow][s.length-1] = new Double(s[s.length-1]);
 			iRow++;
 		}
@@ -227,6 +240,37 @@ public class Data {
 	}
 
 	/**
+	 * Partiziona il vettore rispetto all'elemento x e restituisce il punto di separazione
+	 * @param attribute Attributo di tipi {@link ContinuousAttribute} usato per il confronto.
+	 * @param inf Indice inferiore dell'intervallo
+	 * @param sup Indice superiore dell'intervallo.
+	 * @return Il punto di separazione.
+	 */
+
+	private int partition(ContinuousAttribute attribute, int inf, int sup) {
+		int i, j;
+		i = inf;
+		j = sup;
+		int med = (inf + sup) / 2;
+		Double x = (Double)getExplanatoryValue(med, attribute.getIndex());
+		swap(inf, med);
+		while (true) {
+			while (i <= sup && ((Double)getExplanatoryValue(i, attribute.getIndex())).compareTo(x) <= 0) {
+				i++;
+			}
+			while (((Double)getExplanatoryValue(j, attribute.getIndex())).compareTo(x) > 0) {
+				j--;
+			}
+			if (i < j) {
+				swap(i, j);
+			}
+			else break;
+		}
+		swap(inf, j);
+		return j;
+	}
+
+	/**
 	 * Algoritmo quicksort per l'ordinamento di un array di interi A
 	 * usando come relazione d'ordine totale &le;.
 	 * @param attribute Attributo su cui ordinare.
@@ -236,15 +280,18 @@ public class Data {
 	private void quicksort(Attribute attribute, int inf, int sup){
 		if(sup >= inf){
 			int pos;
-			pos = partition((DiscreteAttribute)attribute, inf, sup);
-			if ((pos-inf) < (sup-pos+1)) {
-				quicksort(attribute, inf, pos-1);
-				quicksort(attribute, pos+1,sup);
+			if (attribute instanceof DiscreteAttribute)
+				pos = partition((DiscreteAttribute)attribute, inf, sup);
+			else
+				pos = partition((ContinuousAttribute)attribute, inf, sup);
+			if ((pos - inf) < (sup - pos + 1)) {
+				quicksort(attribute, inf, pos - 1);
+				quicksort(attribute, pos + 1, sup);
 			}
 			else
 			{
-				quicksort(attribute, pos+1, sup);
-				quicksort(attribute, inf, pos-1);
+				quicksort(attribute, pos + 1, sup);
+				quicksort(attribute, inf, pos - 1);
 			}
 		}
 	}
