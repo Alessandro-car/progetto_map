@@ -1,12 +1,14 @@
 package tree;
 
+import java.io.Serializable;
+
 import data.Data;
 
 /**
  * La classe astratta {@code Node} modella un nodo dell'albero di decisione.
  * Rappresenta un sottoinsieme del dataset individuato da un intervallo di indici.
  */
-abstract class Node {
+abstract class Node implements Serializable {
 	/**
 	 * Contatore statico per generare identificativi univoci per i nodi.
 	 */

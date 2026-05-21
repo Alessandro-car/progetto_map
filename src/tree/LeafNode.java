@@ -1,5 +1,7 @@
 package tree;
 
+import java.io.Serializable;
+
 import data.Data;
 
 /**
@@ -9,7 +11,7 @@ import data.Data;
  * Estende la classe {@link Node}
  **/
 
-class LeafNode extends Node {
+class LeafNode extends Node implements Serializable {
 		/** Valore della classe predetto dal nodo. */
     private Double predictedClassValue;
 

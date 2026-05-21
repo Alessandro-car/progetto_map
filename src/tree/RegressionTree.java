@@ -5,7 +5,16 @@ import data.ContinuousAttribute;
 import data.Data;
 import data.DiscreteAttribute;
 import utility.Keyboard;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.TreeSet;
+import java.io.Serializable;
 
 /**
  * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
@@ -13,7 +22,7 @@ import java.util.TreeSet;
  * Implementa le fasi di apprendimento dell'albero attraverso il metodo {@link #learnTree}
  * e fornisce funzionalità per la stampa della struttura e delle regole indotte.
  */
-public class RegressionTree {
+public class RegressionTree implements Serializable {
 	/** Il nodo radice dell'albero (o del sotto-albero corrente). */
 	private Node root;
 	/** Array di sotto-alberi figli, uno per ogni ramo dello split. */
@@ -186,6 +195,44 @@ public class RegressionTree {
 						+ splitRoot.getSplitInfo(i).getSplitValue().toString();
 				childTree[i].printRules(current + " AND " + condition);
 			}
+		}
+	}
+
+	/**
+	 * Serializza l'albero di regressione in un file.
+	 * @param nomeFile Nome del file in cui salvare l'albero.
+	 * @throws FileNotFoundException Se il file non può essere caricato
+	 * @throws IOException Se si verifica un errore durante la scrittura
+	 */
+	public void salva(String nomeFile) throws FileNotFoundException, IOException {
+		ObjectOutputStream oos = null;
+		try {
+			oos = new ObjectOutputStream(new FileOutputStream(nomeFile));
+			oos.writeObject(root);
+			oos.writeObject(childTree);
+		} finally {
+			if (oos != null) oos.close();
+		}
+	}
+
+	/**
+	 * Carica un albero di regressione precedentemente salvato da un file.
+	 * @param nomeFile Nome del file da cui caricare l'albero
+	 * @return L'albero di regressione contenuto nel file
+	 * @throws FileNotFoundException Se il file non esiste
+	 * @throws IOException Se si verifica un errore durante la lettura
+	 * @throws ClassNotFoundException Se la classe dell'oggetto non viene trovata
+	 */
+	public static RegressionTree carica(String nomeFile) throws FileNotFoundException, IOException, ClassNotFoundException {
+		ObjectInputStream ois = null;
+		try {
+			ois = new ObjectInputStream(new FileInputStream(nomeFile));
+			RegressionTree tree = new RegressionTree();
+			tree.root = (Node) ois.readObject();
+			tree.childTree = (RegressionTree[]) ois.readObject();
+			return tree;
+		} finally {
+			if (ois != null) ois.close();
 		}
 	}
 }

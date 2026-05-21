@@ -3,6 +3,7 @@ package tree;
 import data.Data;
 import data.Attribute;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 	 * Mantiene traccia del valore di split, dell'intervallo di indici nel dataset
 	 * e dell'operatore di confronto.
 	 */
-	class SplitInfo{
+	class SplitInfo implements Serializable {
 		/** Valore dell'attributo che definisce il ramo. */
 		Object splitValue;
 		/** Indice iniziale del dataset per questo ramo. */
