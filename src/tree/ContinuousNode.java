@@ -1,5 +1,6 @@
 package tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,17 +10,17 @@ import data.Data;
 
 
 
-public class ContinuousNode extends SplitNode{
+public class ContinuousNode extends SplitNode implements Serializable{
 
 	public ContinuousNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, ContinuousAttribute attribute) {
 		super(trainingSet, beginExampleIndex, endExampleIndex, attribute); }
-		
+
 	void setSplitInfo(Data trainingSet,int beginExampleIndex, int endExampleIndex, Attribute attribute){
 			//Update mapSplit defined in SplitNode -- contiene gli indici del partizionamento
 		Double currentSplitValue= (Double)trainingSet.getExplanatoryValue(beginExampleIndex,attribute.getIndex());
 		double bestInfoVariance=0;
 		List <SplitInfo> bestMapSplit=null;
-			
+
 		for(int i=beginExampleIndex+1;i<=endExampleIndex;i++){
 			Double value=(Double)trainingSet.getExplanatoryValue(i,attribute.getIndex());
 			if(value.doubleValue()!=currentSplitValue.doubleValue()){
@@ -35,8 +36,8 @@ public class ContinuousNode extends SplitNode{
 					bestMapSplit.add(new SplitInfo(currentSplitValue, i, endExampleIndex,1,">"));
 					bestInfoVariance=candidateSplitVariance;
 				}
-				else{		
-											
+				else{
+
 					if(candidateSplitVariance<bestInfoVariance){
 						bestInfoVariance=candidateSplitVariance;
 						bestMapSplit.set(0, new SplitInfo(currentSplitValue, beginExampleIndex, i-1,0,"<="));
@@ -48,7 +49,7 @@ public class ContinuousNode extends SplitNode{
 		}
 		mapSplit=bestMapSplit;
 			//rimuovo split inutili (che includono tutti gli esempi nella stessa partizione)
-			
+
 		if((mapSplit.get(1).beginIndex==mapSplit.get(1).getEndIndex())){
 			mapSplit.remove(1);
 		}

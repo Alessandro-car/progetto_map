@@ -1,9 +1,11 @@
 package data;
 
+import java.io.Serializable;
+
 /**
  * La classe {@code Attribute} modella un generico attributo <b>continuo</b> o <b>discreto</b>
  */
-public abstract class Attribute {
+public abstract class Attribute implements Serializable {
 	/**
 	* Nome simbolico dell'attributo
 	*/

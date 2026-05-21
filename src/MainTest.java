@@ -1,3 +1,6 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import data.Data;
 import data.TrainingDataException;
 import tree.RegressionTree;
@@ -27,31 +30,55 @@ class MainTest {
 	 * @throws FileNotFoundException Se il file di input {@code servo.dat} non viene trovato.
 	 */
 	public static void main(String[] args) {
-		System.out.println("Training set:");
-		String filename = Keyboard.readString();
-		Data trainingSet = null;
-		try {
-			trainingSet = new Data(filename);
-			RegressionTree tree =new RegressionTree(trainingSet);
+		int decision = 0;
+		do {
+			System.out.println("Learn Regression Tree from data [1]");
+			System.out.println("Load Regression Tree from archive [2]");
+			decision = Keyboard.readInt();
+		} while (!(decision == 1) && !(decision == 2));
 
+		String traningFileName = "";
+		System.out.println("File name: ");
+		traningFileName = Keyboard.readString();
+
+		RegressionTree tree = null;
+		if (decision == 1) {
+			System.out.println("Starting data acquisition phase!");
+			Data trainingSet = null;
+			try {
+				trainingSet = new Data(traningFileName + ".dat");
+			} catch (TrainingDataException e) {
+				System.out.println(e);
+				return;
+			}
+
+			System.out.println("Starting learning phase!");
+			tree = new RegressionTree(trainingSet);
+			try {
+				tree.salva(traningFileName + ".dmp");
+			} catch (IOException e) {
+				System.out.println(e.toString());
+			}
+		} else {
+			try {
+				tree = RegressionTree.carica(traningFileName + ".dmp");
+			} catch (ClassNotFoundException | IOException e) {
+				System.out.print(e);
+				return;
+			}
 			tree.printRules();
 
-			tree.printTree();
-
-			char repeat = 'y';
-			while (repeat == 'y') {
+			char risp = 'y';
+			do {
 				System.out.println("Starting prediction phase!");
 				try {
-					Double prediction = tree.predictClass();
-					System.out.println(prediction);
+					System.out.println(tree.predictClass());
 				} catch (UnknownValueException e) {
 					System.out.println(e);
 				}
 				System.out.println("Would you repeat? (y/n)");
-				repeat = Keyboard.readChar();
-			}
-		} catch (TrainingDataException e) {
-			System.out.println(e);
+				risp = Keyboard.readChar();
+			} while (Character.toUpperCase(risp) == 'Y');
 		}
 	}
 }
