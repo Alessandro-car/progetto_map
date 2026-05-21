@@ -1,5 +1,7 @@
 package tree;
 
+import data.Attribute;
+import data.ContinuousAttribute;
 import data.Data;
 import data.DiscreteAttribute;
 import utility.Keyboard;
@@ -51,6 +53,8 @@ public class RegressionTree {
 	 * Analizza tutti gli attributi esplicativi e seleziona quello che genera
 	 * lo split con la varianza minore, usando un {@link TreeSet} per ordinare
 	 * automaticamente i nodi rispetto alla {@code splitVariance}.
+	 * Usa l'RTTI (instanceof) per distinguere attributi discreti da continui
+	 * e istanziare il nodo di split corretto.
 	 * @param trainingSet Il dataset di addestramento.
 	 * @param begin       Indice iniziale dell'intervallo.
 	 * @param end         Indice finale dell'intervallo.
@@ -59,8 +63,13 @@ public class RegressionTree {
 	private SplitNode determineBestSplitNode(Data trainingSet, int begin, int end) {
 		TreeSet<SplitNode> ts = new TreeSet<SplitNode>();
 		for (int i = 0; i < trainingSet.getNumberOfExplanatoryAttributes(); i++) {
-			DiscreteNode currentNode = new DiscreteNode(trainingSet, begin, end,
-					(DiscreteAttribute) trainingSet.getExplanatoryAttribute(i));
+			Attribute a = trainingSet.getExplanatoryAttribute(i);
+			SplitNode currentNode;
+			if (a instanceof DiscreteAttribute) {
+				currentNode = new DiscreteNode(trainingSet, begin, end, (DiscreteAttribute) a);
+			} else {
+				currentNode = new ContinuousNode(trainingSet, begin, end, (ContinuousAttribute) a);
+			}
 			ts.add(currentNode);
 		}
 		// Il TreeSet ordina per splitVariance crescente: il primo elemento è il nodo migliore
