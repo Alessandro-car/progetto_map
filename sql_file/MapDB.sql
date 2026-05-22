@@ -29,7 +29,7 @@ insert into MapDB.provaC values('B',14,10);
 insert into MapDB.provaC values('A',1,1);
 
 
-CREATE TABLE IF NOT EXISTS MapDB.servoD(
+CREATE TABLE IF NOT EXISTS MapDB.servo(
     motor varchar(10),
     screw varchar(10),
     pgain varchar(10),
