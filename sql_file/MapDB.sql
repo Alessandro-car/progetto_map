@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS MapDB.servoD(
     screw varchar(10),
     pgain varchar(10),
     vgain varchar(10),
-    class float(5,2)
+    class float(5,10)
 );
 
 INSERT INTO MapDB.servoD VALUES('E','E','5','4',0.28125095);
