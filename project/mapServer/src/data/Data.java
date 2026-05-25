@@ -57,7 +57,7 @@ public class Data {
 	 * @param tableName Nome della tabella nel database da cui caricare i dati.
 	 * @throws TrainingDataException Se si verifica un errore nel caricamento dei dati.
 	 */
-	public Data(String tableName) throws TrainingDataException {
+	public Data(String tableName) throws TrainingDataException, SQLException {
 		DbAccess db = new DbAccess();
 		try {
 			db.initConnection();

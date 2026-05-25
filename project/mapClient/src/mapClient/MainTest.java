@@ -1,4 +1,4 @@
-package map7Client;
+package mapClient;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,27 +52,30 @@ public class MainTest {
 		}while(!(decision==1) && !(decision ==2));
 
 		String tableName="";
-		System.out.println("File name:");
-		tableName=Keyboard.readString();
 		try{
 
 		if(decision==1)
 		{
-			System.out.println("Starting data acquisition phase!");
-
-
-
 			out.writeObject(0);
-			out.writeObject(tableName);
-			answer=in.readObject().toString();
-			if(!answer.equals("OK")){
+			do {
+				System.out.println("Table or file name: ");
+				tableName = Keyboard.readString();
+				out.writeObject(tableName);
+				answer = in.readObject().toString();
+
+				System.out.println(answer);
+				if (!answer.equals("Table found!")) {
+					System.out.println("Wrong table. Try again. \n");
+				}
+			} while (!answer.equals("Table found!"));
+
+			answer = in.readObject().toString();
+			if (!answer.equals("OK")) {
 				System.out.println(answer);
 				return;
 			}
 
-
-
-
+			System.out.println("Starting data acquisition phase!");
 			System.out.println("Starting learning phase!");
 			out.writeObject(1);
 
@@ -81,7 +84,14 @@ public class MainTest {
 		else
 		{
 			out.writeObject(2);
-			out.writeObject(tableName);
+			do {
+				tableName = Keyboard.readString();
+				out.writeObject(tableName);
+				answer = in.readObject().toString();
+				if (!answer.equals("Table found!")) {
+					System.out.println("Wrong table. Try again. \n Table or file name: ");
+				}
+			} while(!answer.equals("Table found!"));
 
 		}
 
@@ -107,6 +117,8 @@ public class MainTest {
 			while(answer.equals("QUERY")){
 				// Formualting query, reading answer
 				answer=in.readObject().toString();
+				if (answer.equals("OK"))
+					break;
 				System.out.println(answer);
 				int path=Keyboard.readInt();
 				out.writeObject(path);
@@ -133,6 +145,12 @@ public class MainTest {
 			System.out.println(e.toString());
 
 		}
-	}
 
+		try {
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+	}
 }

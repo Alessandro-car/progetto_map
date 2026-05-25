@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
 
 import data.*;
 import tree.*;
@@ -92,28 +93,37 @@ class ServerOneClient extends Thread {
 			while(true) {
 				int action = 0;
 				try {
-					action = (Integer)in.readObject();
+					action = (Integer) in.readObject();
 				} catch (IOException | ClassNotFoundException e) {
 					System.err.println("Client disconnected: " + e.toString());
+					break;
 				}
 				switch (action) {
 					case 0:
-						while (true) {
-							try {
-								tableName = in.readObject().toString();
-								trainingSet = new Data(tableName);
-								out.writeObject("Table found!");
-								break;
-							} catch (TrainingDataException e) {
-								out.writeObject("The table " + tableName + " doesn't exists!");
-								System.out.println(e);
-							} catch (ClassNotFoundException | IOException e) {
-								System.out.println("Error reading table name: " + e.toString());
-								break;
+						try {
+							while (true) {
+								try {
+									tableName = in.readObject().toString();
+									trainingSet = new Data(tableName);
+									out.writeObject("Table found!");
+									break;
+								} catch (SQLException e) {
+									out.writeObject("No such table!");
+								} catch (TrainingDataException e) {
+									out.writeObject("No such table!");
+								}
 							}
+						} catch (IOException e) {
+							System.out.println(e);
+						} catch (ClassNotFoundException e) {
+							System.out.println(e);
 						}
 
-						out.writeObject("OK");
+						try {
+							out.writeObject("OK");
+						} catch (IOException e) {
+							System.out.println(e);
+						}
 						break;
 					case 1:
 						tree = new RegressionTree(trainingSet);
@@ -148,7 +158,6 @@ class ServerOneClient extends Thread {
 							out.writeObject("OK");
 							out.writeObject(prediction);
 						} catch (UnknownValueException e) {
-							out.writeObject(e.toString());
 							System.out.println(e);
 						} catch (ClassNotFoundException | IOException e) {
 							System.out.println("I/O error: " + e.toString());
