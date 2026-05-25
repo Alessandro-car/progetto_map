@@ -90,10 +90,10 @@ class ServerOneClient extends Thread {
 		String tableName = "";
 		try {
 			while(true) {
-				int action;
+				int action = 0;
 				try {
-					action = (int) in.readObject();
-				} catch (IOException e) {
+					action = (Integer)in.readObject();
+				} catch (IOException | ClassNotFoundException e) {
 					System.err.println("Client disconnected: " + e.toString());
 				}
 				switch (action) {
@@ -144,11 +144,11 @@ class ServerOneClient extends Thread {
 					case 3:
 						try {
 							out.writeObject("QUERY");
-							Double prediction = tree.predictClass();
+							Double prediction = tree.predictClass(in, out);
 							out.writeObject("OK");
 							out.writeObject(prediction);
 						} catch (UnknownValueException e) {
-							out.writeObject("Error during prediction: " + e.toString());
+							out.writeObject(e.toString());
 							System.out.println(e);
 						} catch (ClassNotFoundException | IOException e) {
 							System.out.println("I/O error: " + e.toString());

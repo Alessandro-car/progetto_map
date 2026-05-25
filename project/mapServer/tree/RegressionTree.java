@@ -3,7 +3,6 @@ package tree;
 import data.*;
 import server.UnknownValueException;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,7 +10,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Scanner;
 import java.util.TreeSet;
+import java.lang.ClassNotFoundException;
 
 /**
  * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
@@ -128,10 +129,48 @@ public class RegressionTree implements Serializable {
 		} else {
 			int risp;
 			System.out.println(((SplitNode) root).formulateQuery());
-			risp = Keyboard.readInt();
+			risp = new Scanner(System.in).nextInt();
 			if (risp == -1 || risp >= root.getNumberOfChildren()) {
 				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 			} else {
+				return childTree[risp].predictClass();
+			}
+		}
+	}
+
+	/**
+	 * Prevede il valore della classe interagendo con un client tramite stream di I/O.
+	 * <p>
+	 * Se il nodo corrente è un nodo foglia ({@code LeafNode}), restituisce direttamente
+	 * il valore predetto della classe. Se invece si tratta di un nodo di divisione
+	 * ({@code SplitNode}), formula una query, la invia sullo stream di output e
+	 * attende una risposta intera dallo stream di input. Utilizza poi tale risposta
+	 * come indice per selezionare il nodo figlio corretto e continuare la navigazione
+	 * dell'albero.
+	 * </p>
+	 *
+	 * @param in  l'{@code ObjectInputStream} da cui leggere la risposta dell'utente
+	 * (deve essere un intero corrispondente al ramo da seguire)
+	 * @param out l'{@code ObjectOutputStream} su cui inviare la query formulata dal nodo
+	 * @return un {@code Double} che rappresenta il valore della classe predetta
+	 * @throws UnknownValueException se l'indice fornito come risposta non è valido
+	 * (es. negativo o maggiore/uguale al numero di nodi figlio)
+	 * @throws ClassNotFoundException se non è possibile trovare la classe dell'oggetto
+	 * letto dallo stream di input
+	 * @throws IOException se si verifica un errore durante le operazioni di lettura o
+	 * scrittura sugli stream
+	*/
+	public Double predictClass(ObjectInputStream in, ObjectOutputStream out) throws UnknownValueException, ClassNotFoundException, IOException {
+		if (root instanceof LeafNode) {
+			return ((LeafNode) root).getPredictedClassValue();
+		} else {
+			int risp;
+			out.writeObject(((SplitNode) root).formulateQuery());
+			risp = (Integer) in.readObject();
+			if (risp == -1 || risp >= root.getNumberOfChildren()) {
+				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
+			} else {
+				out.writeObject("QUERY");
 				return childTree[risp].predictClass();
 			}
 		}

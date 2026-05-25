@@ -9,7 +9,7 @@ import java.net.ServerSocket;
  * Server TCP multi-client che rimane in ascolto su una porta specificata e
  * crea un thread dedicato {@link ServerOneClient} per ogni connessione in entrata.
  */
-class MultiServer {
+public class MultiServer {
 
 	/** Numero di porta su cui il server rimane in ascolto per le connessioni in entrata*/
 	private int PORT = 8080;
