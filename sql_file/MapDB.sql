@@ -13,19 +13,19 @@ CREATE TABLE IF NOT EXISTS MapDB.provaC(
     C float(5,2)
 );
 INSERT INTO MapDB.provaC VALUES ('A', 2, 1);
-insert into MapDB.provaC values('A',2,1); 
-insert into MapDB.provaC values('A',1,1); 
-insert into MapDB.provaC values('A',2,1); 
-insert into MapDB.provaC values('A',5,1.5); 
-insert into MapDB.provaC values('A',5,1.5); 
+insert into MapDB.provaC values('A',2,1);
+insert into MapDB.provaC values('A',1,1);
+insert into MapDB.provaC values('A',2,1);
+insert into MapDB.provaC values('A',5,1.5);
+insert into MapDB.provaC values('A',5,1.5);
 insert into MapDB.provaC values('A',6,1.5);
-insert into MapDB.provaC values('B',6,10); 
-insert into MapDB.provaC values('A',6,1.5); 
-insert into MapDB.provaC values('A',6,1.5); 
-insert into MapDB.provaC values('B',10,10); 
-insert into MapDB.provaC values('B',5,10); 
-insert into MapDB.provaC values('B',12,10); 
-insert into MapDB.provaC values('B',14,10); 
+insert into MapDB.provaC values('B',6,10);
+insert into MapDB.provaC values('A',6,1.5);
+insert into MapDB.provaC values('A',6,1.5);
+insert into MapDB.provaC values('B',10,10);
+insert into MapDB.provaC values('B',5,10);
+insert into MapDB.provaC values('B',12,10);
+insert into MapDB.provaC values('B',14,10);
 insert into MapDB.provaC values('A',1,1);
 
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS MapDB.servo(
     screw varchar(10),
     pgain varchar(10),
     vgain varchar(10),
-    class float(5,10)
+    class float(15,10)
 );
 
 INSERT INTO MapDB.servo VALUES('E','E','5','4',0.28125095);
