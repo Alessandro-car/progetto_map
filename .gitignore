@@ -26,3 +26,10 @@ replay_pid*
 bin/
 *.sh
 
+*.env
+config.properties
+*.settings
+*.gradle
+*.classpath
+*.project
+*.dmp
