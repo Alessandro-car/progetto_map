@@ -63,7 +63,7 @@ public class DbAccess {
      *
      * @return la connessione attiva al database
      */
-    public Connection getConnection() {
+    Connection getConnection() {
         return conn;
     }
 
@@ -75,6 +75,6 @@ public class DbAccess {
      */
     public void closeConnection() throws SQLException {
         conn.close();
-        
+
     }
 }

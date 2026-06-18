@@ -126,6 +126,14 @@ class ServerOneClient extends Thread {
 						}
 						break;
 					case 1:
+						if (trainingSet == null) {
+							try {
+								out.writeObject("No traning data loaded.");
+							} catch (IOException e) {
+								System.out.println(e);
+							}
+							break;
+						}
 						tree = new RegressionTree(trainingSet);
 						try {
 							tree.salva(tableName + ".dmp");
@@ -152,6 +160,14 @@ class ServerOneClient extends Thread {
 						out.writeObject("OK");
 						break;
 					case 3:
+						if (tree == null) {
+							try {
+								out.writeObject("No tree available.");
+							} catch (IOException e) {
+								System.out.println(e);
+							}
+							break;
+						}
 						try {
 							out.writeObject("QUERY");
 							Double prediction = tree.predictClass(in, out);

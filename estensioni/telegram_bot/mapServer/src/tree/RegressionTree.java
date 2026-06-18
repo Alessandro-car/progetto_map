@@ -95,7 +95,7 @@ public class RegressionTree implements Serializable {
 	 * @param end                      Indice finale.
 	 * @param numberOfExamplesPerLeaf  Parametro di arresto per la creazione delle foglie.
 	 */
-	void learnTree(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
+	private void learnTree(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
 		if (isLeaf(trainingSet, begin, end, numberOfExamplesPerLeaf)) {
 			root = new LeafNode(trainingSet, begin, end);
 		} else {

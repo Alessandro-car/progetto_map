@@ -121,8 +121,11 @@ public class Data {
 
 		data = new ArrayList<>(examples);
 		numberOfExamples = data.size();
-
-		db.closeConnection();
+		try {
+			db.closeConnection();
+		} catch (SQLException e) {
+			throw new TrainingDataException(e.toString());
+		}
 	}
 
 	/**
