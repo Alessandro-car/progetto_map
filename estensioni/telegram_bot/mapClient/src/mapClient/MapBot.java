@@ -4,11 +4,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
-import java.util.List;
+import mapClient.Command;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,40 +49,21 @@ public class MapBot extends TelegramLongPollingBot {
         String testo = update.getMessage().getText().trim();
 
         try {
-            // /start resetta tutto
-            if (testo.equals("/start")) {
+            if (testo.equals(Command.START.getCommand())) {
                 resetUtente(chatId);
                 statoUtente.put(chatId, Stato.ATTESA_TABELLA);
-                // apri connessione e avvia subito modalità "learn from data"
                 connessioni.put(chatId, new ServerConnection(host, port));
-                invia(chatId, "Benvenuto nel MAP Regression Bot!\n");
-								SendMessage message = new SendMessage();
-								message.setChatId(chatId);
-								message.setText("Choose an option:");
-								InlineKeyboardButton learn = InlineKeyboardButton.builder().text("Learn").callbackData("next").build();
-								InlineKeyboardButton load = InlineKeyboardButton.builder().text("Load").callbackData("load").build();
-								List<InlineKeyboardButton> row = new ArrayList<>();
-								row.add(learn);
-								row.add(load);
-
-								List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-								keyboard.add(row);
-								InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-								markup.setKeyboard(keyboard);
-								message.setReplyMarkup(markup);
-								try {
-									execute(message);
-								} catch (TelegramApiException e) {
-									throw new RuntimeException(e);
-								}
-                return;
+								String welcomeText = buildInitMessage();
+								invia(chatId, welcomeText);
+								return;
             }
 
             Stato stato = statoUtente.getOrDefault(chatId, Stato.INIZIO);
 
             switch (stato) {
                 case INIZIO:
-                    invia(chatId, "Digita /start per iniziare.");
+
+                    invia(chatId, buildInitMessage());
                     break;
 
                 case ATTESA_TABELLA:
@@ -100,6 +79,24 @@ public class MapBot extends TelegramLongPollingBot {
             resetUtente(chatId);
         }
     }
+
+		private String buildInitMessage() {
+			StringBuilder welcomeMessage = new StringBuilder(
+				"<b>Welcome to the MAP regression bot!</b>\n Select an option from the menu:\n"
+			);
+
+			for (Command cmd : Command.values()) {
+				if (cmd != Command.START && cmd != Command.STOP) {
+					welcomeMessage.append("\u2022\t")
+												.append(cmd.getCommand())
+												.append(" - ")
+												.append(cmd.getDescription())
+												.append("\n");
+				}
+			}
+
+			return welcomeMessage.toString();
+		}
 
     private void gestisciTabella(long chatId, String tableName) throws Exception {
         ServerConnection conn = connessioni.get(chatId);
@@ -174,6 +171,7 @@ public class MapBot extends TelegramLongPollingBot {
 
     private void invia(long chatId, String testo) {
         SendMessage msg = new SendMessage(String.valueOf(chatId), testo);
+				msg.setParseMode("HTML");
         try {
             execute(msg);
         } catch (TelegramApiException e) {
