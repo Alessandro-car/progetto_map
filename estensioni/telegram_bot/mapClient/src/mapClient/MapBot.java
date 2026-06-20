@@ -84,10 +84,11 @@ public class MapBot extends TelegramLongPollingBot {
 									case WAITING_OPTION:
 										if (testo.equals(Command.LEARN.getCommand())) {
 											statoUtente.put(chatId, Stato.ATTESA_TABELLA);
-											gestisciTabella(chatId);
+											gestisciTabella(chatId, true);
 										}
 										else if (testo.equals(Command.LOAD.getCommand())) {
-											//TODO: Handle load case
+											statoUtente.put(chatId, Stato.ATTESA_TABELLA);
+											gestisciTabella(chatId, false);
 										}
 										else if (testo.equals(Command.STOP.getCommand())) {
 											invia(chatId, "Current prediction interrupted!");
@@ -140,9 +141,9 @@ public class MapBot extends TelegramLongPollingBot {
 			return welcomeMessage.toString();
 		}
 
-    private void gestisciTabella(long chatId) throws Exception {
+    private void gestisciTabella(long chatId, Boolean learn) throws Exception {
         ServerConnection conn = connessioni.get(chatId);
-				ArrayList<String> tables = conn.showTables();
+				ArrayList<String> tables = conn.showTables(learn);
 				createTableButtons(chatId, tables);
     }
 
@@ -214,7 +215,7 @@ public class MapBot extends TelegramLongPollingBot {
 
 		private ArrayList<String> getTables(long chatId) throws Exception {
 			ServerConnection conn = connessioni.get(chatId);
-			return conn.showTables();
+			return conn.showTables(true);
 		}
 
 		//TODO: Modificare questo metodo in modo che stampi solo due bottoni a riga

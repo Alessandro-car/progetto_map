@@ -1,6 +1,7 @@
 package server;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -195,7 +196,28 @@ class ServerOneClient extends Thread {
 						} catch (SQLException e) {
 							System.err.println(e);
 						}
+						break;
+					case 5:
+						try {
+							File f = new File(".");
+							String extension = ".dmp";
+							FileFilter filter = new FileFilter() {
+								public boolean accept(File f) {
+									return f.getName().endsWith(extension);
+								}
+							};
+							File[] files = f.listFiles(filter);
+							ArrayList<String> fileNames = new ArrayList();
+							for (int i = 0; i < files.length; i++) {
+								String fileName = files[i].getName().substring(0, files[i].getName().length() - extension.length());
+								fileNames.add(fileName);
+							}
+							out.writeObject(fileNames);
 
+						} catch (Exception e) {
+							System.err.println(e);
+						}
+						break;
 				}
 			}
 		} catch (IOException e) {
