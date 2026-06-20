@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import data.*;
 import tree.*;
+import database.*;
 
 /**
  * Gestisce la comunicazione con un singolo client connesso in un thread dedicato.
@@ -179,6 +182,20 @@ class ServerOneClient extends Thread {
 							System.out.println("I/O error: " + e.toString());
 						}
 						break;
+					case 4:
+						DbAccess db = new DbAccess();
+						try {
+							db.initConnection();
+						} catch (DatabaseConnectionException e) {
+							System.err.println(e);
+						}
+						try {
+							ArrayList<String> tables = db.getListOfTables();
+							out.writeObject(tables);
+						} catch (SQLException e) {
+							System.err.println(e);
+						}
+
 				}
 			}
 		} catch (IOException e) {

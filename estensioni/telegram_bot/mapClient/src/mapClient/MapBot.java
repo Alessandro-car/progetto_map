@@ -4,11 +4,16 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import mapClient.Command;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapBot extends TelegramLongPollingBot {
 
@@ -17,7 +22,7 @@ public class MapBot extends TelegramLongPollingBot {
     private final int port;
 		private final String token;
     // Stato per ogni utente
-    private enum Stato { INIZIO, ATTESA_TABELLA, IN_PREDIZIONE }
+    private enum Stato { INIZIO, WAITING_OPTION, ATTESA_TABELLA, IN_PREDIZIONE }
 
     private final Map<Long, Stato> statoUtente = new HashMap<>();
     private final Map<Long, ServerConnection> connessioni = new HashMap<>();
@@ -43,41 +48,78 @@ public class MapBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (!update.hasMessage() || !update.getMessage().hasText()) return;
+				if (update.hasCallbackQuery()) {
+					String callData = update.getCallbackQuery().getData();
+					long chatId = update.getCallbackQuery().getMessage().getChatId();
+					try {
+						ArrayList<String> tables = getTables(chatId);
+						for (String table : tables) {
+							if (callData.equals(table)) {
+								startLearning(chatId, table);
+								break;
+							}
+						}
+					}
+					catch (Exception e) {
+						System.err.println(e);
+					}
+				} else if (update.hasMessage() && update.getMessage().hasText()) {
+					long chatId = update.getMessage().getChatId();
+					String testo = update.getMessage().getText().trim();
+					try {
+							if (testo.equals(Command.START.getCommand())) {
+									resetUtente(chatId);
+									statoUtente.put(chatId, Stato.WAITING_OPTION);
+									connessioni.put(chatId, new ServerConnection(host, port));
+									String welcomeText = buildInitMessage();
+									invia(chatId, welcomeText);
+									return;
+							}
 
-        long chatId = update.getMessage().getChatId();
-        String testo = update.getMessage().getText().trim();
+							Stato stato = statoUtente.get(chatId);
+							switch (stato) {
+									case INIZIO:
+											invia(chatId, "Type /start to start a new predicition!");
+											break;
+									case WAITING_OPTION:
+										if (testo.equals(Command.LEARN.getCommand())) {
+											statoUtente.put(chatId, Stato.ATTESA_TABELLA);
+											gestisciTabella(chatId);
+										}
+										else if (testo.equals(Command.LOAD.getCommand())) {
+											//TODO: Handle load case
+										}
+										else if (testo.equals(Command.STOP.getCommand())) {
+											invia(chatId, "Current prediction interrupted!");
+											statoUtente.put(chatId, Stato.INIZIO);
+										} else {
+											invia(chatId, "Invalid option!");
+										}
+										break;
 
-        try {
-            if (testo.equals(Command.START.getCommand())) {
-                resetUtente(chatId);
-                statoUtente.put(chatId, Stato.ATTESA_TABELLA);
-                connessioni.put(chatId, new ServerConnection(host, port));
-								String welcomeText = buildInitMessage();
-								invia(chatId, welcomeText);
-								return;
-            }
+									case ATTESA_TABELLA:
+										if (testo.equals(Command.STOP.getCommand())) {
+											invia(chatId, "Current prediction interrupted!");
+											statoUtente.put(chatId, Stato.INIZIO);
+										} else {
+											invia(chatId, "Please select a table from the buttons above!");
+										}
+										break;
 
-            Stato stato = statoUtente.getOrDefault(chatId, Stato.INIZIO);
-
-            switch (stato) {
-                case INIZIO:
-
-                    invia(chatId, buildInitMessage());
-                    break;
-
-                case ATTESA_TABELLA:
-                    gestisciTabella(chatId, testo);
-                    break;
-
-                case IN_PREDIZIONE:
-                    gestisciPredizione(chatId, testo);
-                    break;
-            }
-        } catch (Exception e) {
-            invia(chatId, "Errore: " + e.getMessage());
-            resetUtente(chatId);
-        }
+									case IN_PREDIZIONE:
+											if (testo.equals(Command.STOP.getCommand())) {
+												invia(chatId, "Current prediction interrupted!");
+												statoUtente.put(chatId, Stato.INIZIO);
+												break;
+											}
+											gestisciPredizione(chatId, testo);
+											break;
+							}
+					} catch (Exception e) {
+							invia(chatId, "Errore: " + e.getMessage());
+							resetUtente(chatId);
+					}
+			}
     }
 
 		private String buildInitMessage() {
@@ -98,28 +140,28 @@ public class MapBot extends TelegramLongPollingBot {
 			return welcomeMessage.toString();
 		}
 
-    private void gestisciTabella(long chatId, String tableName) throws Exception {
+    private void gestisciTabella(long chatId) throws Exception {
         ServerConnection conn = connessioni.get(chatId);
-        String risposta = conn.sendTableName(tableName);
-
-        if (!risposta.equals("Table found!")) {
-            invia(chatId, "Tabella non trovata. Riprova:");
-            return;
-        }
-
-        // leggi "OK"
-        conn.readAnswer();
-        invia(chatId, "Tabella trovata! Apprendimento in corso...");
-
-        // avvia apprendimento
-        conn.startLearning();
-        conn.readAnswer(); // "OK"
-
-        // avvia subito la fase di predizione
-        conn.startPrediction();
-        statoUtente.put(chatId, Stato.IN_PREDIZIONE);
-        avanzaPredizione(chatId, true);
+				ArrayList<String> tables = conn.showTables();
+				createTableButtons(chatId, tables);
     }
+
+		private void startLearning(long chatId, String tableName) throws Exception {
+			ServerConnection conn = connessioni.get(chatId);
+			String answer = conn.sendTableName(tableName);
+			if (!answer.equals("Table found!")) {
+				invia(chatId, "Table not found. Retry:");
+				return;
+			}
+
+			conn.readAnswer();
+			invia(chatId, "Table found! Learning in progress...");
+			conn.startLearning();
+			conn.readAnswer();
+			conn.startPrediction();
+			statoUtente.put(chatId, Stato.IN_PREDIZIONE);
+			avanzaPredizione(chatId, true);
+		}
 
     private void gestisciPredizione(long chatId, String testo) throws Exception {
         ServerConnection conn = connessioni.get(chatId);
@@ -156,8 +198,9 @@ public class MapBot extends TelegramLongPollingBot {
             invia(chatId, "Classe predetta: " + pred + "\n\nDigita /start per una nuova predizione.");
             resetUtente(chatId);
         } else {
+						String sanitizedAnswer = answer.replace("<", "&lt;").replace(">", "&gt;");
             // answer contiene la domanda con le opzioni (es. "0:X=A\n1:X=B")
-            invia(chatId, "Scegli un ramo:\n" + answer);
+            invia(chatId, "Scegli un ramo:\n" + sanitizedAnswer);
         }
     }
 
@@ -169,13 +212,44 @@ public class MapBot extends TelegramLongPollingBot {
         statoUtente.remove(chatId);
     }
 
+		private ArrayList<String> getTables(long chatId) throws Exception {
+			ServerConnection conn = connessioni.get(chatId);
+			return conn.showTables();
+		}
+
+		//TODO: Modificare questo metodo in modo che stampi solo due bottoni a riga
+		private void createTableButtons(long chatId, ArrayList<String> names) {
+			SendMessage msg = new SendMessage();
+			msg.setChatId(chatId);
+			msg.setText("Choose a table:");
+			List<InlineKeyboardButton> row = new ArrayList<>();
+			for (String table : names) {
+				InlineKeyboardButton btn = InlineKeyboardButton
+																	.builder()
+																	.text(table)
+																	.callbackData(table)
+																	.build();
+				row.add(btn);
+			}
+			List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+			keyboard.add(row);
+			InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+			markup.setKeyboard(keyboard);
+			msg.setReplyMarkup(markup);
+			try {
+				execute(msg);
+			} catch (TelegramApiException e) {
+				System.err.println(e);
+			}
+		}
+
     private void invia(long chatId, String testo) {
         SendMessage msg = new SendMessage(String.valueOf(chatId), testo);
 				msg.setParseMode("HTML");
         try {
             execute(msg);
         } catch (TelegramApiException e) {
-            System.err.println("Errore invio Telegram: " + e.getMessage());
-        }
-    }
+        	System.err.println("Errore invio Telegram: " + e.getMessage());
+    		}
+		}
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ServerConnection {
     private Socket socket;
@@ -16,8 +18,22 @@ public class ServerConnection {
         in = new ObjectInputStream(socket.getInputStream());
     }
 
+		public ArrayList<String> showTables() throws IOException, ClassNotFoundException {
+			out.writeObject(4);
+
+			ArrayList<String> tables = new ArrayList<>();
+			Object obj = in.readObject();
+			if (obj instanceof Collection<?>) {
+				for (Object item : (Collection<?>) obj) {
+					tables.add(String.valueOf(item));
+				}
+			}
+			return tables;
+		}
+
+		//TODO: Rinominare metodo in learnTree
     public String sendTableName(String tableName) throws IOException, ClassNotFoundException {
-        out.writeObject(0);
+				out.writeObject(0);
         out.writeObject(tableName);
         return in.readObject().toString();
     }
