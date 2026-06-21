@@ -18,6 +18,17 @@ public class ServerConnection {
         in = new ObjectInputStream(socket.getInputStream());
     }
 
+		public ArrayList<String> showBranches() throws IOException, ClassNotFoundException {
+			Object obj = in.readObject();
+			ArrayList<String> branches = new ArrayList<>();
+			if (obj instanceof Collection<?>) {
+				for (Object item : (Collection<?>) obj) {
+					branches.add(String.valueOf(item));
+				}
+			}
+			return branches;
+		}
+
 		public ArrayList<String> showTables(Boolean learn) throws IOException, ClassNotFoundException {
 			if (learn) {
 				out.writeObject(4);

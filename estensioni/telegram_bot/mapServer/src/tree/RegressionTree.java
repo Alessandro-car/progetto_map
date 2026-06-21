@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Scanner;
 import java.util.TreeSet;
+import java.util.ArrayList;
 import java.lang.ClassNotFoundException;
 
 /**
@@ -138,6 +139,17 @@ public class RegressionTree implements Serializable {
 		}
 	}
 
+
+	private ArrayList<String> getArrayOfChildren() {
+		ArrayList<String> childrens = new ArrayList<>();
+		if (!(root instanceof LeafNode)) {
+			for (int i = 0; i < root.getNumberOfChildren(); i++) {
+				childrens.add(String.valueOf(i));
+			}
+		}
+		return childrens;
+	}
+
 	/**
 	 * Prevede il valore della classe interagendo con un client tramite stream di I/O.
 	 * <p>
@@ -166,6 +178,7 @@ public class RegressionTree implements Serializable {
 		} else {
 			int risp = 0;
 			out.writeObject(((SplitNode) root).formulateQuery());
+			out.writeObject(this.getArrayOfChildren());
 			risp = (Integer) in.readObject();
 			if (risp == -1 || risp >= root.getNumberOfChildren()) {
 				out.writeObject("The answer should be an integer between 0 and" + (root.getNumberOfChildren() - 1) + "!");

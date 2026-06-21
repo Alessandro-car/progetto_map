@@ -51,17 +51,21 @@ public class MapBot extends TelegramLongPollingBot {
 				if (update.hasCallbackQuery()) {
 					String callData = update.getCallbackQuery().getData();
 					long chatId = update.getCallbackQuery().getMessage().getChatId();
-					try {
-						ArrayList<String> tables = getTables(chatId);
-						for (String table : tables) {
-							if (callData.equals(table)) {
-								startLearning(chatId, table);
-								break;
-							}
-						}
+					if (!connessioni.containsKey(chatId) || !statoUtente.containsKey(chatId)) {
+						invia(chatId, "Session expired or interrupted. Please type /start to begin a new predicition!");
+						return;
 					}
-					catch (Exception e) {
+					Stato stato = statoUtente.get(chatId);
+					try {
+						if (stato == Stato.ATTESA_TABELLA) {
+							startLearning(chatId, callData);
+						} else if (stato == Stato.IN_PREDIZIONE && callData.matches("\\d+")) {
+							gestisciPredizione(chatId, callData);
+						}
+					} catch (Exception e) {
 						System.err.println(e);
+						invia(chatId, "An error occured during communication. Type /start to restart.");
+						resetUtente(chatId);
 					}
 				} else if (update.hasMessage() && update.getMessage().hasText()) {
 					long chatId = update.getMessage().getChatId();
@@ -77,6 +81,7 @@ public class MapBot extends TelegramLongPollingBot {
 							}
 
 							Stato stato = statoUtente.get(chatId);
+							if (stato == null) stato = Stato.INIZIO;
 							switch (stato) {
 									case INIZIO:
 											invia(chatId, "Type /start to start a new predicition!");
@@ -113,7 +118,6 @@ public class MapBot extends TelegramLongPollingBot {
 												statoUtente.put(chatId, Stato.INIZIO);
 												break;
 											}
-											gestisciPredizione(chatId, testo);
 											break;
 							}
 					} catch (Exception e) {
@@ -144,7 +148,7 @@ public class MapBot extends TelegramLongPollingBot {
     private void gestisciTabella(long chatId, Boolean learn) throws Exception {
         ServerConnection conn = connessioni.get(chatId);
 				ArrayList<String> tables = conn.showTables(learn);
-				createTableButtons(chatId, tables);
+				createButtons(chatId, "Choose a table:", tables);
     }
 
 		private void startLearning(long chatId, String tableName) throws Exception {
@@ -174,7 +178,6 @@ public class MapBot extends TelegramLongPollingBot {
             invia(chatId, "Inserisci un numero valido.");
             return;
         }
-
         conn.sendChoice(scelta);
         avanzaPredizione(chatId, false);
     }
@@ -196,12 +199,14 @@ public class MapBot extends TelegramLongPollingBot {
         if (answer.equals("OK")) {
             // prossimo messaggio = predizione
             String pred = conn.readAnswer();
-            invia(chatId, "Classe predetta: " + pred + "\n\nDigita /start per una nuova predizione.");
+            invia(chatId, "Predicted class: " + pred + "\n\nType /start to begin a new prediction.");
             resetUtente(chatId);
         } else {
 						String sanitizedAnswer = answer.replace("<", "&lt;").replace(">", "&gt;");
-            // answer contiene la domanda con le opzioni (es. "0:X=A\n1:X=B")
-            invia(chatId, "Scegli un ramo:\n" + sanitizedAnswer);
+            ArrayList<String> branches = getBranches(chatId);
+						String msg = "<b>Choose a branch:</b>\n" + sanitizedAnswer;
+						createButtons(chatId, msg, branches);
+
         }
     }
 
@@ -218,29 +223,46 @@ public class MapBot extends TelegramLongPollingBot {
 			return conn.showTables(true);
 		}
 
-		//TODO: Modificare questo metodo in modo che stampi solo due bottoni a riga
-		private void createTableButtons(long chatId, ArrayList<String> names) {
+		private ArrayList<String> getBranches(long chatId) throws Exception {
+			ServerConnection conn = connessioni.get(chatId);
+			return conn.showBranches();
+		}
+
+		private void createButtons(long chatId, String text, ArrayList<String> names) {
 			SendMessage msg = new SendMessage();
+			msg.setParseMode("HTML");
 			msg.setChatId(chatId);
-			msg.setText("Choose a table:");
-			List<InlineKeyboardButton> row = new ArrayList<>();
-			for (String table : names) {
-				InlineKeyboardButton btn = InlineKeyboardButton
-																	.builder()
-																	.text(table)
-																	.callbackData(table)
-																	.build();
-				row.add(btn);
-			}
+			msg.setText(text);
 			List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-			keyboard.add(row);
+			List<InlineKeyboardButton> currentRow = new ArrayList<>();
+
+			for (String table : names) {
+					InlineKeyboardButton btn = InlineKeyboardButton
+									.builder()
+									.text(table)
+									.callbackData(table)
+									.build();
+
+					currentRow.add(btn);
+
+					if (currentRow.size() == 2) {
+							keyboard.add(currentRow);
+							currentRow = new ArrayList<>();
+					}
+			}
+
+			if (!currentRow.isEmpty()) {
+					keyboard.add(currentRow);
+			}
+
 			InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 			markup.setKeyboard(keyboard);
 			msg.setReplyMarkup(markup);
+
 			try {
-				execute(msg);
+					execute(msg);
 			} catch (TelegramApiException e) {
-				System.err.println(e);
+					System.err.println(e);
 			}
 		}
 
