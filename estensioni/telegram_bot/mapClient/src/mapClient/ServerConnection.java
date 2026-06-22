@@ -46,7 +46,6 @@ public class ServerConnection {
 			return tables;
 		}
 
-		//TODO: Rinominare metodo in learnTree
     public String sendTableName(String tableName) throws IOException, ClassNotFoundException {
 				out.writeObject(0);
         out.writeObject(tableName);

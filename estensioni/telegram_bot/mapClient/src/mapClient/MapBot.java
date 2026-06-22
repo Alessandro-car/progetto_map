@@ -21,11 +21,10 @@ public class MapBot extends TelegramLongPollingBot {
     private final String host;
     private final int port;
 		private final String token;
-    // Stato per ogni utente
-    private enum Stato { INIZIO, WAITING_OPTION, ATTESA_TABELLA, IN_PREDIZIONE }
+    private enum Status { START, WAITING_OPTION, WAITING_TABLE, PREDICTION }
 
-    private final Map<Long, Stato> statoUtente = new HashMap<>();
-    private final Map<Long, ServerConnection> connessioni = new HashMap<>();
+    private final Map<Long, Status> userStatus = new HashMap<>();
+    private final Map<Long, ServerConnection> connections = new HashMap<>();
 
     public MapBot(String token, String username, String host, int port) {
 				super(token);
@@ -45,84 +44,83 @@ public class MapBot extends TelegramLongPollingBot {
 			return token;
 		}
 
-
     @Override
     public void onUpdateReceived(Update update) {
 				if (update.hasCallbackQuery()) {
 					String callData = update.getCallbackQuery().getData();
 					long chatId = update.getCallbackQuery().getMessage().getChatId();
-					if (!connessioni.containsKey(chatId) || !statoUtente.containsKey(chatId)) {
-						invia(chatId, "Session expired or interrupted. Please type /start to begin a new predicition!");
+					if (!connections.containsKey(chatId) || !userStatus.containsKey(chatId)) {
+						send(chatId, "Session expired or interrupted. Please type /start to begin a new predicition!");
 						return;
 					}
-					Stato stato = statoUtente.get(chatId);
+					Status stato = userStatus.get(chatId);
 					try {
-						if (stato == Stato.ATTESA_TABELLA) {
+						if (stato == Status.WAITING_TABLE) {
 							startLearning(chatId, callData);
-						} else if (stato == Stato.IN_PREDIZIONE && callData.matches("\\d+")) {
-							gestisciPredizione(chatId, callData);
+						} else if (stato == Status.PREDICTION && callData.matches("\\d+")) {
+							handlePrediction(chatId, callData);
 						}
 					} catch (Exception e) {
 						System.err.println(e);
-						invia(chatId, "An error occured during communication. Type /start to restart.");
-						resetUtente(chatId);
+						send(chatId, "An error occured during communication. Type /start to restart.");
+						resetUser(chatId);
 					}
 				} else if (update.hasMessage() && update.getMessage().hasText()) {
 					long chatId = update.getMessage().getChatId();
 					String testo = update.getMessage().getText().trim();
 					try {
 							if (testo.equals(Command.START.getCommand())) {
-									resetUtente(chatId);
-									statoUtente.put(chatId, Stato.WAITING_OPTION);
-									connessioni.put(chatId, new ServerConnection(host, port));
+									resetUser(chatId);
+									userStatus.put(chatId, Status.WAITING_OPTION);
+									connections.put(chatId, new ServerConnection(host, port));
 									String welcomeText = buildInitMessage();
-									invia(chatId, welcomeText);
+									send(chatId, welcomeText);
 									return;
 							}
 
-							Stato stato = statoUtente.get(chatId);
-							if (stato == null) stato = Stato.INIZIO;
+							Status stato = userStatus.get(chatId);
+							if (stato == null) stato = Status.START;
 							switch (stato) {
-									case INIZIO:
-											invia(chatId, "Type /start to start a new predicition!");
+									case START:
+											send(chatId, "Type /start to start a new predicition!");
 											break;
 									case WAITING_OPTION:
 										if (testo.equals(Command.LEARN.getCommand())) {
-											statoUtente.put(chatId, Stato.ATTESA_TABELLA);
-											gestisciTabella(chatId, true);
+											userStatus.put(chatId, Status.WAITING_TABLE);
+											handleTable(chatId, true);
 										}
 										else if (testo.equals(Command.LOAD.getCommand())) {
-											statoUtente.put(chatId, Stato.ATTESA_TABELLA);
-											gestisciTabella(chatId, false);
+											userStatus.put(chatId, Status.WAITING_TABLE);
+											handleTable(chatId, false);
 										}
 										else if (testo.equals(Command.STOP.getCommand())) {
-											invia(chatId, "Current prediction interrupted!");
-											statoUtente.put(chatId, Stato.INIZIO);
+											send(chatId, "Current prediction interrupted!");
+											userStatus.put(chatId, Status.START);
 										} else {
-											invia(chatId, "Invalid option!");
+											send(chatId, "Invalid option!");
 										}
 										break;
 
-									case ATTESA_TABELLA:
+									case WAITING_TABLE:
 										if (testo.equals(Command.STOP.getCommand())) {
-											invia(chatId, "Current prediction interrupted!");
-											statoUtente.put(chatId, Stato.INIZIO);
+											send(chatId, "Current prediction interrupted!");
+											userStatus.put(chatId, Status.START);
 										} else {
-											invia(chatId, "Please select a table from the buttons above!");
+											send(chatId, "Please select a table from the buttons above!");
 										}
 										break;
 
-									case IN_PREDIZIONE:
+									case PREDICTION:
 											if (testo.equals(Command.STOP.getCommand())) {
-												invia(chatId, "Current prediction interrupted!");
-												statoUtente.put(chatId, Stato.INIZIO);
+												send(chatId, "Current prediction interrupted!");
+												userStatus.put(chatId, Status.START);
 												break;
 											}
 											break;
 							}
 					} catch (Exception e) {
-							invia(chatId, "Errore: " + e.getMessage());
-							resetUtente(chatId);
+							send(chatId, "Error: " + e.getMessage());
+							resetUser(chatId);
 					}
 			}
     }
@@ -145,62 +143,58 @@ public class MapBot extends TelegramLongPollingBot {
 			return welcomeMessage.toString();
 		}
 
-    private void gestisciTabella(long chatId, Boolean learn) throws Exception {
-        ServerConnection conn = connessioni.get(chatId);
+    private void handleTable(long chatId, Boolean learn) throws Exception {
+        ServerConnection conn = connections.get(chatId);
 				ArrayList<String> tables = conn.showTables(learn);
 				createButtons(chatId, "Choose a table:", tables);
     }
 
 		private void startLearning(long chatId, String tableName) throws Exception {
-			ServerConnection conn = connessioni.get(chatId);
+			ServerConnection conn = connections.get(chatId);
 			String answer = conn.sendTableName(tableName);
 			if (!answer.equals("Table found!")) {
-				invia(chatId, "Table not found. Retry:");
+				send(chatId, "Table not found. Retry:");
 				return;
 			}
 
 			conn.readAnswer();
-			invia(chatId, "Table found! Learning in progress...");
+			send(chatId, "Table found! Learning in progress...");
 			conn.startLearning();
 			conn.readAnswer();
 			conn.startPrediction();
-			statoUtente.put(chatId, Stato.IN_PREDIZIONE);
-			avanzaPredizione(chatId, true);
+			userStatus.put(chatId, Status.PREDICTION);
+			advancePrediction(chatId, true);
 		}
 
-    private void gestisciPredizione(long chatId, String testo) throws Exception {
-        ServerConnection conn = connessioni.get(chatId);
-
+    private void handlePrediction(long chatId, String testo) throws Exception {
+        ServerConnection conn = connections.get(chatId);
         int scelta;
         try {
             scelta = Integer.parseInt(testo);
         } catch (NumberFormatException e) {
-            invia(chatId, "Inserisci un numero valido.");
+            send(chatId, "Insert a valid number.");
             return;
         }
         conn.sendChoice(scelta);
-        avanzaPredizione(chatId, false);
+        advancePrediction(chatId, false);
     }
 
     /**
      * Legge dal server la prossima domanda (QUERY) o il risultato.
      * @param primaChiamata true se è la prima lettura dopo avviaPredizione()
      */
-    private void avanzaPredizione(long chatId, boolean primaChiamata) throws Exception {
-        ServerConnection conn = connessioni.get(chatId);
-
+    private void advancePrediction(long chatId, boolean primaChiamata) throws Exception {
+        ServerConnection conn = connections.get(chatId);
         String answer = conn.readAnswer();
 
-        // Il server invia "QUERY" all'inizio della sessione di predizione
         if (answer.equals("QUERY")) {
             answer = conn.readAnswer();
         }
 
         if (answer.equals("OK")) {
-            // prossimo messaggio = predizione
             String pred = conn.readAnswer();
-            invia(chatId, "Predicted class: " + pred + "\n\nType /start to begin a new prediction.");
-            resetUtente(chatId);
+            send(chatId, "Predicted class: " + pred + "\n\nType /start to begin a new prediction.");
+            resetUser(chatId);
         } else {
 						String sanitizedAnswer = answer.replace("<", "&lt;").replace(">", "&gt;");
             ArrayList<String> branches = getBranches(chatId);
@@ -210,21 +204,21 @@ public class MapBot extends TelegramLongPollingBot {
         }
     }
 
-    private void resetUtente(long chatId) {
-        ServerConnection conn = connessioni.remove(chatId);
+    private void resetUser(long chatId) {
+        ServerConnection conn = connections.remove(chatId);
         if (conn != null) {
             try { conn.close(); } catch (Exception ignored) {}
         }
-        statoUtente.remove(chatId);
+        userStatus.remove(chatId);
     }
 
 		private ArrayList<String> getTables(long chatId) throws Exception {
-			ServerConnection conn = connessioni.get(chatId);
+			ServerConnection conn = connections.get(chatId);
 			return conn.showTables(true);
 		}
 
 		private ArrayList<String> getBranches(long chatId) throws Exception {
-			ServerConnection conn = connessioni.get(chatId);
+			ServerConnection conn = connections.get(chatId);
 			return conn.showBranches();
 		}
 
@@ -266,13 +260,13 @@ public class MapBot extends TelegramLongPollingBot {
 			}
 		}
 
-    private void invia(long chatId, String testo) {
+    private void send(long chatId, String testo) {
         SendMessage msg = new SendMessage(String.valueOf(chatId), testo);
 				msg.setParseMode("HTML");
         try {
             execute(msg);
         } catch (TelegramApiException e) {
-        	System.err.println("Errore invio Telegram: " + e.getMessage());
+        	System.err.println("Telegram sending error: " + e.getMessage());
     		}
 		}
 }
