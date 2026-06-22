@@ -189,6 +189,6 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 			return 1;
 		if (this.splitVariance < o.getVariance())
 			return -1;
-		return 0;
+		return Integer.compare(this.attribute.getIndex(), o.attribute.getIndex());
 	}
 }

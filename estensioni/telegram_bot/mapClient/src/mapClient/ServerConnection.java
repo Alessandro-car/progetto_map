@@ -12,71 +12,89 @@ public class ServerConnection {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    public ServerConnection(String host, int port) throws IOException {
+    /**
+     * Opens a connection to the map server.
+     *
+     * @param socketTimeoutMs read timeout in milliseconds (0 = infinite).
+     *                        If the server stops responding, readObject() throws
+     *                        SocketTimeoutException, which propagates to MapBot's
+     *                        catch block and triggers resetUser() instead of hanging.
+     */
+    public ServerConnection(String host, int port, int socketTimeoutMs) throws IOException {
         socket = new Socket(host, port);
+        socket.setSoTimeout(socketTimeoutMs);
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
     }
 
-		public ArrayList<String> showBranches() throws IOException, ClassNotFoundException {
-			Object obj = in.readObject();
-			ArrayList<String> branches = new ArrayList<>();
-			if (obj instanceof Collection<?>) {
-				for (Object item : (Collection<?>) obj) {
-					branches.add(String.valueOf(item));
-				}
-			}
-			return branches;
-		}
+    public ArrayList<String> showBranches() throws IOException, ClassNotFoundException {
+        Object obj = in.readObject();
+        ArrayList<String> branches = new ArrayList<>();
+        if (obj instanceof Collection<?>) {
+            for (Object item : (Collection<?>) obj) {
+                branches.add(String.valueOf(item));
+            }
+        }
+        return branches;
+    }
 
-		public ArrayList<String> showTables(Boolean learn) throws IOException, ClassNotFoundException {
-			if (learn) {
-				out.writeObject(4);
-			} else {
-				out.writeObject(5);
-			}
+    public ArrayList<String> showTables(boolean learn) throws IOException, ClassNotFoundException {
+        out.writeObject(learn ? 4 : 5);
+        out.flush();
 
-			ArrayList<String> tables = new ArrayList<>();
-			Object obj = in.readObject();
-			if (obj instanceof Collection<?>) {
-				for (Object item : (Collection<?>) obj) {
-					tables.add(String.valueOf(item));
-				}
-			}
-			return tables;
-		}
+        ArrayList<String> tables = new ArrayList<>();
+        Object obj = in.readObject();
+        if (obj instanceof Collection<?>) {
+            for (Object item : (Collection<?>) obj) {
+                tables.add(String.valueOf(item));
+            }
+        }
+        return tables;
+    }
 
     public String sendTableName(String tableName) throws IOException, ClassNotFoundException {
-				out.writeObject(0);
+        out.writeObject(0);
         out.writeObject(tableName);
-        return in.readObject().toString();
+        out.flush();
+        return readAnswer();
     }
 
     public String readAnswer() throws IOException, ClassNotFoundException {
-        return in.readObject().toString();
+        Object obj = in.readObject();
+        return obj == null ? "" : obj.toString();
     }
 
     public void startLearning() throws IOException {
         out.writeObject(1);
+        out.flush();
     }
 
     public String loadTree(String tableName) throws IOException, ClassNotFoundException {
         out.writeObject(2);
         out.writeObject(tableName);
-        return in.readObject().toString();
+        out.flush();
+        return readAnswer();
     }
 
     public void startPrediction() throws IOException {
         out.writeObject(3);
+        out.flush();
     }
 
     public void sendChoice(int path) throws IOException {
         out.writeObject(path);
+        out.flush();
     }
 
     public void close() throws IOException {
-        in.close();
-        out.close();
-        socket.close();
+        try {
+            out.close();
+        } finally {
+            try {
+                in.close();
+            } finally {
+                socket.close();
+            }
+        }
     }
 }

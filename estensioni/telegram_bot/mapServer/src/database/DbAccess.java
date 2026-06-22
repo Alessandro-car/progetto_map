@@ -78,7 +78,9 @@ public class DbAccess {
      *         della connessione
      */
     public void closeConnection() throws SQLException {
-        conn.close();
+        if (conn != null) {
+            conn.close();
+        }
     }
 
 		public ArrayList<String> getListOfTables() throws SQLException {

@@ -2,11 +2,11 @@ package server;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -45,7 +45,8 @@ class ServerOneClient extends Thread {
 	 * <p><strong>Nota:</strong> {@code out} viene inizializzato prima di {@code in} per
 	 * evitare un deadlock: il costruttore di {@link ObjectInputStream} si blocca finché
 	 * il lato remoto non ha scritto l'intestazione del proprio stream, quindi lo stream
-	 * di output locale deve essere inizializzato per primo.
+	 * di output locale deve essere creato per primo, così il client può leggere l'header
+	 * e procedere con la creazione del proprio {@code ObjectInputStream}.
 	 *
 	 * @param s il {@link Socket} che rappresenta la connessione accettata dal client
 	 * @throws IOException se si verifica un errore di I/O durante la creazione degli stream
@@ -53,8 +54,8 @@ class ServerOneClient extends Thread {
 	public ServerOneClient(Socket s) throws IOException {
 		this.socket = s;
 
-		this.in = new ObjectInputStream(this.socket.getInputStream());
 		this.out = new ObjectOutputStream(this.socket.getOutputStream());
+		this.in = new ObjectInputStream(this.socket.getInputStream());
 
 		this.start();
 	}
@@ -110,11 +111,14 @@ class ServerOneClient extends Thread {
 									tableName = in.readObject().toString();
 									trainingSet = new Data(tableName);
 									out.writeObject("Table found!");
+									out.flush();
 									break;
 								} catch (SQLException e) {
 									out.writeObject("No such table!");
+									out.flush();
 								} catch (TrainingDataException e) {
 									out.writeObject("No such table!");
+									out.flush();
 								}
 							}
 						} catch (IOException e) {
@@ -125,6 +129,7 @@ class ServerOneClient extends Thread {
 
 						try {
 							out.writeObject("OK");
+							out.flush();
 						} catch (IOException e) {
 							System.out.println(e);
 						}
@@ -132,7 +137,8 @@ class ServerOneClient extends Thread {
 					case 1:
 						if (trainingSet == null) {
 							try {
-								out.writeObject("No traning data loaded.");
+								out.writeObject("No training data loaded.");
+								out.flush();
 							} catch (IOException e) {
 								System.out.println(e);
 							}
@@ -142,8 +148,10 @@ class ServerOneClient extends Thread {
 						try {
 							tree.salva(tableName + ".dmp");
 							out.writeObject("OK");
+							out.flush();
 						} catch (IOException e) {
 							out.writeObject("Error saving tree: " + e.toString());
+							out.flush();
 							System.out.println(e);
 						}
 						break;
@@ -153,20 +161,31 @@ class ServerOneClient extends Thread {
 								tableName = in.readObject().toString();
 								tree = RegressionTree.carica(tableName + ".dmp");
 								out.writeObject("Table found!");
+								out.flush();
 								break;
-							} catch (ClassNotFoundException | IOException e) {
-								File dmp = new File(tableName + ".dmp");
-								dmp.delete();
-								out.writeObject("The table " + tableName + " doesn't exists!");
+							} catch (ClassNotFoundException e) {
+								new File(tableName + ".dmp").delete();
+								out.writeObject("The table " + tableName + " doesn't exist!");
+								out.flush();
+								System.out.println(e);
+							} catch (FileNotFoundException e) {
+								out.writeObject("The table " + tableName + " doesn't exist!");
+								out.flush();
+								System.out.println(e);
+							} catch (IOException e) {
+								out.writeObject("The table " + tableName + " doesn't exist!");
+								out.flush();
 								System.out.println(e);
 							}
 						}
 						out.writeObject("OK");
+						out.flush();
 						break;
 					case 3:
 						if (tree == null) {
 							try {
 								out.writeObject("No tree available.");
+								out.flush();
 							} catch (IOException e) {
 								System.out.println(e);
 							}
@@ -174,9 +193,11 @@ class ServerOneClient extends Thread {
 						}
 						try {
 							out.writeObject("QUERY");
+							out.flush();
 							Double prediction = tree.predictClass(in, out);
 							out.writeObject("OK");
 							out.writeObject(prediction);
+							out.flush();
 						} catch (UnknownValueException e) {
 							System.out.println(e);
 						} catch (ClassNotFoundException | IOException e) {
@@ -187,14 +208,15 @@ class ServerOneClient extends Thread {
 						DbAccess db = new DbAccess();
 						try {
 							db.initConnection();
-						} catch (DatabaseConnectionException e) {
-							System.err.println(e);
-						}
-						try {
 							ArrayList<String> tables = db.getListOfTables();
 							out.writeObject(tables);
+							out.flush();
+						} catch (DatabaseConnectionException e) {
+							System.err.println(e);
 						} catch (SQLException e) {
 							System.err.println(e);
+						} finally {
+							try { db.closeConnection(); } catch (SQLException ignored) {}
 						}
 						break;
 					case 5:
@@ -207,12 +229,16 @@ class ServerOneClient extends Thread {
 								}
 							};
 							File[] files = f.listFiles(filter);
-							ArrayList<String> fileNames = new ArrayList();
-							for (int i = 0; i < files.length; i++) {
-								String fileName = files[i].getName().substring(0, files[i].getName().length() - extension.length());
-								fileNames.add(fileName);
+							ArrayList<String> fileNames = new ArrayList<>();
+							if (files != null) {
+								for (int i = 0; i < files.length; i++) {
+									String fileName = files[i].getName()
+											.substring(0, files[i].getName().length() - extension.length());
+									fileNames.add(fileName);
+								}
 							}
 							out.writeObject(fileNames);
+							out.flush();
 
 						} catch (Exception e) {
 							System.err.println(e);
@@ -223,13 +249,9 @@ class ServerOneClient extends Thread {
 		} catch (IOException e) {
 			System.err.println("I/O Error: " + e.toString());
 		} finally {
-			try {
-				socket.close();
-				in.close();
-				out.close();
-			} catch (IOException e) {
-				System.err.println("Error closing connection: " + e.toString());
-			}
+			try { out.close(); } catch (IOException e) { System.err.println("Error closing output stream: " + e); }
+			try { in.close();  } catch (IOException e) { System.err.println("Error closing input stream: " + e);  }
+			try { socket.close(); } catch (IOException e) { System.err.println("Error closing socket: " + e);    }
 		}
 	}
 }
