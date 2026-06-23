@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 /**
  * Gestisce la connessione al database MySQL.
+ * <p>
  * Fornisce i metodi per inizializzare, ottenere e chiudere la connessione.
  */
 public class DbAccess {
@@ -13,10 +14,10 @@ public class DbAccess {
     /** Nome della classe del driver JDBC per MySQL. */
     private final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
 
-    /** Protocollo JDBC per MySQL. */
+    /** Protocollo JDBC usato per la connessione. */
     private final String DBMS = "jdbc:mysql";
 
-    /** Indirizzo del server del database. */
+    /** Indirizzo del server su cui si trova il database. */
     private String SERVER = "localhost";
 
     /** Nome del database a cui connettersi. */
@@ -31,15 +32,16 @@ public class DbAccess {
     /** Password per l'accesso al database. */
     private String PASSWORD = "map";
 
-    /** Oggetto che rappresenta la connessione al database. */
+    /** Oggetto che rappresenta la connessione attiva al database. */
     private Connection conn;
 
     /**
      * Inizializza la connessione al database.
+     * <p>
      * Carica il driver JDBC e stabilisce la connessione tramite {@link DriverManager}.
      *
-     * @throws DatabaseConnectionException se il driver non viene trovato
-     *         o se la connessione al database fallisce
+     * @throws DatabaseConnectionException se il driver non viene trovato o se la
+     *         connessione al database fallisce
      */
     public void initConnection() throws DatabaseConnectionException {
         try {
@@ -58,8 +60,9 @@ public class DbAccess {
     }
 
     /**
-     * Restituisce l'oggetto {@link Connection} per interagire con il database.
-     * Deve essere chiamato solo dopo {@link #initConnection()}.
+     * Restituisce la connessione attiva al database.
+     * <p>
+     * Va richiamato solo dopo {@link #initConnection()}.
      *
      * @return la connessione attiva al database
      */

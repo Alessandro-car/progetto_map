@@ -163,10 +163,9 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 	SplitNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, Attribute attribute){
 			super(trainingSet, beginExampleIndex,endExampleIndex);
 			this.attribute=attribute;
-			trainingSet.sort(attribute, beginExampleIndex, endExampleIndex); // order by attribute
+			trainingSet.sort(attribute, beginExampleIndex, endExampleIndex);
 			setSplitInfo(trainingSet, beginExampleIndex, endExampleIndex, attribute);
 
-			//compute variance
 			splitVariance = 0;
 			for(SplitInfo n : mapSplit){
 					double localVariance = new LeafNode(trainingSet, n.getBeginindex(), n.getEndIndex()).getVariance();

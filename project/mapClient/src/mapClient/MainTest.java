@@ -10,10 +10,22 @@ import java.net.UnknownHostException;
 import utility.Keyboard;
 
 
+/**
+ * Client da riga di comando dell'applicazione.
+ * <p>
+ * Si connette al server tramite socket e, seguendo un menu testuale, permette
+ * all'utente di costruire un nuovo albero di regressione a partire da una tabella
+ * del database oppure di caricarne uno salvato in precedenza. Una volta pronto
+ * l'albero, avvia la fase di predizione interattiva scambiando messaggi con il server.
+ */
 public class MainTest {
 
 	/**
-	 * @param args
+	 * Avvia il client: apre la connessione con il server, gestisce il menu di scelta
+	 * (apprendimento o caricamento dell'albero) e infine la fase di predizione.
+	 *
+	 * @param args parametri da riga di comando: {@code args[0]} è l'indirizzo del
+	 *        server e {@code args[1]} è la porta su cui è in ascolto
 	 */
 	public static void main(String[] args){
 
@@ -31,7 +43,7 @@ public class MainTest {
 			socket = new Socket(args[0], new Integer(args[1]).intValue());
 			System.out.println(socket);
 			out = new ObjectOutputStream(socket.getOutputStream());
-			in = new ObjectInputStream(socket.getInputStream());	; // stream con richieste del client
+			in = new ObjectInputStream(socket.getInputStream());	;
 
 		}  catch (IOException e) {
 			System.out.println(e.toString());
@@ -103,7 +115,6 @@ public class MainTest {
 
 
 
-		// .........
 
 		char risp='y';
 
@@ -115,7 +126,6 @@ public class MainTest {
 
 
 			while(answer.equals("QUERY")){
-				// Formualting query, reading answer
 				answer=in.readObject().toString();
 				if (answer.equals("OK"))
 					break;
@@ -126,12 +136,12 @@ public class MainTest {
 			}
 
 			if(answer.equals("OK"))
-			{ // Reading prediction
+			{
 				answer=in.readObject().toString();
 				System.out.println("Predicted class:"+answer);
 
 			}
-			else //Printing error message
+			else
 				System.out.println(answer);
 
 

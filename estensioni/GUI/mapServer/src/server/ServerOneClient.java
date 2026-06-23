@@ -61,6 +61,36 @@ class ServerOneClient extends Thread {
 
 	/**
 	 * Ciclo di esecuzione principale del thread di gestione del client.
+	 *
+	 * <p>Legge i codici azione interi dal client e li smista alla logica appropriata.
+	 * Il ciclo termina quando il client si disconnette o si verifica un errore di I/O
+	 * non recuperabile. Le risorse socket e stream vengono sempre rilasciate nel blocco
+	 * {@code finally}.
+	 *
+	 * <p>Semantica dei codici azione:
+	 * <ul>
+	 *   <li><b>0 – Apprendimento da DB:</b> legge ripetutamente un nome di tabella dal
+	 *       client, costruisce un oggetto {@link Data} da quella tabella e risponde con
+	 *       {@code "Table found!"} in caso di successo o con un messaggio di errore in
+	 *       caso di fallimento, fino a ricevere un nome valido. Invia {@code "OK"} al
+	 *       termine.</li>
+	 *   <li><b>1 – Costruzione e salvataggio albero:</b> costruisce un
+	 *       {@link RegressionTree} dall'insieme di addestramento corrente, lo serializza
+	 *       nel file {@code <tableName>.dmp} e risponde {@code "OK"}.</li>
+	 *   <li><b>2 – Caricamento albero:</b> legge un nome di tabella, deserializza il
+	 *       corrispondente file {@code .dmp} e risponde {@code "Table found!"} in caso
+	 *       di successo o con un messaggio di errore in caso di fallimento, ripetendo
+	 *       finché non si riceve un nome valido. Invia {@code "OK"} al termine.</li>
+	 *   <li><b>3 – Predizione:</b> invia {@code "QUERY"} per segnalare l'inizio di una
+	 *       sessione interattiva, delega a
+	 *       {@link RegressionTree#predictClass(ObjectInputStream, ObjectOutputStream)}
+	 *       che scambia messaggi con il client, poi invia {@code "OK"} seguito dal
+	 *       valore {@link Double} predetto.</li>
+	 *   <li><b>4 – Elenco tabelle:</b> si collega al database e invia al client la lista
+	 *       dei nomi delle tabelle disponibili.</li>
+	 *   <li><b>5 – Elenco archivi:</b> invia al client la lista dei file {@code .dmp}
+	 *       (alberi salvati) presenti nella directory del server.</li>
+	 * </ul>
 	 */
 	@Override
 	public void run() {
@@ -162,7 +192,6 @@ class ServerOneClient extends Thread {
 						break;
 
 					case 4:
-						// Restituisce la lista dei nomi delle tabelle presenti nel DB
 							DbAccess db = new DbAccess();
                         try {
                             db.initConnection();
@@ -178,7 +207,6 @@ class ServerOneClient extends Thread {
                         }
                         break;
 					case 5:
-						// Restituisce la lista dei file .dmp presenti nella directory del server
 						try {
 							java.io.File dir = new java.io.File(".");
 							java.io.File[] files = dir.listFiles((d, name) -> name.endsWith(".dmp"));
@@ -195,8 +223,8 @@ class ServerOneClient extends Thread {
 						}
 						break;
 
-				} // fine switch
-			} // fine while
+				}
+			}
 		} catch (IOException e) {
 			System.err.println("I/O Error: " + e.toString());
 		} finally {
