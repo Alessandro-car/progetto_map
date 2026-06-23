@@ -8,7 +8,31 @@ import java.util.Properties;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * Punto di ingresso dell'applicazione client: avvia il bot Telegram.
+ * <p>
+ * Legge i parametri di configurazione (token e nome del bot) dal file
+ * {@code config.properties}, riceve l'indirizzo e la porta del server di
+ * data mining dagli argomenti della riga di comando, quindi crea e registra
+ * un'istanza di {@link MapBot} che resta in ascolto dei messaggi degli utenti.
+ */
 public class MainTest {
+    /**
+     * Avvia il bot Telegram.
+     * <p>
+     * Passi eseguiti dal metodo:
+     * <ol>
+     *   <li>legge {@code bot.token} e {@code bot.username} dal file {@code config.properties};</li>
+     *   <li>legge l'indirizzo del server ({@code args[0]}) e la porta ({@code args[1]});</li>
+     *   <li>legge l'eventuale timeout del socket ({@code socket.timeout.ms}, di default 30 secondi);</li>
+     *   <li>crea il {@link MapBot}, lo registra presso le API di Telegram e registra i comandi.</li>
+     * </ol>
+     * In caso di parametri mancanti o non validi viene stampato un messaggio
+     * di errore e il programma termina.
+     *
+     * @param args argomenti della riga di comando: {@code args[0]} l'indirizzo
+     *             del server, {@code args[1]} la porta del server
+     */
     public static void main(String[] args) {
 				Properties cfg = new Properties();
 				try (InputStream is = new FileInputStream("config.properties")) {

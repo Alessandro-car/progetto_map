@@ -18,44 +18,41 @@ import database.Column;
 import java.sql.SQLException;
 
 /**
- * La classe {@code Data} modella un insieme di esempi caricati dal database.
- * Organizza i dati in una lista di oggetti Example e gestisce
- * sia gli attributi descrittivi che l'attributo target di tipo continuo.
+ * Modella l'insieme di esempi (il dataset) caricato da una tabella del database.
+ * <p>
+ * Organizza i dati in una lista di {@link Example} e tiene distinti gli attributi
+ * descrittivi (explanatory) dall'attributo target da predire, che è di tipo continuo.
+ * Offre inoltre i metodi per accedere ai valori e per ordinare gli esempi rispetto
+ * a un attributo, operazione necessaria durante la costruzione dell'albero.
  */
 public class Data {
 
-	/**
-	 * Lista di esempi che costituisce il dataset.
-	 */
+	/** Lista degli esempi che compongono il dataset. */
 	private List<Example> data = new ArrayList<Example>();
 
-	/**
-	 * Numero totale di esempi presenti nel dataset.
-	 */
+	/** Numero totale di esempi presenti nel dataset. */
 	private int numberOfExamples;
 
-	/**
-	 * Lista degli attributi descrittivi.
-	 */
+	/** Lista degli attributi descrittivi (indipendenti). */
 	private List<Attribute> explanatorySet = new LinkedList<>();
 
-	/**
-	 * L'attributo target che si desidera predire.
-	 */
+	/** Attributo target (continuo) che si desidera predire. */
 	private ContinuousAttribute classAttribute;
 
 	/**
-	 * Costruttore che inizializza il dataset caricando schema ed esempi
-	 * da una tabella del database.
+	 * Costruisce il dataset caricando schema ed esempi da una tabella del database.
 	 * <p>
-	 * Solleva TrainingDataException se:
-	 * - la connessione al database fallisce
-	 * - la tabella non esiste o ha meno di due colonne
-	 * - la tabella ha zero tuple
-	 * - l'ultima colonna non è numerica (non può essere classAttribute)
+	 * Solleva una {@link TrainingDataException} se:
+	 * <ul>
+	 *   <li>la connessione al database fallisce;</li>
+	 *   <li>la tabella non esiste o ha meno di due colonne;</li>
+	 *   <li>la tabella non contiene alcuna tupla;</li>
+	 *   <li>l'ultima colonna non è numerica e quindi non può fare da attributo target.</li>
+	 * </ul>
 	 *
-	 * @param tableName Nome della tabella nel database da cui caricare i dati.
-	 * @throws TrainingDataException Se si verifica un errore nel caricamento dei dati.
+	 * @param tableName nome della tabella del database da cui caricare i dati
+	 * @throws TrainingDataException se si verifica un errore nel caricamento dei dati
+	 * @throws SQLException se si verifica un errore di accesso al database
 	 */
 	public Data(String tableName) throws TrainingDataException, SQLException {
 		DbAccess db = new DbAccess();
@@ -129,61 +126,68 @@ public class Data {
 	}
 
 	/**
-	 * Restituisce il numero di esempi caricati nel dataset.
-	 * @return Numero di esempi.
+	 * Restituisce il numero di esempi presenti nel dataset.
+	 *
+	 * @return il numero di esempi
 	 */
 	public int getNumberOfExamples() {
 		return numberOfExamples;
 	}
 
 	/**
-	 * Restituisce il numero di attributi esplicativi.
-	 * @return Lunghezza della lista {@code explanatorySet}.
+	 * Restituisce il numero di attributi descrittivi.
+	 *
+	 * @return la dimensione della lista degli attributi descrittivi
 	 */
 	public int getNumberOfExplanatoryAttributes() {
 		return explanatorySet.size();
 	}
 
 	/**
-	 * Restituisce il valore dell'attributo target per un esempio specifico.
-	 * @param exampleIndex Indice dell'esempio nella lista.
-	 * @return Il valore continuo della classe per l'esempio indicato.
+	 * Restituisce il valore dell'attributo target per l'esempio indicato.
+	 *
+	 * @param exampleIndex indice dell'esempio nel dataset
+	 * @return il valore continuo della classe per l'esempio indicato
 	 */
 	public Double getClassValue(int exampleIndex) {
 		return (Double) data.get(exampleIndex).get(explanatorySet.size());
 	}
 
 	/**
-	 * Restituisce il valore di un attributo esplicativo per un determinato esempio.
-	 * @param exampleIndex   Indice dell'esempio nella lista.
-	 * @param attributeIndex Indice dell'attributo esplicativo.
-	 * @return L'oggetto rappresentante il valore cercato.
+	 * Restituisce il valore di un attributo descrittivo per un dato esempio.
+	 *
+	 * @param exampleIndex indice dell'esempio nel dataset
+	 * @param attributeIndex indice dell'attributo descrittivo
+	 * @return l'oggetto che rappresenta il valore richiesto
 	 */
 	public Object getExplanatoryValue(int exampleIndex, int attributeIndex) {
 		return data.get(exampleIndex).get(attributeIndex);
 	}
 
 	/**
-	 * Restituisce l'attributo esplicativo corrispondente all'indice specificato.
-	 * @param index Posizione dell'attributo nella lista {@code explanatorySet}.
-	 * @return L'oggetto {@link Attribute} richiesto.
+	 * Restituisce l'attributo descrittivo che si trova all'indice specificato.
+	 *
+	 * @param index posizione dell'attributo nella lista degli attributi descrittivi
+	 * @return l'oggetto {@link Attribute} richiesto
 	 */
 	public Attribute getExplanatoryAttribute(int index) {
 		return explanatorySet.get(index);
 	}
 
 	/**
-	 * Restituisce l'oggetto {@link ContinuousAttribute} che rappresenta
-	 * l'attributo target del dataset.
-	 * @return L'attributo target.
+	 * Restituisce l'attributo target del dataset.
+	 *
+	 * @return l'attributo continuo da predire
 	 */
 	private ContinuousAttribute getClassAttribute() {
 		return classAttribute;
 	}
 
 	/**
-	 * Restituisce una rappresentazione testuale dell'intero dataset.
-	 * @return Stringa contenente i dati.
+	 * Restituisce una rappresentazione testuale dell'intero dataset, con un esempio
+	 * per riga e i valori separati da virgola.
+	 *
+	 * @return la stringa contenente i dati del dataset
 	 */
 	public String toString() {
 		String value = "";
@@ -196,19 +200,22 @@ public class Data {
 	}
 
 	/**
-	 * Ordina il dataset in base ai valori di un determinato attributo.
-	 * @param attribute          L'attributo su cui basare l'ordinamento.
-	 * @param beginExampleIndex  Indice iniziale dell'intervallo.
-	 * @param endExampleIndex    Indice finale dell'intervallo.
+	 * Ordina gli esempi del dataset in base ai valori di un attributo, all'interno
+	 * dell'intervallo indicato.
+	 *
+	 * @param attribute attributo su cui basare l'ordinamento
+	 * @param beginExampleIndex indice iniziale dell'intervallo
+	 * @param endExampleIndex indice finale dell'intervallo
 	 */
 	public void sort(Attribute attribute, int beginExampleIndex, int endExampleIndex) {
 		quicksort(attribute, beginExampleIndex, endExampleIndex);
 	}
 
 	/**
-	 * Scambia due interi esempi nella lista.
-	 * @param i Indice del primo esempio.
-	 * @param j Indice del secondo esempio.
+	 * Scambia di posizione due esempi nella lista.
+	 *
+	 * @param i indice del primo esempio
+	 * @param j indice del secondo esempio
 	 */
 	private void swap(int i, int j) {
 		Example temp = data.get(i);
@@ -217,11 +224,12 @@ public class Data {
 	}
 
 	/**
-	 * Partiziona la lista rispetto a un attributo discreto.
-	 * @param attribute Attributo discreto usato per il confronto.
-	 * @param inf       Indice inferiore dell'intervallo.
-	 * @param sup       Indice superiore dell'intervallo.
-	 * @return Il punto di separazione.
+	 * Partiziona gli esempi rispetto a un attributo discreto, usato dal quicksort.
+	 *
+	 * @param attribute attributo discreto usato per il confronto
+	 * @param inf indice inferiore dell'intervallo
+	 * @param sup indice superiore dell'intervallo
+	 * @return il punto di separazione (pivot) della partizione
 	 */
 	private int partition(DiscreteAttribute attribute, int inf, int sup) {
 		int i, j;
@@ -247,11 +255,12 @@ public class Data {
 	}
 
 	/**
-	 * Partiziona la lista rispetto a un attributo continuo.
-	 * @param attribute Attributo continuo usato per il confronto.
-	 * @param inf       Indice inferiore dell'intervallo.
-	 * @param sup       Indice superiore dell'intervallo.
-	 * @return Il punto di separazione.
+	 * Partiziona gli esempi rispetto a un attributo continuo, usato dal quicksort.
+	 *
+	 * @param attribute attributo continuo usato per il confronto
+	 * @param inf indice inferiore dell'intervallo
+	 * @param sup indice superiore dell'intervallo
+	 * @return il punto di separazione (pivot) della partizione
 	 */
 	private int partition(ContinuousAttribute attribute, int inf, int sup) {
 		int i, j;
@@ -277,10 +286,13 @@ public class Data {
 	}
 
 	/**
-	 * Algoritmo quicksort per l'ordinamento della lista di esempi.
-	 * @param attribute Attributo su cui ordinare.
-	 * @param inf       Limite inferiore della partizione.
-	 * @param sup       Limite superiore della partizione.
+	 * Ordina gli esempi nell'intervallo indicato con l'algoritmo quicksort,
+	 * scegliendo la partizione adatta in base al tipo (discreto o continuo)
+	 * dell'attributo.
+	 *
+	 * @param attribute attributo su cui ordinare
+	 * @param inf limite inferiore dell'intervallo
+	 * @param sup limite superiore dell'intervallo
 	 */
 	private void quicksort(Attribute attribute, int inf, int sup) {
 		if (sup >= inf) {

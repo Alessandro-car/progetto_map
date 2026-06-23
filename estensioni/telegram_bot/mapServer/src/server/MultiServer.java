@@ -6,19 +6,21 @@ import java.net.ServerSocket;
 
 
 /**
- * Server TCP multi-client che rimane in ascolto su una porta specificata e
- * crea un thread dedicato {@link ServerOneClient} per ogni connessione in entrata.
+ * Server TCP in grado di servire più client contemporaneamente.
+ * <p>
+ * Resta in ascolto su una porta e, per ogni connessione in arrivo, crea un thread
+ * dedicato {@link ServerOneClient} che ne gestisce la comunicazione in modo indipendente.
  */
 public class MultiServer {
 
-	/** Numero di porta su cui il server rimane in ascolto per le connessioni in entrata*/
+	/** Porta su cui il server resta in ascolto delle connessioni in arrivo. */
 	private int PORT = 8080;
 
 	/**
-	 * Costruisce un nuovo {@code MultiServer}, imposta la porta di ascolto e avvia
-	 * l'accettazione delle connessioni dai client.
+	 * Costruisce il server impostando la porta di ascolto e avvia immediatamente
+	 * l'accettazione delle connessioni.
 	 *
-	 * @param port la porta TCP su cui il server rimarrà in ascolto
+	 * @param port la porta TCP su cui il server resterà in ascolto
 	 */
 	public MultiServer(int port) {
 		this.PORT = port;
@@ -27,13 +29,12 @@ public class MultiServer {
 
 
 	/**
-	 * Apre una {@link ServerSocket} sulla porta {@link #PORT} ed entra in un ciclo
-	 * infinito di accettazione delle connessioni. Per ogni connessione accettata viene
-	 * creato un nuovo thread {@link ServerOneClient}. Se il costruttore di
-	 * {@code ServerOneClient} fallisce, il socket grezzo viene chiuso immediatamente
-	 * per liberare le risorse.
-	 * La {@code ServerSocket} viene sempre chiusa nel blocco {@code finally}, anche in
-	 * caso di errore durante l'avvio o l'accettazione delle connessioni.
+	 * Apre la {@link ServerSocket} sulla porta configurata ed entra in un ciclo
+	 * infinito in cui accetta le connessioni.
+	 * <p>
+	 * Per ogni connessione accettata crea un nuovo {@link ServerOneClient}; se la
+	 * sua creazione fallisce, il socket viene chiuso subito per liberare le risorse.
+	 * La {@link ServerSocket} viene comunque chiusa nel blocco {@code finally}.
 	 */
 	private void run() {
 		ServerSocket s = null;

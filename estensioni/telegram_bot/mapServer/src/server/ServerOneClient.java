@@ -15,38 +15,42 @@ import tree.*;
 import database.*;
 
 /**
- * Gestisce la comunicazione con un singolo client connesso in un thread dedicato.
- * Ogni istanza gestisce il proprio {@link Socket}, {@link ObjectInputStream} e
- * {@link ObjectOutputStream}, ed elabora una sequenza di codici azione inviati dal
- * client per guidare il processo di scoperta o predizione dell'albero di regressione.
+ * Gestisce la comunicazione con un singolo client all'interno di un thread dedicato.
+ * <p>
+ * Ogni istanza possiede il proprio {@link Socket}, {@link ObjectInputStream} e
+ * {@link ObjectOutputStream} e interpreta una sequenza di codici azione (numeri
+ * interi) inviati dal client per guidare l'apprendimento o la predizione di un
+ * albero di regressione.
  *
  * <p>Codici azione supportati:
  * <ul>
  *   <li>{@code 0} – Carica i dati di addestramento da una tabella del database.</li>
- *   <li>{@code 1} – Costruisce un albero di regressione e lo serializza su disco.</li>
- *   <li>{@code 2} – Deserializza un albero di regressione precedentemente salvato.</li>
- *   <li>{@code 3} – Esegue una query di predizione interattiva sull'albero caricato.</li>
+ *   <li>{@code 1} – Costruisce un albero di regressione e lo salva su disco.</li>
+ *   <li>{@code 2} – Carica un albero di regressione precedentemente salvato.</li>
+ *   <li>{@code 3} – Esegue una predizione interattiva sull'albero caricato.</li>
+ *   <li>{@code 4} – Invia al client l'elenco delle tabelle presenti nel database.</li>
+ *   <li>{@code 5} – Invia al client l'elenco degli alberi già salvati su disco (file {@code .dmp}).</li>
  * </ul>
  */
 class ServerOneClient extends Thread {
-	/** Il socket connesso al client. */
+
+	/** Socket connesso al client. */
 	private Socket socket;
 
-	/** Stream utilizzato per ricevere oggetti dal client. */
+	/** Stream usato per ricevere oggetti dal client. */
 	private ObjectInputStream in;
 
-	/** Stream utilizzato per inviare oggetti al client. */
+	/** Stream usato per inviare oggetti al client. */
 	private ObjectOutputStream out;
 
 	/**
-	 * Costruisce un nuovo {@code ServerOneClient} per il socket fornito, inizializza
-	 * gli stream di oggetti e avvia immediatamente il thread.
-	 *
-	 * <p><strong>Nota:</strong> {@code out} viene inizializzato prima di {@code in} per
-	 * evitare un deadlock: il costruttore di {@link ObjectInputStream} si blocca finché
-	 * il lato remoto non ha scritto l'intestazione del proprio stream, quindi lo stream
-	 * di output locale deve essere creato per primo, così il client può leggere l'header
-	 * e procedere con la creazione del proprio {@code ObjectInputStream}.
+	 * Costruisce il gestore per il socket fornito, inizializza gli stream di oggetti
+	 * e avvia immediatamente il thread.
+	 * <p>
+	 * <strong>Nota:</strong> {@code out} viene creato prima di {@code in} per evitare
+	 * un blocco: il costruttore di {@link ObjectInputStream} resta in attesa finché
+	 * l'altro lato non ha scritto l'intestazione del proprio stream, quindi lo stream
+	 * di output locale deve essere creato per primo.
 	 *
 	 * @param s il {@link Socket} che rappresenta la connessione accettata dal client
 	 * @throws IOException se si verifica un errore di I/O durante la creazione degli stream
@@ -61,32 +65,35 @@ class ServerOneClient extends Thread {
 	}
 
 	/**
-	 * Ciclo di esecuzione principale del thread di gestione del client.
+	 * Ciclo principale del thread che gestisce il client.
+	 * <p>
+	 * Legge i codici azione interi inviati dal client e li smista alla logica
+	 * corrispondente. Il ciclo termina quando il client si disconnette o si verifica
+	 * un errore di I/O non recuperabile; le risorse (socket e stream) vengono sempre
+	 * rilasciate nel blocco {@code finally}.
 	 *
-	 * <p>Legge i codici azione interi dal client e li smista alla logica appropriata.
-	 * Il ciclo termina quando il client si disconnette o si verifica un errore di I/O
-	 * non recuperabile. Le risorse socket e stream vengono sempre rilasciate nel blocco
-	 * {@code finally}.
-	 *
-	 * <p>Semantica dei codici azione:
+	 * <p>Significato dei codici azione:
 	 * <ul>
-	 *   <li><b>0 – Apprendimento da DB:</b> legge ripetutamente un nome di tabella dal
-	 *       client, costruisce un oggetto {@link Data} da quella tabella e risponde con
-	 *       {@code "Table found!"} in caso di successo o con un messaggio di errore in
-	 *       caso di fallimento, fino a ricevere un nome valido. Invia {@code "OK"} al
-	 *       termine.</li>
+	 *   <li><b>0 – Apprendimento da DB:</b> legge ripetutamente un nome di tabella,
+	 *       costruisce un oggetto {@link Data} da quella tabella e risponde
+	 *       {@code "Table found!"} in caso di successo o un messaggio di errore in
+	 *       caso contrario, fino a ricevere un nome valido; invia {@code "OK"} al termine.</li>
 	 *   <li><b>1 – Costruzione e salvataggio albero:</b> costruisce un
-	 *       {@link RegressionTree} dall'insieme di addestramento corrente, lo serializza
-	 *       nel file {@code <tableName>.dmp} e risponde {@code "OK"}.</li>
-	 *   <li><b>2 – Caricamento albero:</b> legge un nome di tabella, deserializza il
+	 *       {@link RegressionTree} dai dati correnti, lo salva nel file
+	 *       {@code <tableName>.dmp} e risponde {@code "OK"}.</li>
+	 *   <li><b>2 – Caricamento albero:</b> legge un nome di tabella, carica il
 	 *       corrispondente file {@code .dmp} e risponde {@code "Table found!"} in caso
-	 *       di successo o con un messaggio di errore in caso di fallimento, ripetendo
-	 *       finché non si riceve un nome valido. Invia {@code "OK"} al termine.</li>
-	 *   <li><b>3 – Predizione:</b> invia {@code "QUERY"} per segnalare l'inizio di una
+	 *       di successo o un messaggio di errore in caso contrario, fino a ricevere un
+	 *       nome valido; invia {@code "OK"} al termine.</li>
+	 *   <li><b>3 – Predizione:</b> invia {@code "QUERY"} per segnalare l'inizio della
 	 *       sessione interattiva, delega a
 	 *       {@link RegressionTree#predictClass(ObjectInputStream, ObjectOutputStream)}
-	 *       che scambia messaggi con il client, poi invia {@code "OK"} seguito dal
+	 *       lo scambio di messaggi con il client, poi invia {@code "OK"} seguito dal
 	 *       valore {@link Double} predetto.</li>
+	 *   <li><b>4 – Elenco tabelle:</b> apre una connessione al database e invia al
+	 *       client la lista delle tabelle disponibili.</li>
+	 *   <li><b>5 – Elenco alberi salvati:</b> cerca nella cartella corrente i file
+	 *       con estensione {@code .dmp} e invia al client i relativi nomi (senza estensione).</li>
 	 * </ul>
 	 */
 	@Override

@@ -1,15 +1,16 @@
 package database;
 
 /**
- * Eccezione personalizzata che viene lanciata quando il risultato
- * di una query al database è un insieme vuoto.
- * Estende {@link Exception} per essere una eccezione checked,
- * obbligando chi la usa a gestirla esplicitamente.
+ * Eccezione sollevata quando il risultato di una query al database è vuoto,
+ * cioè non contiene alcuna riga.
+ * <p>
+ * Estende {@link Exception} ed è quindi una eccezione checked, che chi la usa
+ * deve gestire esplicitamente.
  */
 public class EmptySetException extends Exception {
 
     /**
-     * Costruisce una nuova eccezione con il messaggio di default
+     * Costruisce una nuova eccezione con il messaggio predefinito
      * "The result set is empty."
      */
     public EmptySetException() {
