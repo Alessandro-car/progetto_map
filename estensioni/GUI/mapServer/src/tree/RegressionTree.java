@@ -129,7 +129,7 @@ public class RegressionTree implements Serializable {
 			int risp;
 			System.out.println(((SplitNode) root).formulateQuery());
 			risp = new Scanner(System.in).nextInt();
-			if (risp == -1 || risp >= root.getNumberOfChildren()) {
+			if (risp < 0 || risp >= root.getNumberOfChildren()) {
 				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 			} else {
 				return childTree[risp].predictClass();
@@ -166,7 +166,7 @@ public class RegressionTree implements Serializable {
 			int risp = 0;
 			out.writeObject(((SplitNode) root).formulateQuery());
 			risp = (Integer) in.readObject();
-			if (risp == -1 || risp >= root.getNumberOfChildren()) {
+			if (risp < 0 || risp >= root.getNumberOfChildren()) {
 				out.writeObject("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 			} else {
