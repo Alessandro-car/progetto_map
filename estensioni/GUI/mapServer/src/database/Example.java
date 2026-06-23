@@ -19,7 +19,7 @@ public class Example implements Comparable<Example>, Iterable<Object> {
      *
      * @param o l'oggetto da aggiungere
      */
-    public void add(Object o) {
+    void add(Object o) {
         example.add(o);
     }
 
@@ -44,7 +44,7 @@ public class Example implements Comparable<Example>, Iterable<Object> {
      *         rispettivamente minore, uguale o maggiore di {@code ex}
      */
     public int compareTo(Example ex) {
-        
+
         int i=0;
         for(Object o:ex.example){
             if(!o.equals(this.example.get(i)))
@@ -67,13 +67,12 @@ public class Example implements Comparable<Example>, Iterable<Object> {
     }
         /**
      * Restituisce un iteratore sugli elementi dell'esempio.
-     * 
+     *
      * @return un {@link Iterator} sugli oggetti della lista
      */
     @Override
     public Iterator<Object> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+        return example.iterator();
     }
-    
+
 }

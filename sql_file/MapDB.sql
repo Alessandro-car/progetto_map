@@ -5,7 +5,7 @@ USE MapDB;
 
 DROP USER IF EXISTS 'MapUser'@'localhost';
 CREATE USER 'MapUser'@'localhost' IDENTIFIED BY 'map';
-GRANT SELECT, INSERT ON MapDB.* TO 'MapUser'@'localhost';
+GRANT SELECT ON MapDB.* TO 'MapUser'@'localhost';
 
 CREATE TABLE IF NOT EXISTS MapDB.provaC(
     X varchar(10),

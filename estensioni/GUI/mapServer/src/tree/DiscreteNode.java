@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * La classe {@code DiscreteNode} estende la classe {@code SplitNode}.
  */
 
-public class DiscreteNode extends SplitNode implements Serializable {
+class DiscreteNode extends SplitNode implements Serializable {
 
 		/**
 		 * Invoca il costruttore della superclasse per inizializzare i dati e avviare la generazione delle informazioni di split.

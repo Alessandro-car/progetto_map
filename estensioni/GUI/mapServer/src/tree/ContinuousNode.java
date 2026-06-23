@@ -10,9 +10,9 @@ import data.Data;
 
 
 
-public class ContinuousNode extends SplitNode implements Serializable{
+class ContinuousNode extends SplitNode implements Serializable{
 
-	public ContinuousNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, ContinuousAttribute attribute) {
+	ContinuousNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, ContinuousAttribute attribute) {
 		super(trainingSet, beginExampleIndex, endExampleIndex, attribute); }
 
 	void setSplitInfo(Data trainingSet,int beginExampleIndex, int endExampleIndex, Attribute attribute){
