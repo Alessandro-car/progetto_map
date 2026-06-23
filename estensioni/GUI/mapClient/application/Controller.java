@@ -95,7 +95,7 @@ public class Controller {
 
         connectionTask.setOnFailed(e -> {
             Throwable cause = connectionTask.getException();
-            System.out.println("Connessione fallita: " + cause.getMessage());
+            System.out.println("Connection failed: " + cause.getMessage());
 
             linked.setText("CONNECTION FAILED!");
             linked.setTextFill(Color.RED);
@@ -137,18 +137,33 @@ public class Controller {
     }
 
     public void openWindow(ActionEvent event, String title) {
-        try {
-            Parent parent = FXMLLoader.load(getClass().getResource("/Presentation/Load_From.fxml"));
-            Scene scene = new Scene(parent);
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(scene);
-            window.setTitle(title);
-            window.show();
-        } catch (IOException e) {
-            System.err.println("Errore nel caricamento di Load_From.fxml");
-            e.printStackTrace();
+    try {
+        // =========================================================================
+        // FIX: Forza il reset della connessione per ripulire lo stato del server
+        // =========================================================================
+        if (connection && ip != null) {
+            try {
+                if (menu != null) {
+                    menu.close(); // Chiude il socket precedente lato client
+                }
+                menu = new RtClient(ip); // Apre una connessione totalmente pulita e azzerata
+            } catch (IOException e) {
+                System.err.println("Errore durante il refresh della connessione: " + e.getMessage());
+            }
         }
+        // =========================================================================
+
+        Parent parent = FXMLLoader.load(getClass().getResource("/Presentation/Load_From.fxml"));
+        Scene scene = new Scene(parent);
+        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        window.setScene(scene);
+        window.setTitle(title);
+        window.show();
+    } catch (IOException e) {
+        System.err.println("download error from Load_From.fxml");
+        e.printStackTrace();
     }
+}
 
     @FXML
     public void retryConnection() {

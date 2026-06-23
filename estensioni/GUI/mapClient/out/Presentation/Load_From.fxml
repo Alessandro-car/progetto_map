@@ -63,11 +63,11 @@
                 <ComboBox
                     fx:id="tableNameValue"
                     editable="false"
-                    promptText="Seleziona una tabella..."
+                    promptText="select a table..."
                     prefHeight="30.0" prefWidth="308.0"
                     style="-fx-background-color: #2A2A3E;
                            -fx-text-fill: white;
-                           -fx-prompt-text-fill: #666688;
+                           -fx-prompt-text-fill: #ffffff;
                            -fx-border-color: #5C6BC0;
                            -fx-border-width: 1;
                            -fx-border-radius: 6;
@@ -115,15 +115,14 @@
             </children>
         </GridPane>
 
-        <TextArea
+       <TextArea
             fx:id="output"
             editable="false"
             focusTraversable="false"
             layoutX="20.0" layoutY="118.0"
             prefHeight="234.0" prefWidth="663.0"
             style="-fx-control-inner-background: #1A1A2A; 
-                   -fx-text-fill: #E0E0E0; 
-                   -fx-font-family: monospace;
+                   -fx-text-fill: white; -fx-font-family: monospace;
                    -fx-viewport-background: #1A1A2A;
                    -fx-border-color: #3D5AFE;
                    -fx-border-width: 1;

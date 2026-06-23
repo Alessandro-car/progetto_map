@@ -28,7 +28,7 @@ public class RtClient {
             throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(0);
         out.writeObject(tableName);
-        out.flush(); // <── FORZA L'INVIO DEI DATI
+        out.flush(); 
 
         String result = in.readObject().toString();
         if (!result.equals("Table found!")) {          
@@ -44,7 +44,7 @@ public class RtClient {
     public String learningFromDbTable()
             throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(1);
-        out.flush(); // <── FORZA L'INVIO DEI DATI
+        out.flush(); 
         
         String result = in.readObject().toString();
         if (!result.equals("OK")) {
@@ -67,7 +67,7 @@ public class RtClient {
             throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(2);
         out.writeObject(tableName);
-        out.flush(); // <── FORZA L'INVIO DEI DATI
+        out.flush(); 
 
         String result = in.readObject().toString();
         if (!result.equals("Table found!")) {          
@@ -88,27 +88,43 @@ public class RtClient {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  GET TABLE NAMES (action 4)
+    //  GET TABLE NAMES (action 4) - AGGIORNATO CON CONTROLLO ERRORE
     // ─────────────────────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     public ArrayList<String> getTableNames()
-            throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(4);
-        out.flush(); // <── FONDAMENTALE: sblocca la richiesta delle tabelle!
-        return (ArrayList<String>) in.readObject();
+        out.flush(); 
+        
+        Object response = in.readObject();
+        
+        // Se il server risponde con un testo (String) invece della lista, è un errore!
+        if (response instanceof String) {
+            throw new ServerException("Errore Server: " + response);
+        }
+        
+        return (ArrayList<String>) response;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  GET FILE NAMES (action 5)
+    //  GET FILE NAMES (action 5) - AGGIORNATO CON CONTROLLO ERRORE
     // ─────────────────────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     public ArrayList<String> getFileNames()
-            throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(5);
-        out.flush(); // <── FONDAMENTALE: sblocca la richiesta dei file!
-        return (ArrayList<String>) in.readObject();
+        out.flush(); 
+        
+        Object response = in.readObject();
+        
+        // Se il server risponde con un testo (String) invece della lista, è un errore!
+        if (response instanceof String) {
+            throw new ServerException("Errore Server: " + response);
+        }
+        
+        return (ArrayList<String>) response;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -118,7 +134,7 @@ public class RtClient {
     private String startPrediction()
             throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(3);
-        out.flush(); // <── FORZA L'INVIO DEI DATI
+        out.flush(); 
 
         String signal = in.readObject().toString();
         if (!signal.equals("QUERY")) {
@@ -131,7 +147,7 @@ public class RtClient {
     private String sendBranchAndRead(int branch)
             throws IOException, ClassNotFoundException, ServerException {
         out.writeObject(branch);
-        out.flush(); // <── FORZA L'INVIO DEI DATI
+        out.flush(); 
 
         String response = in.readObject().toString();
         if (!response.equals("QUERY")) {
@@ -145,5 +161,14 @@ public class RtClient {
         }
 
         return next;
+    }
+    
+    public void close() {
+    try {
+        if (in != null) in.close();
+        if (out != null) out.close();
+    } catch (IOException e) {
+        // Ignora eventuali eccezioni durante la chiusura
+    }
     }
 }

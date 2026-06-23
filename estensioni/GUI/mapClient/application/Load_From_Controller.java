@@ -68,10 +68,10 @@ public class Load_From_Controller {
 
         if (Controller.caseName != null && Controller.caseName.equals("fromDb")) {
             tableNameLabel.setText("TABLE NAME");
-            loadNames(() -> Controller.menu.getTableNames(), "Seleziona una tabella...");
+            loadNames(() -> Controller.menu.getTableNames(), "select a table...");
         } else {
             tableNameLabel.setText("FILE NAME");
-            loadNames(() -> Controller.menu.getFileNames(), "Seleziona un file...");
+            loadNames(() -> Controller.menu.getFileNames(), "select a file...");
         }
     }
 
@@ -94,19 +94,19 @@ public class Load_From_Controller {
         task.setOnSucceeded(e -> {
             tableNameValue.setItems(task.getValue());
             tableNameValue.setPromptText(
-                task.getValue().isEmpty() ? "Nessun elemento trovato" : promptText
+                task.getValue().isEmpty() ? "no items found" : promptText
             );
         });
 
         task.setOnFailed(e -> {
-            tableNameValue.setPromptText("Errore caricamento dati");
+            tableNameValue.setPromptText("data loading error");
             String msg = task.getException() != null
                     ? task.getException().getMessage()
                     : "Errore sconosciuto";
             if (output != null) {
-                output.appendText("Impossibile caricare i dati: " + msg + "\n");
+                output.appendText("unable to load data: " + msg + "\n");
             } else {
-                System.err.println("Impossibile caricare i dati: " + msg);
+                System.err.println("unable to load data: " + msg);
             }
         });
 
@@ -128,7 +128,7 @@ public class Load_From_Controller {
 
         tableNameValue.setDisable(true);
         executionButton.setDisable(true);
-        output.setText("Connessione al server...\n");
+        output.setText("server connection...\n");
 
         Task<String> executionTask = new Task<>() {
             @Override
@@ -144,14 +144,14 @@ public class Load_From_Controller {
 
         executionTask.setOnSucceeded(e -> {
             String result = executionTask.getValue();
-            output.setText("Albero generato con successo.\n\n");
+            output.setText("Tree successfully generated\n\n");
 
             if (result.startsWith("PREDICTED:")) {
                 String value = result.substring("PREDICTED:".length());
                 output.appendText("Predicted class value: " + value + "\n");
                 newExecutionButton.setDisable(false);
             } else {
-                output.appendText("Fase di predizione avviata:\n\n" + result);
+                output.appendText("Prediction phase started:\n\n" + result);
                 branchValue.setDisable(false);
                 okButton.setDisable(false);
                 branchValue.requestFocus();
@@ -159,7 +159,7 @@ public class Load_From_Controller {
         });
 
         executionTask.setOnFailed(e -> {
-            output.appendText("\nErrore: " + executionTask.getException().getMessage());
+            output.appendText("\nError: " + executionTask.getException().getMessage());
             tableNameValue.setDisable(false);
             executionButton.setDisable(false);
             newExecutionButton.setDisable(false);
@@ -175,13 +175,13 @@ public class Load_From_Controller {
         String branchText = branchValue.getText().trim();
 
         if (branchText.isEmpty()) {
-            output.appendText("\nInserisci un numero di branch valido.\n");
+            output.appendText("\nPlease enter a valid branch number .\n");
             branchValue.requestFocus();
             return;
         }
 
         int branch = Integer.parseInt(branchText);
-        output.appendText("\nScelta: " + branch + " — elaborazione...");
+        output.appendText("\nChoice: " + branch + " — processing...");
         okButton.setDisable(true);
         branchValue.setDisable(true);
 
@@ -216,7 +216,7 @@ public class Load_From_Controller {
         });
 
         branchTask.setOnFailed(e -> {
-            output.appendText("\nErrore: " + branchTask.getException().getMessage());
+            output.appendText("\nError: " + branchTask.getException().getMessage());
             newExecutionButton.setDisable(false);
         });
 
@@ -255,7 +255,7 @@ public class Load_From_Controller {
             window.show();
         } catch (Exception e) {
             e.printStackTrace();
-            output.appendText("\nErrore nel caricamento del menu: " + e);
+            output.appendText("\n Error loading menu: " + e);
         }
     }
 }

@@ -76,10 +76,12 @@ public class DbAccess {
      * @throws SQLException se si verifica un errore durante la chiusura
      *         della connessione
      */
+    
     public void closeConnection() throws SQLException {
-        conn.close();
-
-    }
+            if (conn != null) {
+                conn.close();
+            }
+        }
     /**
      
     Restituisce l'elenco dei nomi di tutte le tabelle presenti nel database.
