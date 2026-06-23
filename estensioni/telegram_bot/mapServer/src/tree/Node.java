@@ -5,44 +5,39 @@ import java.io.Serializable;
 import data.Data;
 
 /**
- * La classe astratta {@code Node} modella un nodo dell'albero di decisione.
- * Rappresenta un sottoinsieme del dataset individuato da un intervallo di indici.
+ * Modella un generico nodo dell'albero di regressione.
+ * <p>
+ * Ogni nodo rappresenta un sottoinsieme degli esempi, individuato da un intervallo
+ * di indici, e ne conosce la varianza rispetto all'attributo target. È una classe
+ * astratta: le implementazioni concrete sono {@link LeafNode} e le sottoclassi di
+ * {@link SplitNode}.
  */
 abstract class Node implements Serializable {
-	/**
-	 * Contatore statico per generare identificativi univoci per i nodi.
-	 */
+
+	/** Contatore statico usato per assegnare un identificativo univoco a ogni nodo. */
 	private static int idNodeCount = 0;
 
-	/**
-	 * Identificativo univoco del nodo.
-	 */
+	/** Identificativo univoco del nodo. */
 	private int idNode;
 
-	/**
-	 * Indice iniziale del sottoinsieme di dati.
-	 */
+	/** Indice iniziale del sottoinsieme di esempi rappresentato dal nodo. */
 	private int beginExampleIndex;
 
-	/**
-	 * Indice finale del sottoinsieme di dati.
-	 */
+	/** Indice finale del sottoinsieme di esempi rappresentato dal nodo. */
 	private int endExampleIndex;
 
-	/**
-	 * Valore della varianza calcolato rispetto all'attributo target nell'intervallo.
-	 */
+	/** Varianza dell'attributo target calcolata sugli esempi del nodo. */
 	private double variance;
 
 	/**
-	 * Inizializza un nodo e calcola la varianza dei dati nell'intervallo specificato.
+	 * Costruisce il nodo sull'intervallo di esempi indicato e ne calcola la varianza.
 	 * <p>
-	 * La varianza è calcolata come:
-	 * {@code sum(x^2) - (sum(x)^2 / n)}
+	 * La varianza è calcolata come {@code somma(x^2) - (somma(x)^2 / n)}, dove
+	 * {@code x} sono i valori dell'attributo target e {@code n} il numero di esempi.
 	 *
-	 * @param trainingSet Il dataset completo di addestramento.
-	 * @param beginExampleIndex Indice iniziale dell'intervallo di esempi.
-	 * @param endExampleIndex Indice finale dell'intervallo di esempi.
+	 * @param trainingSet il dataset di addestramento
+	 * @param beginExampleIndex indice iniziale dell'intervallo di esempi
+	 * @param endExampleIndex indice finale dell'intervallo di esempi
 	 */
 	Node(Data trainingSet, int beginExampleIndex, int endExampleIndex) {
 		this.beginExampleIndex = beginExampleIndex;
@@ -59,45 +54,54 @@ abstract class Node implements Serializable {
 
 	/**
 	 * Restituisce l'identificativo univoco del nodo.
-	 * @return ID del nodo.
+	 *
+	 * @return l'identificativo del nodo
 	 */
 	private int getIdNode() {
 		return idNode;
 	}
 
 	/**
-	 * Restituisce l'indice dell'esempio iniziale nel dataset.
-	 * @return Indice iniziale.
+	 * Restituisce l'indice iniziale del sottoinsieme di esempi del nodo.
+	 *
+	 * @return l'indice iniziale
 	 */
 	private int beginExampleIndex() {
 		return beginExampleIndex;
 	}
 
 	/**
-	 * Restituisce l'indice dell'esempio finale nel dataset.
-	 * @return Indice finale.
+	 * Restituisce l'indice finale del sottoinsieme di esempi del nodo.
+	 *
+	 * @return l'indice finale
 	 */
 	private int getEndExampleIndex() {
 		return endExampleIndex;
 	}
 
 	/**
-	 * Restituisce il valore della varianza del nodo.
-	 * @return Varianza calcolata nel costruttore.
+	 * Restituisce la varianza del nodo.
+	 *
+	 * @return la varianza calcolata sugli esempi del nodo
 	 */
 	double getVariance() {
 		return variance;
 	}
 
 	/**
-	 * Metodo astratto che deve essere implementato dalle sottoclassi per restituire il numero dei nodi figli.
-	 * @return Numero di figli del nodo.
+	 * Restituisce il numero di figli del nodo.
+	 * <p>
+	 * Metodo astratto: deve essere implementato dalle sottoclassi.
+	 *
+	 * @return il numero di figli del nodo
 	 */
 	abstract int getNumberOfChildren();
 
 	/**
-	 * Restituisce una rappresentazione testaule del nodo, includendo l'intervallo di esempi e la varianza.
-	 * @return Stringa descrittiva del nodo.
+	 * Restituisce una rappresentazione testuale del nodo, con l'intervallo di esempi
+	 * e la varianza.
+	 *
+	 * @return la descrizione testuale del nodo
 	 */
 	public String toString() {
 		String u = "Nodo: [Examples:" + beginExampleIndex + "-" + endExampleIndex + "] variance:" + variance;
