@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
+
+<AnchorPane
+    prefHeight="420.0"
+    prefWidth="480.0"
+    style="-fx-background-color: linear-gradient(to bottom, #252535, #1A1A2A);"
+    xmlns="http://javafx.com/javafx/11.0.1"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="application.Controller">
+
+    <stylesheets>
+        <URL value="@style.css"/>
+    </stylesheets>
+
+    <children>
+        <VBox
+            alignment="CENTER"
+            spacing="14.0"
+            AnchorPane.leftAnchor="60.0"
+            AnchorPane.rightAnchor="60.0"
+            AnchorPane.topAnchor="40.0"
+            AnchorPane.bottomAnchor="40.0">
+
+            <!-- Titolo -->
+            <Label
+                text="● REGRESSION TREE"
+                textFill="#7B9FFF"
+                maxWidth="Infinity"
+                alignment="CENTER">
+                <font><Font name="Tahoma Bold" size="16.0"/></font>
+            </Label>
+
+            <Separator style="-fx-background-color: #3D5AFE; -fx-opacity: 0.4;">
+                <padding><Insets top="4.0" bottom="4.0"/></padding>
+            </Separator>
+
+            <!-- Sezione IP -->
+            <Label
+                text="SERVER IP ADDRESS"
+                textFill="#9090BB"
+                maxWidth="Infinity"
+                alignment="CENTER_LEFT">
+                <font><Font name="Tahoma Bold" size="11.0"/></font>
+            </Label>
+
+            <TextField
+                fx:id="textIp"
+                promptText="e.g. 127.0.0.1"
+                onKeyReleased="#enableConnect"
+                style="-fx-background-color: #2A2A3E;
+                       -fx-text-fill: white;
+                       -fx-prompt-text-fill: #666688;
+                       -fx-border-color: #5C6BC0;
+                       -fx-border-width: 1;
+                       -fx-border-radius: 6;
+                       -fx-background-radius: 6;"
+                prefHeight="32.0"/>
+
+            <!-- Messaggio errore IP -->
+            <Label
+                fx:id="ipControl"
+                text="⚠  Invalid IP address format"
+                textFill="#FF5555"
+                visible="false"
+                maxWidth="Infinity"
+                alignment="CENTER_LEFT">
+                <font><Font size="11.0"/></font>
+            </Label>
+
+            <!-- Pulsante connessione: stile SOLO nel CSS -->
+            <Button
+                fx:id="buttonConnection"
+                onMouseEntered="#hoverConnect"  
+                onMouseExited="#exitConnect"
+                text="CONNECT"
+                onAction="#connectButton"
+                disable="true"
+                maxWidth="Infinity"
+                prefHeight="34.0">
+                <font><Font name="Tahoma Bold" size="12.0"/></font>
+            </Button>
+
+            <!-- Stato connessione -->
+            <Label
+                fx:id="linked"
+                text=""
+                textFill="#4CAF50"
+                visible="false"
+                maxWidth="Infinity"
+                alignment="CENTER">
+                <font><Font name="Tahoma Bold" size="12.0"/></font>
+            </Label>
+
+            <!-- Pulsante retry: stile SOLO nel CSS -->
+            <Button
+                fx:id="buttonRetry"
+                onMouseEntered="#hoverRetry"     
+                onMouseExited="#exitRetry" 
+                text="RETRY CONNECTION"
+                onAction="#retryConnection"
+                visible="false"
+                disable="true"
+                maxWidth="Infinity"
+                prefHeight="30.0">
+                <font><Font size="11.0"/></font>
+            </Button>
+
+            <Separator style="-fx-background-color: #3D5AFE; -fx-opacity: 0.4;">
+                <padding><Insets top="4.0" bottom="4.0"/></padding>
+            </Separator>
+
+            <!-- Pulsante DB: stile SOLO nel CSS -->
+            <Button
+                fx:id="buttonFromDB"
+                onMouseEntered="#hoverDB"
+                onMouseExited="#exitDB"
+                text="LOAD FROM DATABASE"
+                onAction="#loadFromDB"
+                disable="true"
+                maxWidth="Infinity"
+                prefHeight="38.0">
+                <font><Font name="Tahoma Bold" size="12.0"/></font>
+            </Button>
+
+            <!-- Pulsante File: stile SOLO nel CSS -->
+            <Button
+                fx:id="fromFileButton"
+                onMouseEntered="#hoverFile"
+                onMouseExited="#exitFile"
+                text="LOAD FROM FILE"
+                onAction="#loadFromFile"
+                disable="true"
+                maxWidth="Infinity"
+                prefHeight="38.0">
+                <font><Font name="Tahoma Bold" size="12.0"/></font>
+            </Button>
+
+        </VBox>
+    </children>
+</AnchorPane>

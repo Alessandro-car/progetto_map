@@ -1,12 +1,16 @@
 package server;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
+import database.*;
 import data.*;
 import tree.*;
 
@@ -22,6 +26,8 @@ import tree.*;
  *   <li>{@code 1} – Costruisce un albero di regressione e lo serializza su disco.</li>
  *   <li>{@code 2} – Deserializza un albero di regressione precedentemente salvato.</li>
  *   <li>{@code 3} – Esegue una query di predizione interattiva sull'albero caricato.</li>
+ *   <li>{@code 4} – Restituisce la lista dei nomi delle tabelle presenti nel DB.</li>
+ *   <li>{@code 5} – Restituisce la lista dei file .dmp presenti nella directory del server.</li>
  * </ul>
  */
 class ServerOneClient extends Thread {
@@ -48,41 +54,13 @@ class ServerOneClient extends Thread {
 	 */
 	public ServerOneClient(Socket s) throws IOException {
 		this.socket = s;
-
 		this.in = new ObjectInputStream(this.socket.getInputStream());
 		this.out = new ObjectOutputStream(this.socket.getOutputStream());
-
 		this.start();
 	}
 
 	/**
 	 * Ciclo di esecuzione principale del thread di gestione del client.
-	 *
-	 * <p>Legge i codici azione interi dal client e li smista alla logica appropriata.
-	 * Il ciclo termina quando il client si disconnette o si verifica un errore di I/O
-	 * non recuperabile. Le risorse socket e stream vengono sempre rilasciate nel blocco
-	 * {@code finally}.
-	 *
-	 * <p>Semantica dei codici azione:
-	 * <ul>
-	 *   <li><b>0 – Apprendimento da DB:</b> legge ripetutamente un nome di tabella dal
-	 *       client, costruisce un oggetto {@link Data} da quella tabella e risponde con
-	 *       {@code "Table found!"} in caso di successo o con un messaggio di errore in
-	 *       caso di fallimento, fino a ricevere un nome valido. Invia {@code "OK"} al
-	 *       termine.</li>
-	 *   <li><b>1 – Costruzione e salvataggio albero:</b> costruisce un
-	 *       {@link RegressionTree} dall'insieme di addestramento corrente, lo serializza
-	 *       nel file {@code <tableName>.dmp} e risponde {@code "OK"}.</li>
-	 *   <li><b>2 – Caricamento albero:</b> legge un nome di tabella, deserializza il
-	 *       corrispondente file {@code .dmp} e risponde {@code "Table found!"} in caso
-	 *       di successo o con un messaggio di errore in caso di fallimento, ripetendo
-	 *       finché non si riceve un nome valido. Invia {@code "OK"} al termine.</li>
-	 *   <li><b>3 – Predizione:</b> invia {@code "QUERY"} per segnalare l'inizio di una
-	 *       sessione interattiva, delega a
-	 *       {@link RegressionTree#predictClass(ObjectInputStream, ObjectOutputStream)}
-	 *       che scambia messaggi con il client, poi invia {@code "OK"} seguito dal
-	 *       valore {@link Double} predetto.</li>
-	 * </ul>
 	 */
 	@Override
 	public void run() {
@@ -90,7 +68,7 @@ class ServerOneClient extends Thread {
 		RegressionTree tree = null;
 		String tableName = "";
 		try {
-			while(true) {
+			while (true) {
 				int action = 0;
 				try {
 					action = (Integer) in.readObject();
@@ -99,6 +77,7 @@ class ServerOneClient extends Thread {
 					break;
 				}
 				switch (action) {
+
 					case 0:
 						try {
 							while (true) {
@@ -118,13 +97,13 @@ class ServerOneClient extends Thread {
 						} catch (ClassNotFoundException e) {
 							System.out.println(e);
 						}
-
 						try {
 							out.writeObject("OK");
 						} catch (IOException e) {
 							System.out.println(e);
 						}
 						break;
+
 					case 1:
 						if (trainingSet == null) {
 							try {
@@ -143,8 +122,9 @@ class ServerOneClient extends Thread {
 							System.out.println(e);
 						}
 						break;
+
 					case 2:
-						while(true) {
+						while (true) {
 							try {
 								tableName = in.readObject().toString();
 								tree = RegressionTree.carica(tableName + ".dmp");
@@ -159,6 +139,7 @@ class ServerOneClient extends Thread {
 						}
 						out.writeObject("OK");
 						break;
+
 					case 3:
 						if (tree == null) {
 							try {
@@ -179,8 +160,43 @@ class ServerOneClient extends Thread {
 							System.out.println("I/O error: " + e.toString());
 						}
 						break;
-				}
-			}
+
+					case 4:
+						// Restituisce la lista dei nomi delle tabelle presenti nel DB
+							DbAccess db = new DbAccess();
+                        try {
+                            db.initConnection();
+                            ArrayList<String> tables = db.getListOfTables();
+                            out.writeObject(tables);
+                            out.flush();
+                        } catch (DatabaseConnectionException e) {
+                            System.err.println(e);
+                        } catch (SQLException e) {
+                            System.err.println(e);
+                        } finally {
+                            try { db.closeConnection(); } catch (SQLException ignored) {}
+                        }
+                        break;
+					case 5:
+						// Restituisce la lista dei file .dmp presenti nella directory del server
+						try {
+							java.io.File dir = new java.io.File(".");
+							java.io.File[] files = dir.listFiles((d, name) -> name.endsWith(".dmp"));
+							java.util.List<String> fileNames = new java.util.ArrayList<>();
+							if (files != null) {
+								for (java.io.File f : files) {
+									fileNames.add(f.getName().replace(".dmp", ""));
+								}
+							}
+							out.writeObject(fileNames);
+						} catch (Exception e) {
+							out.writeObject(new java.util.ArrayList<String>());
+							System.err.println("Errore lettura file .dmp: " + e);
+						}
+						break;
+
+				} // fine switch
+			} // fine while
 		} catch (IOException e) {
 			System.err.println("I/O Error: " + e.toString());
 		} finally {

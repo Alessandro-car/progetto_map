@@ -168,7 +168,7 @@ public class RegressionTree implements Serializable {
 			out.writeObject(((SplitNode) root).formulateQuery());
 			risp = (Integer) in.readObject();
 			if (risp == -1 || risp >= root.getNumberOfChildren()) {
-				out.writeObject("The answer should be an integer between 0 and" + (root.getNumberOfChildren() - 1) + "!");
+				out.writeObject("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 			} else {
 				out.writeObject("QUERY");
