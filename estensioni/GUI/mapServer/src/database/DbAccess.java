@@ -1,8 +1,11 @@
 package database;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Gestisce la connessione al database MySQL.
@@ -77,4 +80,23 @@ public class DbAccess {
         conn.close();
         
     }
+    /**
+     
+    Restituisce l'elenco dei nomi di tutte le tabelle presenti nel database.
+    <p>
+    Utilizza i metadati della connessione ({@link DatabaseMetaData}) per
+    recuperare le tabelle di tipo {@code "TABLE"}.*
+    @return una lista con i nomi delle tabelle del database
+    @throws SQLException se si verifica un errore durante l'accesso ai metadati*/
+    public ArrayList<String> getListOfTables() throws SQLException {
+        DatabaseMetaData metaData = this.getConnection().getMetaData();
+        String[] tableTypes = {"TABLE"};
+        ArrayList<String> tables = new ArrayList<String>();
+        try (ResultSet resultSet = metaData.getTables(null, null, "%", tableTypes)) {
+            while (resultSet.next()) {
+                tables.add(resultSet.getString("TABLE_NAME"));}} catch (SQLException e) {
+            throw new SQLException(e);}
+
+            return tables;
+        }
 }
