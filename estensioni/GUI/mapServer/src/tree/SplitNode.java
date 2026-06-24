@@ -239,6 +239,9 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 
 	/**
 	 * Confronta questo nodo di split con un altro in base alla varianza prodotta.
+	 * <p>
+	 * A parità di varianza il confronto avviene sull'indice dell'attributo, così da
+	 * stabilire comunque un ordine.
 	 *
 	 * @param o il nodo di split con cui effettuare il confronto
 	 * @return un valore negativo, zero o positivo se questo nodo ha varianza
@@ -249,6 +252,6 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 			return 1;
 		if (this.splitVariance < o.getVariance())
 			return -1;
-		return Integer.compare(this.attribute.getIndex(), o.attribute.getIndex());;
+		return Integer.compare(this.attribute.getIndex(), o.attribute.getIndex());
 	}
 }
