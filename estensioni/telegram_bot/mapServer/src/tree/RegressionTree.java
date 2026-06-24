@@ -89,7 +89,6 @@ public class RegressionTree implements Serializable {
 			}
 			ts.add(currentNode);
 		}
-		// Il TreeSet ordina per splitVariance crescente: il primo elemento è il nodo migliore
 		SplitNode bestNode = ts.first();
 		trainingSet.sort(bestNode.getAttribute(), begin, end);
 		return bestNode;

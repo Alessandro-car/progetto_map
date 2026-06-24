@@ -8,36 +8,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * La classe astratta {@code SplitNode} modella un nodo di split nell'albero di decisione.
+ * Modella un generico nodo di split dell'albero di regressione.
  * <p>
- * Oltre ai dati ereditati da {@link Node}, questa classe contiene le informazioni
- * sull'attributo usato per la separazione e una struttura per gestire i rami figli.
+ * Oltre alle informazioni ereditate da {@link Node}, conserva l'attributo usato
+ * per la suddivisione e la descrizione dei rami generati. È una classe astratta:
+ * le implementazioni concrete sono {@link DiscreteNode} (attributi discreti) e
+ * {@link ContinuousNode} (attributi continui). Implementa {@link Comparable} per
+ * poter ordinare i nodi di split in base alla varianza prodotta.
  */
 abstract class SplitNode extends Node implements Comparable<SplitNode> {
+
 	/**
-	 * Inner class che colleziona le informazioni descrittive di un ramo dello split.
-	 * Mantiene traccia del valore di split, dell'intervallo di indici nel dataset
-	 * e dell'operatore di confronto.
+	 * Raccoglie le informazioni che descrivono un singolo ramo dello split:
+	 * il valore di suddivisione, l'intervallo di esempi che vi ricadono e
+	 * l'operatore di confronto da usare.
 	 */
 	class SplitInfo implements Serializable {
+
 		/** Valore dell'attributo che definisce il ramo. */
 		Object splitValue;
-		/** Indice iniziale del dataset per questo ramo. */
+
+		/** Indice iniziale dell'intervallo di esempi del ramo. */
 		int beginIndex;
-		/** Indice finale del dataset per questo ramo. */
+
+		/** Indice finale dell'intervallo di esempi del ramo. */
 		int endIndex;
-		/** Identificativo numerico del figlio.*/
+
+		/** Identificativo numerico del ramo (figlio). */
 		int numberChild;
 
-		/** Operatore di confronto. */
+		/** Operatore di confronto associato al ramo (di default "="). */
 		String comparator = "=";
 
 		/**
-		 * Costruttore per {@code SplitInfo} con operatore di default.
-		 * @param splitValue  Valore dell'attributo.
-		 * @param beginIndex  Indice di inizio.
-		 * @param endIndex    Indice di fine.
-		 * @param numberChild Numero del figlio.
+		 * Costruisce le informazioni di un ramo usando l'operatore di confronto
+		 * predefinito ("=").
+		 *
+		 * @param splitValue valore dell'attributo che definisce il ramo
+		 * @param beginIndex indice iniziale dell'intervallo
+		 * @param endIndex indice finale dell'intervallo
+		 * @param numberChild identificativo numerico del ramo
 		 */
 		SplitInfo(Object splitValue,int beginIndex,int endIndex,int numberChild){
 			this.splitValue = splitValue;
@@ -47,12 +57,13 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 		}
 
 		/**
-		 * Costruttore completo per {@code SplitInfo} con operatore specificato.
-		 * @param splitValue  Valore dell'attributo.
-		 * @param beginIndex  Indice di inizio.
-		 * @param endIndex    Indice di fine.
-		 * @param numberChild Numero del figlio.
-		 * @param comparator  Simbolo dell'operatore di confronto.
+		 * Costruisce le informazioni di un ramo specificando anche l'operatore di confronto.
+		 *
+		 * @param splitValue valore dell'attributo che definisce il ramo
+		 * @param beginIndex indice iniziale dell'intervallo
+		 * @param endIndex indice finale dell'intervallo
+		 * @param numberChild identificativo numerico del ramo
+		 * @param comparator operatore di confronto del ramo (ad esempio "&lt;=" o "&gt;")
 		 */
 		SplitInfo(Object splitValue,int beginIndex,int endIndex,int numberChild, String comparator){
 			this.splitValue = splitValue;
@@ -62,72 +73,99 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 			this.comparator = comparator;
 		}
 
-		/** @return Indice iniziale dell'intervallo. */
+		/**
+		 * Restituisce l'indice iniziale dell'intervallo del ramo.
+		 *
+		 * @return l'indice iniziale
+		 */
 		int getBeginindex(){
 			return beginIndex;
 		}
 
-		/** @return Indice finale dell'intervallo. */
+		/**
+		 * Restituisce l'indice finale dell'intervallo del ramo.
+		 *
+		 * @return l'indice finale
+		 */
 		int getEndIndex(){
 			return endIndex;
 		}
 
-		/** @return Valore di split del ramo. */
+		/**
+		 * Restituisce il valore di suddivisione del ramo.
+		 *
+		 * @return il valore di split del ramo
+		 */
 		Object getSplitValue(){
 			return splitValue;
 		}
 
-		/** @return Operatore di confronto. */
+		/**
+		 * Restituisce una rappresentazione testuale del ramo.
+		 *
+		 * @return la descrizione testuale del ramo
+		 */
 		public String toString(){
 			return "child " + numberChild +" split value"+comparator+splitValue + "[Examples:"+beginIndex+"-"+endIndex+"]";
 		}
 
-		/** @return Rappresentazione testuale del ramo. */
+		/**
+		 * Restituisce l'operatore di confronto del ramo.
+		 *
+		 * @return l'operatore di confronto
+		 */
 		String getComparator(){
 			return comparator;
 		}
 	}
 
-  /** L'attributo su cui viene effettuato lo split. */
+	/** Attributo su cui viene effettuato lo split. */
 	Attribute attribute;
-	/** Array che contiene le informazioni sui vari rami dello split. */
+
+	/** Lista delle informazioni sui rami generati dallo split. */
 	List<SplitInfo> mapSplit;
-	/** Valore della varianza complessiva dopo lo split. */
+
+	/** Varianza complessiva degli esempi dopo lo split. */
 	double splitVariance;
 
 	/**
-	 * Metodo astratto per generare le informazioni di split.
-	 * Deve essere implementato nelle sottoclassi per gestire attributi discreti o continui.
-	 * @param trainingSet       Dataset di addestramento.
-	 * @param beginExampleIndex Indice iniziale.
-	 * @param endExampleIndex   Indice finale.
-	 * @param attribute         Attributo di split.
+	 * Genera le informazioni di split.
+	 * <p>
+	 * Metodo astratto: deve essere implementato dalle sottoclassi per gestire
+	 * attributi discreti o continui.
+	 *
+	 * @param trainingSet il dataset di addestramento
+	 * @param beginExampleIndex indice iniziale dell'intervallo di esempi
+	 * @param endExampleIndex indice finale dell'intervallo di esempi
+	 * @param attribute l'attributo su cui effettuare lo split
 	 */
 	abstract void setSplitInfo(Data trainingSet,int beginExampleIndex, int endExampleIndex, Attribute attribute);
 
 	/**
-	 * Metodo astratto per verificare a quale ramo appartiene un valore.
-	 * @param value Valore da testare.
-	 * @return Indice del ramo corrispondente.
+	 * Determina a quale ramo appartiene un valore.
+	 * <p>
+	 * Metodo astratto: deve essere implementato dalle sottoclassi.
+	 *
+	 * @param value il valore da verificare
+	 * @return l'indice del ramo corrispondente
 	 */
 	abstract int testCondition(Object value);
 
 	/**
-	 * Costruttore di {@code SplitNode}. Ordina il training set in base all'attributo,
-	 * genera lo split e calcola la varianza complessiva dei figli.
+	 * Costruisce il nodo di split: ordina gli esempi in base all'attributo, genera
+	 * i rami e calcola la varianza complessiva risultante.
 	 *
-	 * @param trainingSet       Dataset di addestramento.
-	 * @param beginExampleIndex Indice iniziale.
-	 * @param endExampleIndex   Indice finale.
-	 * @param attribute         Attributo di split.
+	 * @param trainingSet il dataset di addestramento
+	 * @param beginExampleIndex indice iniziale dell'intervallo di esempi
+	 * @param endExampleIndex indice finale dell'intervallo di esempi
+	 * @param attribute l'attributo su cui effettuare lo split
 	 */
 	SplitNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, Attribute attribute){
 			super(trainingSet, beginExampleIndex,endExampleIndex);
 			this.attribute=attribute;
-			trainingSet.sort(attribute, beginExampleIndex, endExampleIndex); // order by attribute
+			trainingSet.sort(attribute, beginExampleIndex, endExampleIndex);
 			setSplitInfo(trainingSet, beginExampleIndex, endExampleIndex, attribute);
 
-			//compute variance
 			splitVariance = 0;
 			for(SplitInfo n : mapSplit){
 					double localVariance = new LeafNode(trainingSet, n.getBeginindex(), n.getEndIndex()).getVariance();
@@ -135,33 +173,48 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 			}
 	}
 
-	/** @return L'attributo associato al nodo di split. */
+	/**
+	 * Restituisce l'attributo su cui è basato lo split.
+	 *
+	 * @return l'attributo del nodo di split
+	 */
 	Attribute getAttribute(){
 		return attribute;
 	}
 
-	/** @return La varianza calcolata per lo split corrente. */
+	/**
+	 * Restituisce la varianza complessiva prodotta dallo split.
+	 *
+	 * @return la varianza dello split
+	 */
 	double getVariance(){
 		return splitVariance;
 	}
 
-	/** @return Il numero di rami generati dallo split. */
+	/**
+	 * Restituisce il numero di rami generati dallo split.
+	 *
+	 * @return il numero di rami (figli)
+	 */
 	int getNumberOfChildren(){
 		return mapSplit.size();
 	}
 
 	/**
-	 * Restituisce le informazioni di split per un determinato figlio.
-	 * @param child Indice del figlio.
-	 * @return Oggetto {@link SplitInfo} relativo al figlio.
+	 * Restituisce le informazioni relative a un determinato ramo.
+	 *
+	 * @param child l'indice del ramo
+	 * @return l'oggetto {@link SplitInfo} relativo al ramo indicato
 	 */
 	SplitInfo getSplitInfo(int child){
 		return mapSplit.get(child);
 	}
 
 	/**
-	 * Genera una stringa contenente la descrizione di tutte le possibili diramazioni.
-	 * @return Elenco testuale delle query di split.
+	 * Costruisce una stringa che descrive tutte le possibili diramazioni dello split,
+	 * una per riga.
+	 *
+	 * @return l'elenco testuale delle diramazioni
 	 */
 	String formulateQuery(){
 		String query = "";
@@ -170,7 +223,12 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 		return query;
 	}
 
-	/** @return Rappresentazione testuale completa del nodo di split. */
+	/**
+	 * Restituisce una rappresentazione testuale completa del nodo di split, comprese
+	 * le informazioni su tutti i rami.
+	 *
+	 * @return la descrizione testuale del nodo di split
+	 */
 	public String toString(){
 		String v= "SPLIT : attribute=" + attribute +" "+ super.toString()+  " Split Variance: " + getVariance()+ "\n" ;
 		for(SplitInfo n : mapSplit){
@@ -180,15 +238,20 @@ abstract class SplitNode extends Node implements Comparable<SplitNode> {
 	}
 
 	/**
-	 * Confronta il corrente nodo {@code DiscreteNode} con il nodo di Split
-	 * @param o Nodo di split da confrontare
-	 * @return Esisto del confronto
-	 * */
+	 * Confronta questo nodo di split con un altro in base alla varianza prodotta.
+	 * <p>
+	 * A parità di varianza il confronto avviene sull'indice dell'attributo, così da
+	 * stabilire comunque un ordine.
+	 *
+	 * @param o il nodo di split con cui effettuare il confronto
+	 * @return un valore negativo, zero o positivo se questo nodo ha varianza
+	 *         rispettivamente minore, uguale o maggiore di {@code o}
+	 */
 	public int compareTo(SplitNode o) {
 		if (this.splitVariance > o.getVariance())
 			return 1;
 		if (this.splitVariance < o.getVariance())
 			return -1;
-		return 0;
+		return Integer.compare(this.attribute.getIndex(), o.attribute.getIndex());
 	}
 }

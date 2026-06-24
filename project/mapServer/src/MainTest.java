@@ -1,24 +1,24 @@
 import server.MultiServer;
 
 /**
- * Punto di ingresso principale per il server di data mining.
- *
- * <p>Questa classe avvia un'istanza di {@link MultiServer} sulla porta specificata,
- * mettendolo in ascolto di connessioni da parte dei client. Il server gestisce
- * richieste di apprendimento di alberi di regressione da tabelle del database
- * e di predizione tramite alberi precedentemente serializzati.
- *
-*/
+ * Punto di ingresso dell'applicazione server di data mining.
+ * <p>
+ * Avvia un'istanza di {@link MultiServer} sulla porta indicata, mettendola in
+ * ascolto delle connessioni dei client. Il server gestisce sia l'apprendimento
+ * di alberi di regressione a partire dalle tabelle del database, sia la predizione
+ * tramite alberi precedentemente salvati.
+ */
 public class MainTest {
-	 /**
-		* Metodo principale che avvia il server.
-		*
-		* <p>Legge il numero di porta dal primo argomento della riga di comando e
-		* istanzia un {@link MultiServer} su tale porta. Se l'argomento non è
-		* presente o non è un intero valido, viene stampato un messaggio di errore
-		* e il programma termina.
-		* @param args argomenti della riga di comando; {@code args[0]} deve contenere il numero di porta su cui il server rimarrà in ascolto
-		*/
+	/**
+	 * Avvia il server.
+	 * <p>
+	 * Legge la porta dal primo argomento della riga di comando e crea un
+	 * {@link MultiServer} su tale porta. Se l'argomento manca o non è un intero
+	 * valido, stampa un messaggio di errore e termina.
+	 *
+	 * @param args argomenti della riga di comando: {@code args[0]} deve contenere
+	 *             la porta su cui il server resterà in ascolto
+	 */
 	public static void main(String[] args) {
 		if (args.length < 1) {
 				System.err.println("Usage: java server.MainTest <port>");

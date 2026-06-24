@@ -1,22 +1,22 @@
 package database;
 
 /**
- * Rappresenta una colonna di una tabella del database.
- * Ogni colonna ha un nome e un tipo.
+ * Rappresenta una colonna di una tabella del database, caratterizzata da un nome
+ * e da un tipo (semplificato in {@code "string"} o {@code "number"}).
  */
 public class Column {
 
-    /** Il nome della colonna. */
+    /** Nome della colonna. */
     private String name;
 
-    /** Il tipo della colonna (es. "number", "string"). */
+    /** Tipo della colonna (ad esempio {@code "number"} o {@code "string"}). */
     private String type;
 
     /**
-     * Costruisce una nuova colonna con il nome e il tipo specificati.
+     * Costruisce una colonna con il nome e il tipo specificati.
      *
-     * @param name il nome della colonna
-     * @param type il tipo della colonna (es. "number", "string")
+     * @param name nome della colonna
+     * @param type tipo della colonna (ad esempio {@code "number"} o {@code "string"})
      */
     Column(String name, String type) {
         this.name = name;
@@ -33,20 +33,19 @@ public class Column {
     }
 
     /**
-     * Verifica se la colonna è di tipo numerico.
-     * Una colonna è considerata numerica se il suo tipo è uguale a "number".
+     * Indica se la colonna è di tipo numerico, cioè se il suo tipo è {@code "number"}.
      *
-     * @return {@code true} se il tipo della colonna è "number", {@code false} altrimenti
+     * @return {@code true} se la colonna è numerica, {@code false} altrimenti
      */
     public boolean isNumber() {
         return type.equals("number");
     }
 
     /**
-     * Restituisce una rappresentazione testuale della colonna
-     * nel formato {@code nome:tipo}.
+     * Restituisce una rappresentazione testuale della colonna nel formato
+     * {@code nome:tipo}.
      *
-     * @return una stringa nel formato "nome:tipo"
+     * @return la stringa nel formato {@code nome:tipo}
      */
     @Override
     public String toString() {

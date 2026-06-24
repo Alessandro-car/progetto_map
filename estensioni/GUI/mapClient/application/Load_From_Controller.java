@@ -16,8 +16,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+/**
+ * Controller della schermata di caricamento dati e predizione.
+ * <p>
+ * In base alla modalità scelta nel menu (da database o da file), popola la lista
+ * dei nomi disponibili, avvia la costruzione/caricamento dell'albero e gestisce
+ * la fase di predizione interattiva, mostrando le domande e raccogliendo il ramo
+ * scelto dall'utente fino a ottenere la classe predetta.
+ */
 public class Load_From_Controller {
 
+    /** Nome della tabella o del file selezionato dall'utente. */
     private String tableName;
 
     @FXML private ComboBox<String> tableNameValue;
@@ -31,7 +40,7 @@ public class Load_From_Controller {
     @FXML private Label tableNameLabel;
 
     /**
-     * Interfaccia funzionale equivalente a Supplier<List<String>>, ma che
+     * Interfaccia funzionale equivalente a {@code Supplier<List<String>>}, ma che
      * permette di propagare qualsiasi eccezione checked (IOException,
      * ClassNotFoundException, ecc.) dichiarata da Controller.menu.getTableNames()
      * e getFileNames().
@@ -41,6 +50,11 @@ public class Load_From_Controller {
         List<String> get() throws Exception;
     }
 
+    /**
+     * Inizializza la schermata: disabilita i controlli non ancora utilizzabili,
+     * imposta un filtro per accettare nel campo del ramo solo numeri e carica la
+     * lista dei nomi (tabelle o file) a seconda della modalità scelta.
+     */
     public void initialize() {
         newExecutionButton.setDisable(true);
         okButton.setDisable(true);
@@ -63,7 +77,6 @@ public class Load_From_Controller {
         };
         branchValue.setTextFormatter(new TextFormatter<>(integerFilter));
 
-        // Abilita Execute quando viene selezionato/digitato un valore nella ComboBox
         tableNameValue.valueProperty().addListener((obs, oldVal, newVal) -> enableExecute());
 
         if (Controller.caseName != null && Controller.caseName.equals("fromDb")) {
@@ -115,11 +128,22 @@ public class Load_From_Controller {
         thread.start();
     }
 
+    /**
+     * Abilita il pulsante di esecuzione solo quando è stato selezionato un nome
+     * nella ComboBox.
+     */
     @FXML
     public void enableExecute() {
         executionButton.setDisable(tableNameValue.getValue() == null);
     }
 
+    /**
+     * Avvia la costruzione o il caricamento dell'albero per il nome selezionato e
+     * la successiva fase di predizione, eseguendo l'operazione in background.
+     * <p>
+     * Se il server restituisce subito una classe predetta la mostra, altrimenti
+     * abilita i controlli per inserire il ramo da seguire.
+     */
     @FXML
     public void execute() {
         tableName = tableNameValue.getValue();
@@ -170,6 +194,12 @@ public class Load_From_Controller {
         thread.start();
     }
 
+    /**
+     * Invia al server il ramo scelto dall'utente e mostra la risposta.
+     * <p>
+     * Se viene raggiunta una foglia stampa la classe predetta, altrimenti mostra
+     * la domanda successiva e resta in attesa di un nuovo ramo.
+     */
     @FXML
     public void goAction() {
         String branchText = branchValue.getText().trim();
@@ -225,6 +255,10 @@ public class Load_From_Controller {
         thread.start();
     }
 
+    /**
+     * Reimposta la schermata per avviare una nuova esecuzione, ripulendo
+     * selezione, campo del ramo e area di output.
+     */
     @FXML
     public void newExecution() {
         tableName = null;
@@ -239,11 +273,19 @@ public class Load_From_Controller {
         tableNameValue.requestFocus();
     }
 
+    /**
+     * Chiude l'applicazione.
+     */
     @FXML
     public void exitFrame() {
         javafx.application.Platform.exit();
     }
 
+    /**
+     * Torna alla schermata del menu principale.
+     *
+     * @param event l'evento generato dal pulsante premuto
+     */
     @FXML
     public void menu(ActionEvent event) {
         try {

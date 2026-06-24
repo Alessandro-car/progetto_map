@@ -3,38 +3,40 @@ import data.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-/**
- * La classe {@code DiscreteNode} modella un nodo di split relativo a un attributo discreto.
- * <p>
- * Questa classe popola la struttura {@code mapSplit} creando un oggetto {@link SplitInfo}
- * per ogni valore distinto dell'attributo discreto presente nel sottoinsieme di dati corrente.
- * <p>
- * La classe {@code DiscreteNode} estende la classe {@code SplitNode}.
- */
 
+/**
+ * Modella un nodo di split relativo a un attributo discreto.
+ * <p>
+ * Genera un ramo per ogni valore distinto dell'attributo presente nel sottoinsieme
+ * di esempi corrente, creando per ciascuno un oggetto {@link SplitInfo}. Estende la
+ * classe {@link SplitNode}.
+ */
 class DiscreteNode extends SplitNode implements Serializable {
 
-		/**
-		 * Invoca il costruttore della superclasse per inizializzare i dati e avviare la generazione delle informazioni di split.
-		 * @param trainingSet Il dataset di addestramento.
-		 * @param beginExampleIndex Indice iniziale del sottoinsieme di dati.
-		 * @param endExampleIndex Indice finale del sottoinsieme di dati.
-		 * @param attribute L'attributo discreto utilizzato per generare lo split.
-		 */
+	/**
+	 * Costruisce il nodo richiamando il costruttore della superclasse, che avvia il
+	 * calcolo delle informazioni di split.
+	 *
+	 * @param trainingSet il dataset di addestramento
+	 * @param beginExampleIndex indice iniziale del sottoinsieme di esempi
+	 * @param endExampleIndex indice finale del sottoinsieme di esempi
+	 * @param attribute l'attributo discreto su cui effettuare lo split
+	 */
     DiscreteNode(Data trainingSet, int beginExampleIndex, int endExampleIndex, DiscreteAttribute attribute) {
         super(trainingSet, beginExampleIndex, endExampleIndex, attribute);
     }
 
-		/**
-		 * Calcola le informazioni necessarie per lo split dell'attributo discreto.
-		 * <p>
-		 * Il metodo identifica i valori distinti dell'attributo nell'intervallo specificato
-		 * e crea un'istanza di {@link SplitInfo} per ogni gruppo di esempi che possiede lo stesso valore.
-		 * @param trainingSet Il dataset di addestramento.
-		 * @param beginExampleIndex Indice iniziale del sottinsieme di dati.
-		 * @param endExampleIndex Indice finale del sottoinsieme di dati.
-		 * @param attribute L'attributo su cui effettuare il calcolo dello split.
-		 */
+	/**
+	 * Calcola le informazioni di split per l'attributo discreto.
+	 * <p>
+	 * Individua i valori distinti dell'attributo nell'intervallo indicato e crea un
+	 * {@link SplitInfo} per ogni gruppo di esempi che condivide lo stesso valore.
+	 *
+	 * @param trainingSet il dataset di addestramento
+	 * @param beginExampleIndex indice iniziale del sottoinsieme di esempi
+	 * @param endExampleIndex indice finale del sottoinsieme di esempi
+	 * @param attribute l'attributo su cui calcolare lo split
+	 */
     void setSplitInfo(Data trainingSet, int beginExampleIndex, int endExampleIndex, Attribute attribute) {
         int numberOfDistinctValues = 1;
         Object previousValue =  trainingSet.getExplanatoryValue(beginExampleIndex, attribute.getIndex());
@@ -81,11 +83,12 @@ class DiscreteNode extends SplitNode implements Serializable {
 				);
     }
 
-		/**
-		 * Verifica a quale figlio del nodo appartiene un determinato valore.
-		 * @param value Il valore dell'attributo da testare.
-		 * @return L'indice del figlio corrispondente al valore, oppure -1 se non trovato.
-		 */
+	/**
+	 * Determina a quale ramo del nodo appartiene un determinato valore.
+	 *
+	 * @param value il valore dell'attributo da verificare
+	 * @return l'indice del ramo corrispondente al valore, oppure -1 se non trovato
+	 */
   	int testCondition(Object value) {
         for (int i = 0; i < getNumberOfChildren(); i++) {
             if (getSplitInfo(i).getSplitValue().equals(value)) {
@@ -95,10 +98,12 @@ class DiscreteNode extends SplitNode implements Serializable {
         return -1;
     }
 
-		/**
-		 * Restituisce una rappresentazione testuale del tipo di nodo e delle informazioni di split da ereditare.
-		 * @return Stringa descrittiva del nodo discreto.
-		 */
+	/**
+	 * Restituisce una rappresentazione testuale del nodo, indicando che si tratta di
+	 * un nodo discreto.
+	 *
+	 * @return la descrizione testuale del nodo
+	 */
     public String toString() {
         return "DISCRETE " + super.toString();
     }

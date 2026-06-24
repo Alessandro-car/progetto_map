@@ -69,26 +69,22 @@ public class Data {
 			throw new TrainingDataException(e.toString());
 		}
 
-		// Verifica che la tabella abbia almeno due colonne
 		if (schema.getNumberOfAttributes() < 2) {
 			throw new TrainingDataException("La tabella ha meno di due colonne.");
 		}
 
-		// Verifica che l'ultima colonna sia numerica (classAttribute)
 		Column lastColumn = schema.getColumn(schema.getNumberOfAttributes() - 1);
 		if (!lastColumn.isNumber()) {
 			throw new TrainingDataException(
 					"L'attributo corrispondente all'ultima colonna non e' numerico.");
 		}
 
-		// Popola explanatorySet leggendo tutte le colonne tranne l'ultima
 		int iAttribute = 0;
 		for (int i = 0; i < schema.getNumberOfAttributes() - 1; i++) {
 			Column col = schema.getColumn(i);
 			if (col.isNumber()) {
 				explanatorySet.add(new ContinuousAttribute(col.getColumnName(), iAttribute));
 			} else {
-				// Recupera i valori distinti per l'attributo discreto
 				Set<String> distinctValues;
 				try {
 					distinctValues = (Set<String>)(Set<?>)
@@ -102,10 +98,8 @@ public class Data {
 			iAttribute++;
 		}
 
-		// Istanzia classAttribute con l'ultima colonna
 		classAttribute = new ContinuousAttribute(lastColumn.getColumnName(), iAttribute);
 
-		// Carica le tuple dalla tabella
 		TableData tableData = new TableData(db);
 		List<Example> examples;
 		try {

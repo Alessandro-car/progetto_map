@@ -15,7 +15,7 @@ import java.util.TreeSet;
 public class DiscreteAttribute extends Attribute implements Iterable<String> {
 
 	/** Insieme dei valori distinti dell'attributo, ordinati in modo crescente. */
-	private Set<String> values=new TreeSet<>(); // order by asc
+	private Set<String> values=new TreeSet<>();
 
 	/**
 	 * Costruttore di classe.
