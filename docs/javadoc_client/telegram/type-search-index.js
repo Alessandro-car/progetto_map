@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"mapClient","l":"Command"},{"p":"utility","l":"Keyboard"},{"p":"mapClient","l":"MainTest"},{"p":"mapClient","l":"MapBot"},{"p":"mapClient","l":"ServerConnection"},{"p":"mapClient","l":"MapBot.Status"}];updateSearchResults();
