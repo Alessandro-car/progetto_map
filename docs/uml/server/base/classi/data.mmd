@@ -22,6 +22,7 @@ classDiagram
 
 
   class ContinuousAttribute {
+    ~ ContinuousAttribute(in name: String, in index: int)
   }
 
 
@@ -33,26 +34,26 @@ classDiagram
   }
 
   class TrainingDataException {
-    + TrainingDataException(error: in String)
+    + TrainingDataException(in error: String)
   }
 
   class Data {
     - data: List~Example~
     - numberOfExamples: int
     - explanatorySet: List~Attribute~
-    - classAttribute: ContinuosAttribute
+    - classAttribute: ContinuousAttribute
     + Data(in tableName: String)
     + getNumberOfExamples() int
     + getNumberOfExplanatoryAttributes() int
     + getClassValue(in exampleIndex: int) Double
     + getExplanatoryValue(in exampleIndex: int, in attributeIndex: int) Object
     + getExplanatoryAttribute(in index: int) Attribute
-    - getClassAttribute() ContinuosAttribute
+    - getClassAttribute() ContinuousAttribute
     + toString() String
     + sort(in attribute: Attribute, in beginExampleIndex: int, in endExampleIndex: int)
     - swap(in i: int, in j: int)
     - partition(in attribute: DiscreteAttribute, in inf: int, in sup: int) int
-    - partition(in attribute: ContinuosAttribute, in inf: int, in sup: int) int
+    - partition(in attribute: ContinuousAttribute, in inf: int, in sup: int) int
     - quicksort(in attribute: Attribute, in inf: int, in sup: int)
   }
 

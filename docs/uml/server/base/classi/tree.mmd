@@ -18,7 +18,7 @@ class Node["<i>Node</i>"] {
   - beginExampleIndex: int
   - endExampleIndex: int
   - variance: double
-  ~ Note(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
+  ~ Node(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
   - getIdNode() int
   - beginExampleIndex() int
   - getEndExampleIndex() int
@@ -29,15 +29,16 @@ class Node["<i>Node</i>"] {
 
 class LeafNode {
   - predictedClassValue: Double
-  LeafNode(in traningSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
+  ~ LeafNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
   ~ getPredictedClassValue() Double
   ~ getNumberOfChildren() int
   + toString() String
 }
 
 class DiscreteNode {
-  ~ setSplitInfo(in traningSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
-  ~ testCondition(in value: Object)
+  ~ DiscreteNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: DiscreteAttribute)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ testCondition(in value: Object) int
   + toString() String
 }
 
@@ -45,8 +46,8 @@ class SplitNode["<i>SplitNode</i>"] {
   ~ attribute: Attribute
   ~ mapSplit: List~SplitInfo~
   ~ splitVariance: double
-  ~ SplitNode(in traningSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
-  ~ setSplitInfo(in traningSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)*
+  ~ SplitNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)*
   ~ testCondition(in value: Object)* int
   ~ getAttribute() Attribute
   ~ getVariance() double
@@ -73,7 +74,8 @@ class SplitInfo {
 }
 
 class ContinuousNode {
-  ~ setSplitInfo(in traningSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ ContinuousNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: ContinuousNode)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
   ~ testCondition(in value: Object) int
   + toString() String
 }
@@ -82,20 +84,20 @@ class RegressionTree {
   - root: Node
   - childTree: RegressionTree[]
   - RegressionTree()
-  + RegressionTree(in traningSet: Data)
-  - isLeaf(in traningSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int) boolean
-  - determineBestSplitNode(in traningSet: Data, in begin: int, in end: int) SplitNode
-  - learnTree(in traningSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int)
+  + RegressionTree(in trainingSet: Data)
+  - isLeaf(in trainingSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int) boolean
+  - determineBestSplitNode(in trainingSet: Data, in begin: int, in end: int) SplitNode
+  - learnTree(in trainingSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int)
   + predictClass() Double
   + predictClass(in in: ObjectInputStream, in out: ObjectOutputStream) Double
   + printTree()
   + printRules()
   - printRules(in current: String)
   + salva(in nomeFile: String)
-  + carica(in nomeFile: String) RegreesionTree$
+  + carica(in nomeFile: String) RegressionTree$
 }
 
-LeafNode --|>Node
+LeafNode --|> Node
 SplitNode --|> Node
 ContinuousNode --|> SplitNode
 DiscreteNode --|> SplitNode

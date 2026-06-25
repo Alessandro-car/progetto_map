@@ -8,10 +8,10 @@ namespace utility {
 }
 
 class Keyboard {
-  - printErrors: boolean = True $
+  - printErrors: boolean = true $
   - errorCount: int = 0 $
   - current_token: String = null $
-  - read: StrinTokenizer $
+  - reader: StringTokenizer $
   - in: BufferedReader $
   + getErrorCount() int$
   + resetErrorCount(in count: int)$
