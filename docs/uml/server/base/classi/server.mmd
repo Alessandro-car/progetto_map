@@ -16,10 +16,10 @@ classDiagram
     }
 
     class ServerOneClient{
-        - socket: socket
+        - socket: Socket
         - in: ObjectInputStream
         - out: ObjectOutputStream
-        + ServerOneClient(in s: socket)
+        + ServerOneClient(in s: Socket)
         + run()
     }
 

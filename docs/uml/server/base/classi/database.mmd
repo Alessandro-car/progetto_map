@@ -78,7 +78,7 @@ classDiagram
 
     DbAccess ..> DatabaseConnectionException
 
-    TableSchema --> DbAccess 
+    TableSchema ..> DbAccess 
     TableSchema o--  Column
 
     TableData o-- DbAccess 
