@@ -1,0 +1,89 @@
+---
+title: Package database
+---
+classDiagram
+    namespace database {
+        class DbAccess
+        class TableSchema
+        class TableData
+        class Column
+        class Example
+        class EmptySetException
+        class DatabaseConnectionException
+    }
+
+    class DbAccess {
+        - DRIVER_CLASS_NAME: String  = "com.mysql.cj.jdbc.Driver" frozen  
+        - DBMS: String = "jdbc:mysql" frozen
+        - SERVER: String = "localhost"
+        - DATABASE: String = "MapDB"
+        - PORT: int = 3306 frozen
+        - USER_ID: String = "MapUser"
+        - PASSWORD: String = "map"
+        - conn: Connection
+        + initConnection() 
+        ~ getConnection() Connection
+        + closeConnection() 
+    }
+
+    class TableSchema {
+        - tableSchema: List~Column~
+        + TableSchema(in db: DbAccess, in tableName: String)
+        + getNumberOfAttributes() int
+        + getColumn(in index: int) Column
+        + iterator() Iterator~Column~
+    }
+
+    class Column {
+        - name: String
+        - type: String
+        ~ Column(in name: String, in type: String)
+        + getColumnName() String
+        + isNumber() boolean
+        + toString() String
+    }
+
+    class TableData {
+        - db: DbAccess
+        + TableData(in db: DbAccess)
+        + getTransazioni(in table: String) List~Example~
+        + getDistinctColumnValues(in table: String, in column: Column) Set~Object~
+    }
+
+    class Example {
+        - example: List~Object~
+        ~ add(in o: Object) 
+        + get(in i: int) Object
+        + compareTo(in ex: Example) int
+        + toString() String
+        + iterator() Iterator~Object~
+    }
+
+    class EmptySetException {
+        + EmptySetException()
+        + EmptySetException(in message: String)
+    }
+
+    class DatabaseConnectionException {
+        + DatabaseConnectionException(in message: String)
+        + DatabaseConnectionException(in message: String, in cause: Throwable)
+    }
+
+    class Exception {
+    }
+
+
+    EmptySetException --|> Exception
+    DatabaseConnectionException --|> Exception
+
+    DbAccess ..> DatabaseConnectionException
+
+    TableSchema --> DbAccess 
+    TableSchema o--  Column
+
+    TableData o-- DbAccess 
+    TableData ..> TableSchema 
+    TableData ..> Column 
+    TableData ..> Example 
+    TableData ..> EmptySetException 
+

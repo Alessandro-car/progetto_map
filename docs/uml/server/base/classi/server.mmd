@@ -1,0 +1,41 @@
+
+---
+title: Package server
+---
+classDiagram
+    namespace server {
+        class MultiServer
+        class ServerOneClient
+        class UnknownValueException
+    }
+
+    class MultiServer {
+        - PORT: int = 8080
+        + MultiServer(in port: int)
+        - run() 
+    }
+
+    class ServerOneClient{
+        - socket: socket
+        - in: ObjectInputStream
+        - out: ObjectOutputStream
+        + ServerOneClient(in s: socket)
+        + run()
+    }
+
+    class UnknownValueException{
+        + UnknownValueException(in message: String)
+    }
+    
+        class Thread{ 
+    }    
+    
+    class IOException{
+    }
+
+    ServerOneClient --|> Thread 
+    ServerOneClient ..> UnknownValueException
+    ServerOneClient ..> IOException
+    MultiServer ..> ServerOneClient
+    UnknownValueException --|> Exception
+
