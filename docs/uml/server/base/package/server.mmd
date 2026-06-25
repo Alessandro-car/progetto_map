@@ -1,0 +1,57 @@
+---
+title: Diagramma dei package di mapServer/src
+---
+flowchart TD
+  subgraph src["src"]
+    direction LR
+    MainTest["MainTest"]
+
+    subgraph data["data"]
+      direction TB
+      Attribute["Attribute"]
+      ContinuousAttribute["ContinuousAttribute"]
+      DiscreteAttribute["DiscreteAttribute"]
+      Data["Data"]
+      TrainingDataException["TrainingDataException"]
+      Attribute ~~~ ContinuousAttribute ~~~ DiscreteAttribute ~~~ Data ~~~ TrainingDataException
+    end
+
+    subgraph database["database"]
+      direction TB
+      DbAccess["DbAccess"]
+      Example["Example"]
+      TableData["TableData"]
+      TableSchema["TableSchema"]
+      Column["Column"]
+      DatabaseConnectionException["DatabaseConnectionException"]
+      EmptySetException["EmptySetException"]
+      DbAccess ~~~ Example ~~~ TableData ~~~ TableSchema ~~~ Column ~~~ DatabaseConnectionException ~~~ EmptySetException
+    end
+
+    subgraph tree["tree"]
+      direction TB
+      Node["Node"]
+      LeafNode["LeafNode"]
+      SplitNode["SplitNode"]
+      SplitInfo["SplitInfo"]
+      ContinuousNode["ContinuousNode"]
+      DiscreteNode["DiscreteNode"]
+      RegressionTree["RegressionTree"]
+      Node ~~~ LeafNode ~~~ SplitNode ~~~ SplitInfo ~~~ ContinuousNode ~~~ DiscreteNode ~~~ RegressionTree
+    end
+
+    subgraph server["server"]
+      direction TB
+      MultiServer["MultiServer"]
+      ServerOneClient["ServerOneClient"]
+      UnknownValueException["UnknownValueException"]
+      MultiServer ~~~ ServerOneClient ~~~ UnknownValueException
+    end
+  end
+
+  data -.->|import| database
+  tree -.->|import| data
+  tree -.->|import| server
+  server -.->|import| data
+  server -.->|import| tree
+  MainTest -.->|import| server

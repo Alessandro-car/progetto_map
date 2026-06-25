@@ -1,0 +1,78 @@
+---
+title: Package data
+---
+
+classDiagram
+  namespace data {
+    class Attribute
+    class Data
+    class ContinuousAttribute
+    class DiscreteAttribute
+    class TrainingDataException
+  }
+
+  class Attribute["<i>Attribute</i>"] {
+    - name: String
+    - index: int
+    ~ Attribute(in name: String, in index: int)
+    ~ getName() String
+    + getIndex() int
+    + toString() String
+  }
+
+
+  class ContinuousAttribute {
+    ~ ContinuousAttribute(in name: String, in index: int)
+  }
+
+
+  class DiscreteAttribute {
+     - values: Set~String~
+     ~ DiscreteAttribute(in name: String, in index: int, in values: Set~String~)
+     + getNumberOfDistinctValues() int
+     + iterator() Iterator~String~
+  }
+
+  class TrainingDataException {
+    + TrainingDataException(in error: String)
+  }
+
+  class Data {
+    - data: List~Example~
+    - numberOfExamples: int
+    - explanatorySet: List~Attribute~
+    - classAttribute: ContinuousAttribute
+    + Data(in tableName: String)
+    + getNumberOfExamples() int
+    + getNumberOfExplanatoryAttributes() int
+    + getClassValue(in exampleIndex: int) Double
+    + getExplanatoryValue(in exampleIndex: int, in attributeIndex: int) Object
+    + getExplanatoryAttribute(in index: int) Attribute
+    - getClassAttribute() ContinuousAttribute
+    + toString() String
+    + sort(in attribute: Attribute, in beginExampleIndex: int, in endExampleIndex: int)
+    - swap(in i: int, in j: int)
+    - partition(in attribute: DiscreteAttribute, in inf: int, in sup: int) int
+    - partition(in attribute: ContinuousAttribute, in inf: int, in sup: int) int
+    - quicksort(in attribute: Attribute, in inf: int, in sup: int)
+  }
+
+
+  class Exception {
+  }
+
+  ContinuousAttribute --|> Attribute
+  DiscreteAttribute --|> Attribute
+
+  Data o-- Attribute
+  Data o-- ContinuousAttribute
+
+  Data ..> TrainingDataException
+
+  TrainingDataException --|> Exception
+
+  note for Attribute "implements Serializable"
+  note for DiscreteAttribute "implements Iterable~String~"
+
+
+

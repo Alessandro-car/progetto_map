@@ -1,0 +1,112 @@
+---
+title: Package tree
+---
+classDiagram
+namespace tree {
+  class Node
+  class SplitNode
+  class SplitInfo
+  class DiscreteNode
+  class ContinuousNode
+  class LeafNode
+  class RegressionTree
+}
+
+class Node["<i>Node</i>"] {
+  - idNodeCount: int $
+  - idNode: int
+  - beginExampleIndex: int
+  - endExampleIndex: int
+  - variance: double
+  ~ Node(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
+  - getIdNode() int
+  - beginExampleIndex() int
+  - getEndExampleIndex() int
+  ~ getVariance() double
+  ~ getNumberOfChildren()* int
+  + toString() String
+}
+
+class LeafNode {
+  - predictedClassValue: Double
+  ~ LeafNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int)
+  ~ getPredictedClassValue() Double
+  ~ getNumberOfChildren() int
+  + toString() String
+}
+
+class DiscreteNode {
+  ~ DiscreteNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: DiscreteAttribute)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ testCondition(in value: Object) int
+  + toString() String
+}
+
+class SplitNode["<i>SplitNode</i>"] {
+  ~ attribute: Attribute
+  ~ mapSplit: List~SplitInfo~
+  ~ splitVariance: double
+  ~ SplitNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)*
+  ~ testCondition(in value: Object)* int
+  ~ getAttribute() Attribute
+  ~ getVariance() double
+  ~ getNumberOfChildren() int
+  ~ getSplitInfo(in child: int) SplitInfo
+  ~ formulateQuery() String
+  + toString() String
+  + compareTo(in o: SplitNode) int
+}
+
+class SplitInfo {
+  ~ splitValue: Object
+  ~ beginIndex: int
+  ~ endIndex: int
+  ~ numberChild: int
+  ~ comparator: String = "="
+  ~ SplitInfo(in splitValue: Object, in beginIndex: int, in endIndex: int, in numberChild: int)
+  ~ SplitInfo(in splitValue: Object, in beginIndex: int, in endIndex: int, in numberChild: int, in comparator: String)
+  ~ getBeginindex() int
+  ~ getEndIndex() int
+  ~ getSplitValue() Object
+  + toString() String
+  ~ getComparator() String
+}
+
+class ContinuousNode {
+  ~ ContinuousNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: ContinuousNode)
+  ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
+  ~ testCondition(in value: Object) int
+  + toString() String
+}
+
+class RegressionTree {
+  - root: Node
+  - childTree: RegressionTree[]
+  - RegressionTree()
+  + RegressionTree(in trainingSet: Data)
+  - isLeaf(in trainingSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int) boolean
+  - determineBestSplitNode(in trainingSet: Data, in begin: int, in end: int) SplitNode
+  - learnTree(in trainingSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int)
+  + predictClass() Double
+  + predictClass(in in: ObjectInputStream, in out: ObjectOutputStream) Double
+  + printTree()
+  + printRules()
+  - printRules(in current: String)
+  + salva(in nomeFile: String)
+  + carica(in nomeFile: String) RegressionTree$
+}
+
+LeafNode --|> Node
+SplitNode --|> Node
+ContinuousNode --|> SplitNode
+DiscreteNode --|> SplitNode
+
+SplitNode *.. SplitInfo : inner class
+
+RegressionTree o-- Node
+RegressionTree *-- RegressionTree
+RegressionTree --> UnknownValueException
+RegressionTree --> ClassNotFoundException
+RegressionTree --> IOException
+RegressionTree --> FileNotFoundException
