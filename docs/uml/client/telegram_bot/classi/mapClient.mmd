@@ -1,0 +1,84 @@
+---
+title: Package mapClient
+---
+classDiagram
+namespace mapClient {
+  class Command
+  class MainTest
+  class MapBot
+  class ServerConnection
+}
+
+class Command {
+  <<enumeration>>
+  - command: String
+  - description: String
+  ~ Command(in command: String, in description: String)
+  + getCommand() String
+  + getDescription() String
+}
+
+class MainTest {
+  + main(in args: String[])
+}
+
+class MapBot {
+  - username: String
+  - host: String
+  - port: int
+  - token: String
+  - socketTimeoutMs: int
+  - userStatus: Map~Long, Status~
+  - connections: Map~Long, ServerConnection~
+  - learnMode: Map~Long, Boolean~
+  - userLocks: ConcurrentHashMap~Long, Object~
+  + MapBot(in token: String, in username: String, in host: String, in port: int, in socketTimeoutMs: int)
+  - getLock(in chatId: long) Object
+  + getBotUsername() String
+  + getBotToken() String
+  + registerCommands()
+  + onUpdateReceived(in update: Update)
+  - buildInitMessage() String
+  - handleTable(in chatId: long, in learn: boolean)
+  - startLearning(in chatId: long, in tableName: String)
+  - startLoading(in chatId: long, in tableName: String)
+  - handlePrediction(in chatId: long, in callData: String)
+  - advancePrediction(in chatId: long)
+  - resetUser(in chatId: long)
+  - getBranches(in chatId: long) ArrayList~String~
+  - createButtons(in chatId: long, in text: String, in names: ArrayList~String~)
+  - send(in chatId: long, in testo: String)
+}
+
+class Status {
+  <<enumeration>>
+  START
+  WAITING_OPTION
+  WAITING_TABLE
+  PREDICTION
+}
+
+class ServerConnection {
+  - socket: Socket
+  - out: ObjectOutputStream
+  - in: ObjectInputStream
+  + ServerConnection(in host: String, in port: int, in socketTimeoutMs: int)
+  + showBranches() ArrayList~String~
+  + showTables(in learn: boolean) ArrayList~String~
+  + sendTableName(in tableName: String) String
+  + readAnswer() String
+  + startLearning()
+  + loadTree(in tableName: String) String
+  + startPrediction()
+  + sendChoice(in path: int)
+  + close()
+}
+
+class TelegramLongPollingBot {
+}
+
+MapBot --|> TelegramLongPollingBot
+MapBot *.. Status : inner enum
+MapBot o-- ServerConnection
+MapBot ..> Command
+MainTest ..> MapBot

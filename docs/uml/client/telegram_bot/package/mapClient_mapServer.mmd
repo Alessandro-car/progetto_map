@@ -1,0 +1,26 @@
+---
+title: Diagramma dei package tra mapClient e mapServer (telegram_bot)
+---
+flowchart TD
+
+    subgraph mapClient["mapClient"]
+        direction TB
+        Command["Command"]
+        MainTest_C["MainTest"]
+        MapBot["MapBot"]
+        ServerConnection["ServerConnection"]
+        Keyboard["Keyboard"]
+        Command ~~~ MainTest_C ~~~ MapBot ~~~ ServerConnection ~~~ Keyboard
+    end
+
+    subgraph mapServer["mapServer"]
+        direction TB
+        MainTest_S["MainTest"]
+        MultiServer["MultiServer"]
+        ServerOneClient["ServerOneClient"]
+        Data["Data"]
+        RegressionTree["RegressionTree"]
+        MainTest_S ~~~ MultiServer ~~~ ServerOneClient ~~~ Data ~~~ RegressionTree
+    end
+
+    mapClient -.->|Socket TCP| mapServer

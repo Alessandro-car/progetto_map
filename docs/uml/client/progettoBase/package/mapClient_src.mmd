@@ -1,0 +1,19 @@
+---
+title: Diagramma dei package di mapClient/src
+---
+flowchart TD
+
+subgraph src["src"]
+
+    subgraph mapClientPkg["mapClient"]
+        MainTest["MainTest"]
+    end
+
+    subgraph utilityPkg["utility"]
+        Keyboard["Keyboard"]
+    end
+
+end
+
+mapClientPkg -.->|import| utilityPkg
+  
