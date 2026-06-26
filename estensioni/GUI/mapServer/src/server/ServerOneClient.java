@@ -137,7 +137,7 @@ class ServerOneClient extends Thread {
 					case 1:
 						if (trainingSet == null) {
 							try {
-								out.writeObject("No traning data loaded.");
+								out.writeObject("No training data loaded.");
 							} catch (IOException e) {
 								System.out.println(e);
 							}
@@ -163,7 +163,7 @@ class ServerOneClient extends Thread {
 							} catch (ClassNotFoundException | IOException e) {
 								File dmp = new File(tableName + ".dmp");
 								dmp.delete();
-								out.writeObject("The table " + tableName + " doesn't exists!");
+								out.writeObject("The table " + tableName + " doesn't exist!");
 								System.out.println(e);
 							}
 						}
@@ -193,19 +193,19 @@ class ServerOneClient extends Thread {
 
 					case 4:
 							DbAccess db = new DbAccess();
-                        try {
-                            db.initConnection();
-                            ArrayList<String> tables = db.getListOfTables();
-                            out.writeObject(tables);
-                            out.flush();
-                        } catch (DatabaseConnectionException e) {
-                            System.err.println(e);
-                        } catch (SQLException e) {
-                            System.err.println(e);
-                        } finally {
-                            try { db.closeConnection(); } catch (SQLException ignored) {}
-                        }
-                        break;
+              try {
+                  db.initConnection();
+                  ArrayList<String> tables = db.getListOfTables();
+                  out.writeObject(tables);
+                  out.flush();
+              } catch (DatabaseConnectionException e) {
+                  System.err.println(e);
+              } catch (SQLException e) {
+                  System.err.println(e);
+              } finally {
+                  try { db.closeConnection(); } catch (SQLException ignored) {}
+              }
+              break;
 					case 5:
 						try {
 							java.io.File dir = new java.io.File(".");
