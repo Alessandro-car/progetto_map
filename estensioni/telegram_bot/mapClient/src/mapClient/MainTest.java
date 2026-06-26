@@ -17,6 +17,25 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
  * un'istanza di {@link MapBot} che resta in ascolto dei messaggi degli utenti.
  */
 public class MainTest {
+
+		/**
+     * Apre il file di configurazione {@code config.properties}. Cerca prima un
+     * file presente nella directory di lavoro (che ha la precedenza e permette
+     * di sovrascrivere la configurazione senza ricompilare); in mancanza usa la
+     * copia inclusa nel jar (sul classpath).
+     *
+     * @return uno {@link InputStream} sul file di configurazione, oppure
+     *         {@code null} se non viene trovato in nessuna delle due posizioni
+     * @throws IOException se il file su disco esiste ma non puo' essere aperto
+     */
+    private static InputStream openConfig() throws IOException {
+        java.io.File external = new java.io.File("config.properties");
+        if (external.isFile()) {
+            return new FileInputStream(external);
+        }
+        return MainTest.class.getResourceAsStream("/config.properties");
+    }
+
     /**
      * Avvia il bot Telegram.
      * <p>
@@ -35,7 +54,7 @@ public class MainTest {
      */
     public static void main(String[] args) {
 				Properties cfg = new Properties();
-				try (InputStream is = new FileInputStream("config.properties")) {
+				try (InputStream is = openConfig()) {
 					cfg.load(is);
 				} catch (IOException e) {
 					System.err.println("Unable to read config.properties: " + e.getMessage());
