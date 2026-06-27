@@ -10,7 +10,7 @@ import database.DbAccess;
 import java.sql.*;
 import java.util.ArrayList;
 
-@DisplayName("Test di MultiServer")
+@DisplayName("Test di DbAccess")
 class DbAccessTest {
 	private final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
 	private final String DBMS = "jdbc:mysql";
@@ -90,9 +90,14 @@ class DbAccessTest {
 	@DisplayName("Test closing connection when is not null")
 	void testCloseConnectionWhenIsNotNull() throws Exception {
 		try {
-			db.initConnection();
-			db.closeConnection();
-			assertTrue(conn == null, "Connection should be closed.");
+			DbAccess access = new DbAccess();
+			access.initConnection();
+			Connection internal = access.getConnection();
+			assertNotNull(internal, "initConnection dovrebbe aver creato la connessione");
+			assertFalse(internal.isClosed(), "la connessione dovrebbe essere aperta dopo initConnection");
+
+    	access.closeConnection();
+			assertTrue(internal.isClosed(), "Connection should be closed.");
 		} catch (DatabaseConnectionException | SQLException e) {
 			fail("No exception expected");
 		}

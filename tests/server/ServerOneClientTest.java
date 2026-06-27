@@ -2,7 +2,6 @@ package server;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Assumptions;
 
 import java.io.*;
 import java.net.*;
@@ -11,13 +10,15 @@ import java.util.List;
 @DisplayName("Test di ServerOneClient")
 class ServerOneClientTest {
 	private ServerSocket serverSocket;
+	private int port;
 	private Socket clientSocket;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 
 	@BeforeEach
 	void init() throws Exception {
-		serverSocket = new ServerSocket(8080);
+		serverSocket = new ServerSocket(0);
+		port = serverSocket.getLocalPort();
 		Thread serverThread = new Thread(() -> {
 			try {
 				Socket accepted = serverSocket.accept();
@@ -28,7 +29,7 @@ class ServerOneClientTest {
 		serverThread.setDaemon(true);
 		serverThread.start();
 
-		clientSocket = new Socket("localhost", 8080);
+		clientSocket = new Socket("localhost", port);
 		clientSocket.setSoTimeout(5000);
 		out = new ObjectOutputStream(clientSocket.getOutputStream());
 		out.flush();

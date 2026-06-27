@@ -1,0 +1,24 @@
+---
+title: Diagramma dei package tra application e Presentation (GUI)
+---
+flowchart TD
+
+    subgraph application["application"]
+        direction TB
+        Launcher["Launcher"]
+        Main["Main"]
+        Controller["Controller"]
+        Load_From_Controller["Load_From_Controller"]
+        RtClient["RtClient"]
+        ServerException["ServerException"]
+        Launcher ~~~ Main ~~~ Controller ~~~ Load_From_Controller ~~~ RtClient ~~~ ServerException
+    end
+
+    subgraph Presentation["Presentation"]
+        direction TB
+        Menu["Menu.fxml"]
+        Load_From["Load_From.fxml"]
+        Menu ~~~ Load_From
+    end
+
+    application -.->|FXMLLoader.load| Presentation
