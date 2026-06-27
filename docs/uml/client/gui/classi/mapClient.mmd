@@ -1,0 +1,104 @@
+---
+title: Package application
+---
+classDiagram
+namespace application {
+  class Main
+  class Controller
+  class Load_From_Controller
+  class RtClient
+  class ServerException
+}
+
+class Main {
+  + start(in primaryStage: Stage)
+  + main(in args: String[])
+}
+
+class Controller {
+  + caseName: String $
+  + menu: RtClient $
+  + connection: boolean $
+  + ip: String $
+  - textIp: TextField
+  - buttonConnection: Button
+  - buttonFromDB: Button
+  - fromFileButton: Button
+  - buttonRetry: Button
+  - linked: Label
+  - ipControl: Label
+  + initialize()
+  + connectButton()
+  + validate(in ip: String) boolean$
+  + enableConnect()
+  + loadFromDB(in event: ActionEvent)
+  + loadFromFile(in event: ActionEvent)
+  + openWindow(in event: ActionEvent, in title: String)
+  + retryConnection()
+}
+
+class Load_From_Controller {
+  - tableName: String
+  - tableNameValue: ComboBox~String~
+  - branchValue: TextField
+  - output: TextArea
+  - executionButton: Button
+  - newExecutionButton: Button
+  - exitButton: Button
+  - okButton: Button
+  - menuButton: Button
+  - tableNameLabel: Label
+  + initialize()
+  - loadNames(in namesSupplier: NamesSupplier, in promptText: String)
+  + enableExecute()
+  + execute()
+  + goAction()
+  + newExecution()
+  + exitFrame()
+  + menu(in event: ActionEvent)
+}
+
+class NamesSupplier {
+  <<interface>>
+  + get() List~String~
+}
+
+class RtClient {
+  - out: ObjectOutputStream
+  - in: ObjectInputStream
+  - port: int = 8080
+  + RtClient(in ip: String)
+  + storeTableFromDb(in tableName: String)
+  + learningFromDbTable() String
+  + learningFromDbTable(in branch: int) String
+  + learningFromFile(in tableName: String) String
+  + learningFromFile(in branch: int) String
+  + getTableNames() ArrayList~String~
+  + getFileNames() ArrayList~String~
+  - startPrediction() String
+  - sendBranchAndRead(in branch: int) String
+  + close()
+}
+
+class ServerException {
+  + ServerException(in message: String)
+}
+
+class Application {
+  <<JavaFX abstract>>
+}
+
+class Exception {
+}
+
+Main --|> Application
+ServerException --|> Exception
+
+Load_From_Controller *.. NamesSupplier : inner interface
+
+Controller o-- RtClient
+Main ..> Controller
+Load_From_Controller ..> Controller
+Load_From_Controller ..> RtClient
+Controller ..> RtClient
+RtClient ..> ServerException
