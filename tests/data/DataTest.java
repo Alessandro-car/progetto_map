@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Richiede un database MySQL raggiungibile con le credenziali configurate in
  * {@code DbAccess} e le seguenti tabelle:
  * <ul>
- *   <li><b>playtennis</b> – tabella principale con almeno un attributo discreto,
+ *   <li><b>servo</b> – tabella principale con almeno un attributo discreto,
  *       uno continuo e un target numerico (ultima colonna);</li>
  *   <li><b>empty_table</b> – tabella con schema valido ma zero righe;</li>
  *   <li><b>string_last_col_table</b> – tabella la cui ultima colonna è di tipo stringa.</li>
@@ -26,11 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class DataTest {
 
     /** Nome della tabella principale usata nei test. Adattare al proprio schema. */
-    private static final String TABLE = "playtennis";
+    private static final String TABLE = "provaC";
 
-    // -------------------------------------------------------------------------
     // Helpers condivisi tra i test
-    // -------------------------------------------------------------------------
+
 
     /**
      * Cerca il primo {@link ContinuousAttribute} tra gli attributi descrittivi
@@ -56,9 +55,7 @@ class DataTest {
         return null;
     }
 
-    // =========================================================================
-    // 1. COSTRUTTORE
-    // =========================================================================
+    // test per il costruttore
 
     @Nested
     @DisplayName("Costruttore")
@@ -99,10 +96,8 @@ class DataTest {
         }
     }
 
-    // =========================================================================
-    // 2. ACCESSORI DI BASE
+    // test su metodi di funzioni di base
     // Questi test usano tutti il DB: se non è disponibile vengono skippati.
-    // =========================================================================
 
     @Nested
     @DisplayName("Accessori di base")
@@ -183,9 +178,7 @@ class DataTest {
         }
     }
 
-    // =========================================================================
-    // 3. toString
-    // =========================================================================
+    // Test sul metodo  toString
 
     @Nested
     @DisplayName("toString")
@@ -217,9 +210,7 @@ class DataTest {
         }
     }
 
-    // =========================================================================
-    // 4. sort — casi normali
-    // =========================================================================
+    // Test sul  sort — casi normali
 
     @Nested
     @DisplayName("sort — casi normali")
@@ -289,9 +280,7 @@ class DataTest {
         }
     }
 
-    // =========================================================================
-    // 5. sort — edge case
-    // =========================================================================
+    // test sul sort — edge case
 
     @Nested
     @DisplayName("sort — edge case")
@@ -313,7 +302,6 @@ class DataTest {
         void sortSingleElementRangeNoException() {
             ContinuousAttribute attr = findContinuousAttribute(data);
             Assumptions.assumeTrue(attr != null, "Nessun attributo continuo nel dataset");
-            // inf == sup: il quicksort deve terminare immediatamente senza scambi
             assertDoesNotThrow(() -> data.sort(attr, 0, 0));
         }
 
@@ -324,7 +312,7 @@ class DataTest {
             Assumptions.assumeTrue(attr != null, "Nessun attributo continuo nel dataset");
 
             data.sort(attr, 0, data.getNumberOfExamples() - 1);
-            data.sort(attr, 0, data.getNumberOfExamples() - 1); // seconda passata
+            data.sort(attr, 0, data.getNumberOfExamples() - 1); 
 
             for (int i = 0; i < data.getNumberOfExamples() - 1; i++) {
                 Double curr = (Double) data.getExplanatoryValue(i, attr.getIndex());
@@ -344,10 +332,9 @@ class DataTest {
             Assumptions.assumeTrue(attr != null, "Nessun attributo continuo nel dataset");
 
             int last = data.getNumberOfExamples() - 1;
-            // memorizza il valore dell'ultimo elemento, che resterà fuori dal range
             Double valueBefore = (Double) data.getExplanatoryValue(last, attr.getIndex());
 
-            data.sort(attr, 0, last / 2); // ordina solo la prima metà
+            data.sort(attr, 0, last / 2); 
 
             Double valueAfter = (Double) data.getExplanatoryValue(last, attr.getIndex());
             assertEquals(valueBefore, valueAfter,
@@ -365,7 +352,6 @@ class DataTest {
             int mid = data.getNumberOfExamples() / 2;
             data.sort(attr, 0, mid);
 
-            // verifica che la prima metà sia ordinata
             for (int i = 0; i < mid; i++) {
                 Double curr = (Double) data.getExplanatoryValue(i, attr.getIndex());
                 Double next = (Double) data.getExplanatoryValue(i + 1, attr.getIndex());

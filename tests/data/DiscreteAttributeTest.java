@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+    // Test per la classe DiscreteAttribute
 @DisplayName("Test di DiscreteAttribute")
 class DiscreteAttributeTest {
 
