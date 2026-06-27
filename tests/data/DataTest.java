@@ -81,7 +81,6 @@ class DataTest {
 
         @Test
         @DisplayName("Lancia TrainingDataException se la tabella è vuota")
-        @Disabled("Richiede una tabella 'empty_table' con schema valido ma zero righe nel DB di test")
         void constructorThrowsForEmptyTable() {
             assertThrows(TrainingDataException.class,
                     () -> new Data("empty_table"));
@@ -89,7 +88,6 @@ class DataTest {
 
         @Test
         @DisplayName("Lancia TrainingDataException se l'ultima colonna non è numerica")
-        @Disabled("Richiede una tabella 'string_last_col_table' con ultima colonna di tipo stringa nel DB di test")
         void constructorThrowsIfLastColumnNotNumeric() {
             assertThrows(TrainingDataException.class,
                     () -> new Data("string_last_col_table"));
@@ -312,7 +310,7 @@ class DataTest {
             Assumptions.assumeTrue(attr != null, "Nessun attributo continuo nel dataset");
 
             data.sort(attr, 0, data.getNumberOfExamples() - 1);
-            data.sort(attr, 0, data.getNumberOfExamples() - 1); 
+            data.sort(attr, 0, data.getNumberOfExamples() - 1);
 
             for (int i = 0; i < data.getNumberOfExamples() - 1; i++) {
                 Double curr = (Double) data.getExplanatoryValue(i, attr.getIndex());
@@ -334,7 +332,7 @@ class DataTest {
             int last = data.getNumberOfExamples() - 1;
             Double valueBefore = (Double) data.getExplanatoryValue(last, attr.getIndex());
 
-            data.sort(attr, 0, last / 2); 
+            data.sort(attr, 0, last / 2);
 
             Double valueAfter = (Double) data.getExplanatoryValue(last, attr.getIndex());
             assertEquals(valueBefore, valueAfter,
