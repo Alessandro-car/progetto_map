@@ -5,12 +5,13 @@ flowchart TD
 
     subgraph application["application"]
         direction TB
+        Launcher["Launcher"]
         Main["Main"]
         Controller["Controller"]
         Load_From_Controller["Load_From_Controller"]
         RtClient["RtClient"]
         ServerException["ServerException"]
-        Main ~~~ Controller ~~~ Load_From_Controller ~~~ RtClient ~~~ ServerException
+        Launcher ~~~ Main ~~~ Controller ~~~ Load_From_Controller ~~~ RtClient ~~~ ServerException
     end
 
     subgraph Presentation["Presentation"]

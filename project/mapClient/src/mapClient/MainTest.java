@@ -70,7 +70,7 @@ public class MainTest {
 		{
 			out.writeObject(0);
 			do {
-				System.out.println("Table or file name: ");
+				System.out.println("Table name: ");
 				tableName = Keyboard.readString();
 				out.writeObject(tableName);
 				answer = in.readObject().toString();
@@ -97,6 +97,7 @@ public class MainTest {
 		{
 			out.writeObject(2);
 			do {
+				System.out.println("File name:");
 				tableName = Keyboard.readString();
 				out.writeObject(tableName);
 				answer = in.readObject().toString();

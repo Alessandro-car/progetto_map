@@ -3,6 +3,7 @@ title: Package application
 ---
 classDiagram
 namespace application {
+  class Launcher
   class Main
   class Controller
   class Load_From_Controller
@@ -10,9 +11,13 @@ namespace application {
   class ServerException
 }
 
+class Launcher {
+  + main(in args: String[])$
+}
+
 class Main {
   + start(in primaryStage: Stage)
-  + main(in args: String[])
+  + main(in args: String[])$
 }
 
 class Controller {
@@ -96,6 +101,7 @@ ServerException --|> Exception
 
 Load_From_Controller *.. NamesSupplier : inner interface
 
+Launcher ..> Main
 Controller o-- RtClient
 Main ..> Controller
 Load_From_Controller ..> Controller
