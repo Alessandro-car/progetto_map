@@ -173,7 +173,7 @@ public class RegressionTree implements Serializable {
 	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O.
 	 * <p>
 	 * Se il nodo corrente è una foglia restituisce direttamente il valore predetto.
-	 * Se è un nodo di split, invia al client la domanda e l'elenco dei rami, attende
+	 * Se è un nodo di split, invia al client la domanda, attende
 	 * la risposta (un intero) e prosegue la navigazione sul figlio scelto.
 	 *
 	 * @param in lo stream da cui leggere la risposta del client (l'indice del ramo da seguire)
@@ -189,7 +189,6 @@ public class RegressionTree implements Serializable {
 		} else {
 			int risp = 0;
 			out.writeObject(((SplitNode) root).formulateQuery());
-			out.writeObject(this.getArrayOfChildren());
 			out.flush();
 			risp = (Integer) in.readObject();
 			if (risp < 0 || risp >= root.getNumberOfChildren()) {

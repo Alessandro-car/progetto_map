@@ -9,6 +9,12 @@ import server.MultiServer;
  * tramite alberi precedentemente salvati.
  */
 public class MainTest {
+
+	/**
+	 * Costruttore privato: questa classe è una classe di utilità e non deve essere istanziata.
+	 */
+	private MainTest() {}
+
 	/**
 	 * Avvia il server.
 	 * <p>

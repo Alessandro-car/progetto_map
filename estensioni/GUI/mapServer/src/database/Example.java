@@ -17,6 +17,11 @@ public class Example implements Comparable<Example>, Iterable<Object> {
     private List<Object> example = new ArrayList<Object>();
 
     /**
+     * Costruisce un esempio vuoto, pronto per essere popolato con {@link #add(Object)}.
+     */
+    public Example() {}
+
+    /**
      * Aggiunge un valore in coda all'esempio.
      *
      * @param o il valore da aggiungere
