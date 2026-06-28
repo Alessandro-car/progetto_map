@@ -12,7 +12,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Scanner;
 import java.util.TreeSet;
-import java.util.ArrayList;
 import java.lang.ClassNotFoundException;
 
 /**
@@ -151,25 +150,6 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Restituisce la lista degli indici dei figli del nodo radice corrente, sotto
-	 * forma di stringhe.
-	 * <p>
-	 * Viene usata durante la predizione interattiva con un client per costruire i
-	 * pulsanti tra cui scegliere. Se il nodo radice è una foglia la lista è vuota.
-	 *
-	 * @return la lista degli indici dei rami selezionabili
-	 */
-	private ArrayList<String> getArrayOfChildren() {
-		ArrayList<String> childrens = new ArrayList<>();
-		if (!(root instanceof LeafNode)) {
-			for (int i = 0; i < root.getNumberOfChildren(); i++) {
-				childrens.add(String.valueOf(i));
-			}
-		}
-		return childrens;
-	}
-
-	/**
 	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O.
 	 * <p>
 	 * Se il nodo corrente è una foglia restituisce direttamente il valore predetto.
@@ -189,7 +169,6 @@ public class RegressionTree implements Serializable {
 		} else {
 			int risp = 0;
 			out.writeObject(((SplitNode) root).formulateQuery());
-			out.writeObject(this.getArrayOfChildren());
 			out.flush();
 			risp = (Integer) in.readObject();
 			if (risp < 0 || risp >= root.getNumberOfChildren()) {
