@@ -35,7 +35,7 @@ class DbAccessTest {
 			Class.forName(DRIVER_CLASS_NAME);
 				conn = DriverManager.getConnection(
 					DBMS + "://" + server + ":" + PORT + "/" + db
-					+ "?useSSL=false&serverTimezone=UTC",
+					+ "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
 					user_id,
 					password
 				);
@@ -58,7 +58,7 @@ class DbAccessTest {
 			Class.forName(DRIVER_CLASS_NAME);
 				conn = DriverManager.getConnection(
 					DBMS + "://" + server + ":" + PORT + "/" + db
-					+ "?useSSL=false&serverTimezone=UTC",
+					+ "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
 					user_id,
 					password
 				);

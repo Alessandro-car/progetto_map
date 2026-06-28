@@ -48,11 +48,25 @@ class TableDataTest {
 	@Test
 	@DisplayName("Get transaction from empty table")
 	void getTransactionsFromEmptyTable() throws Exception {
+		try (Statement st = db.getConnection().createStatement()) {
+			st.execute("DROP TABLE IF EXISTS " + empty_table);
+			st.execute("CREATE TABLE " + empty_table + " (outlook VARCHAR(10), temperature DOUBLE)");
+		} catch (SQLException e) {
+			Assumptions.assumeTrue(false,
+					"MapUser does not have the priviliges to create the table: " + e.getMessage());
+		}
+
 		try {
-			List<Example> examples = data.getTransazioni(empty_table);
+			data.getTransazioni(empty_table);
 			fail("EmptySetException expected");
-		} catch (EmptySetException e) {}
+		} catch (EmptySetException expected) {
+		} finally {
+			try (Statement st = db.getConnection().createStatement()) {
+				st.execute("DROP TABLE IF EXISTS " + empty_table);
+			} catch (SQLException ignored) {}
+		}
 	}
+
 
 	@Test
 	@DisplayName("Get transactions from existing and not empty table")

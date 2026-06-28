@@ -1,4 +1,3 @@
-
 ---
 title: Package server
 ---
@@ -12,7 +11,7 @@ classDiagram
     class MultiServer {
         - PORT: int = 8080
         + MultiServer(in port: int)
-        - run() 
+        - run()
     }
 
     class ServerOneClient{
@@ -26,16 +25,21 @@ classDiagram
     class UnknownValueException{
         + UnknownValueException(in message: String)
     }
-    
-        class Thread{ 
-    }    
-    
+
+    class Thread{
+    }
+
     class IOException{
     }
 
-    ServerOneClient --|> Thread 
+    class DbAccess{
+    }
+
+    ServerOneClient --|> Thread
     ServerOneClient ..> UnknownValueException
     ServerOneClient ..> IOException
+    ServerOneClient ..> DbAccess
     MultiServer ..> ServerOneClient
     UnknownValueException --|> Exception
 
+    note for ServerOneClient "run() dispatches action codes 0-5: 0 load data, 1 build and save tree, 2 load tree, 3 predict, 4 list DB tables, 5 list saved .dmp trees"

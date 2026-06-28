@@ -13,7 +13,7 @@ classDiagram
     }
 
     class DbAccess {
-        - DRIVER_CLASS_NAME: String  = "com.mysql.cj.jdbc.Driver" frozen  
+        - DRIVER_CLASS_NAME: String  = "com.mysql.cj.jdbc.Driver" frozen
         - DBMS: String = "jdbc:mysql" frozen
         - SERVER: String = "localhost"
         - DATABASE: String = "MapDB"
@@ -21,9 +21,10 @@ classDiagram
         - USER_ID: String = "MapUser"
         - PASSWORD: String = "map"
         - conn: Connection
-        + initConnection() 
+        + initConnection()
         ~ getConnection() Connection
-        + closeConnection() 
+        + closeConnection()
+        + getListOfTables() ArrayList~String~
     }
 
     class TableSchema {
@@ -52,7 +53,7 @@ classDiagram
 
     class Example {
         - example: List~Object~
-        ~ add(in o: Object) 
+        ~ add(in o: Object)
         + get(in i: int) Object
         + compareTo(in ex: Example) int
         + toString() String
@@ -78,12 +79,11 @@ classDiagram
 
     DbAccess ..> DatabaseConnectionException
 
-    TableSchema ..> DbAccess 
+    TableSchema ..> DbAccess
     TableSchema o--  Column
 
-    TableData o-- DbAccess 
-    TableData ..> TableSchema 
-    TableData ..> Column 
-    TableData ..> Example 
-    TableData ..> EmptySetException 
-
+    TableData o-- DbAccess
+    TableData ..> TableSchema
+    TableData ..> Column
+    TableData ..> Example
+    TableData ..> EmptySetException

@@ -14,7 +14,11 @@ class TableSchemaTest {
 	@BeforeEach
 	void init() throws Exception {
 		db = new DbAccess();
-		db.initConnection();
+		try {
+			db.initConnection();
+		} catch (DatabaseConnectionException e) {
+			Assumptions.assumeTrue(false, "Database not available: " + e.getMessage());
+		}
 	}
 
 	@AfterEach

@@ -53,7 +53,7 @@ public class DbAccess {
             Class.forName(DRIVER_CLASS_NAME);
             conn = DriverManager.getConnection(
                 DBMS + "://" + SERVER + ":" + PORT + "/" + DATABASE
-                + "?useSSL=false&serverTimezone=UTC",
+                + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
                 USER_ID,
                 PASSWORD
             );

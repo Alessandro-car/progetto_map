@@ -12,32 +12,39 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Scanner;
 import java.util.TreeSet;
+import java.util.ArrayList;
 import java.lang.ClassNotFoundException;
 
 /**
- * La classe {@code RegressionTree} rappresenta l'intero albero di decisione per la regressione.
+ * Rappresenta un albero di regressione, costruito in modo ricorsivo a partire da
+ * un dataset.
  * <p>
- * Implementa le fasi di apprendimento dell'albero attraverso il metodo {@link #learnTree}
- * e fornisce funzionalità per la stampa della struttura e delle regole indotte.
+ * L'albero viene appreso suddividendo via via gli esempi in base agli attributi
+ * che minimizzano la varianza, fino a ottenere foglie sufficientemente piccole.
+ * Una volta costruito può essere salvato su file e ricaricato, e può essere usato
+ * per predire il valore della classe interagendo con l'utente o con un client.
  */
 public class RegressionTree implements Serializable {
-	/** Il nodo radice dell'albero (o del sotto-albero corrente). */
+
+	/** Nodo radice dell'albero (o del sotto-albero corrente). */
 	private Node root;
-	/** Array di sotto-alberi figli, uno per ogni ramo dello split. */
+
+	/** Sotto-alberi figli, uno per ciascun ramo dello split alla radice. */
 	private RegressionTree childTree[];
 
 	/**
-	 * Costruttore privato utilizzato per l'istanziazione ricorsiva dei sotto-alberi.
+	 * Costruttore privato usato per creare ricorsivamente i sotto-alberi.
 	 */
 	private RegressionTree() {
 	}
 
 	/**
-	 * Costruttore pubblico che avvia il processo di apprendimento dell'albero.
+	 * Costruisce l'albero avviando l'apprendimento sull'intero dataset.
 	 * <p>
-	 * Calcola automaticamente un numero minimo di esempi per foglia pari al 10%
+	 * Il numero minimo di esempi per foglia viene fissato automaticamente al 10%
 	 * della dimensione del dataset.
-	 * @param trainingSet Il dataset di addestramento completo.
+	 *
+	 * @param trainingSet il dataset di addestramento
 	 */
 	public RegressionTree(Data trainingSet) {
 		learnTree(trainingSet, 0, trainingSet.getNumberOfExamples() - 1,
@@ -45,27 +52,30 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Verifica se l'intervallo corrente di esempi deve essere considerato un nodo foglia.
-	 * @param trainingSet              Il dataset di riferimento.
-	 * @param begin                    Indice iniziale.
-	 * @param end                      Indice finale.
-	 * @param numberOfExamplesPerLeaf  Soglia minima per creare una foglia.
-	 * @return {@code true} se il numero di esempi è inferiore o uguale alla soglia.
+	 * Stabilisce se l'intervallo di esempi corrente deve diventare una foglia.
+	 *
+	 * @param trainingSet il dataset di riferimento
+	 * @param begin indice iniziale dell'intervallo
+	 * @param end indice finale dell'intervallo
+	 * @param numberOfExamplesPerLeaf soglia minima di esempi per creare una foglia
+	 * @return {@code true} se il numero di esempi è inferiore o uguale alla soglia
 	 */
 	private boolean isLeaf(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
 		return (end - begin + 1) <= numberOfExamplesPerLeaf;
 	}
 
 	/**
-	 * Analizza tutti gli attributi esplicativi e seleziona quello che genera
-	 * lo split con la varianza minore, usando un {@link TreeSet} per ordinare
-	 * automaticamente i nodi rispetto alla {@code splitVariance}.
-	 * Usa l'RTTI (instanceof) per distinguere attributi discreti da continui
-	 * e istanziare il nodo di split corretto.
-	 * @param trainingSet Il dataset di addestramento.
-	 * @param begin       Indice iniziale dell'intervallo.
-	 * @param end         Indice finale dell'intervallo.
-	 * @return Il miglior {@link SplitNode} trovato (quello con splitVariance minima).
+	 * Analizza tutti gli attributi descrittivi e sceglie quello che produce lo split
+	 * con la varianza minore.
+	 * <p>
+	 * Usa un {@link TreeSet} per ordinare automaticamente i nodi di split in base alla
+	 * varianza e l'operatore {@code instanceof} per creare il tipo di nodo corretto
+	 * (discreto o continuo).
+	 *
+	 * @param trainingSet il dataset di addestramento
+	 * @param begin indice iniziale dell'intervallo
+	 * @param end indice finale dell'intervallo
+	 * @return il miglior {@link SplitNode} trovato, cioè quello con varianza minima
 	 */
 	private SplitNode determineBestSplitNode(Data trainingSet, int begin, int end) {
 		TreeSet<SplitNode> ts = new TreeSet<SplitNode>();
@@ -85,14 +95,15 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Algoritmo ricorsivo per la costruzione dell'albero.
+	 * Costruisce ricorsivamente l'albero.
 	 * <p>
-	 * Se le condizioni per una foglia sono soddisfatte, crea un {@link LeafNode}.
-	 * Altrimenti, cerca il miglior split e richiama se stesso sui figli.
-	 * @param trainingSet              Il dataset di addestramento.
-	 * @param begin                    Indice iniziale.
-	 * @param end                      Indice finale.
-	 * @param numberOfExamplesPerLeaf  Parametro di arresto per la creazione delle foglie.
+	 * Se sono soddisfatte le condizioni di foglia crea un {@link LeafNode}; altrimenti
+	 * individua il miglior split e ripete il procedimento su ciascun ramo.
+	 *
+	 * @param trainingSet il dataset di addestramento
+	 * @param begin indice iniziale dell'intervallo
+	 * @param end indice finale dell'intervallo
+	 * @param numberOfExamplesPerLeaf soglia minima di esempi per creare una foglia
 	 */
 	private void learnTree(Data trainingSet, int begin, int end, int numberOfExamplesPerLeaf) {
 		if (isLeaf(trainingSet, begin, end, numberOfExamplesPerLeaf)) {
@@ -115,12 +126,14 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Visualizza le informazioni di ciascuno split dell'albero
-	 * e per il corrispondente attributo acquisisce il valore dell'esempio da predire da tastiera.
+	 * Esegue una predizione interattiva da tastiera.
 	 * <p>
-	 * Il metodo solleva l'eccezione {@code UnknownValueException} qualora la risposta dell'utente non permetta di
-	 * selezionare un ramo valido del nodo di split.
-	 * @return Ritorna il valore predetto del corrispondente attributo.
+	 * Per ogni nodo di split mostra le possibili diramazioni e legge dalla tastiera
+	 * la scelta dell'utente, scendendo nell'albero fino a raggiungere una foglia,
+	 * il cui valore viene restituito.
+	 *
+	 * @return il valore della classe predetta
+	 * @throws UnknownValueException se la scelta dell'utente non corrisponde a un ramo valido
 	 */
 	public Double predictClass() throws UnknownValueException {
 		if (root instanceof LeafNode) {
@@ -138,39 +151,54 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Prevede il valore della classe interagendo con un client tramite stream di I/O.
+	 * Restituisce la lista degli indici dei figli del nodo radice corrente, sotto
+	 * forma di stringhe.
 	 * <p>
-	 * Se il nodo corrente è un nodo foglia ({@code LeafNode}), restituisce direttamente
-	 * il valore predetto della classe. Se invece si tratta di un nodo di divisione
-	 * ({@code SplitNode}), formula una query, la invia sullo stream di output e
-	 * attende una risposta intera dallo stream di input. Utilizza poi tale risposta
-	 * come indice per selezionare il nodo figlio corretto e continuare la navigazione
-	 * dell'albero.
-	 * </p>
+	 * Viene usata durante la predizione interattiva con un client per costruire i
+	 * pulsanti tra cui scegliere. Se il nodo radice è una foglia la lista è vuota.
 	 *
-	 * @param in  l'{@code ObjectInputStream} da cui leggere la risposta dell'utente
-	 * (deve essere un intero corrispondente al ramo da seguire)
-	 * @param out l'{@code ObjectOutputStream} su cui inviare la query formulata dal nodo
-	 * @return un {@code Double} che rappresenta il valore della classe predetta
-	 * @throws UnknownValueException se l'indice fornito come risposta non è valido
-	 * (es. negativo o maggiore/uguale al numero di nodi figlio)
-	 * @throws ClassNotFoundException se non è possibile trovare la classe dell'oggetto
-	 * letto dallo stream di input
-	 * @throws IOException se si verifica un errore durante le operazioni di lettura o
-	 * scrittura sugli stream
-	*/
+	 * @return la lista degli indici dei rami selezionabili
+	 */
+	private ArrayList<String> getArrayOfChildren() {
+		ArrayList<String> childrens = new ArrayList<>();
+		if (!(root instanceof LeafNode)) {
+			for (int i = 0; i < root.getNumberOfChildren(); i++) {
+				childrens.add(String.valueOf(i));
+			}
+		}
+		return childrens;
+	}
+
+	/**
+	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O.
+	 * <p>
+	 * Se il nodo corrente è una foglia restituisce direttamente il valore predetto.
+	 * Se è un nodo di split, invia al client la domanda e l'elenco dei rami, attende
+	 * la risposta (un intero) e prosegue la navigazione sul figlio scelto.
+	 *
+	 * @param in lo stream da cui leggere la risposta del client (l'indice del ramo da seguire)
+	 * @param out lo stream su cui inviare la domanda formulata dal nodo
+	 * @return il valore della classe predetta
+	 * @throws UnknownValueException se l'indice ricevuto non è valido (negativo o troppo grande)
+	 * @throws ClassNotFoundException se l'oggetto letto dallo stream non è riconosciuto
+	 * @throws IOException se si verifica un errore durante la lettura o la scrittura
+	 */
 	public Double predictClass(ObjectInputStream in, ObjectOutputStream out) throws UnknownValueException, ClassNotFoundException, IOException {
 		if (root instanceof LeafNode) {
 			return ((LeafNode) root).getPredictedClassValue();
 		} else {
 			int risp = 0;
 			out.writeObject(((SplitNode) root).formulateQuery());
+			out.writeObject(this.getArrayOfChildren());
+			out.flush();
 			risp = (Integer) in.readObject();
 			if (risp < 0 || risp >= root.getNumberOfChildren()) {
 				out.writeObject("The answer should be an integer between 0 and" + (root.getNumberOfChildren() - 1) + "!");
+				out.flush();
 				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
 			} else {
 				out.writeObject("QUERY");
+				out.flush();
 				return childTree[risp].predictClass(in, out);
 			}
 		}
@@ -185,7 +213,11 @@ public class RegressionTree implements Serializable {
 		System.out.println("*************************\n");
 	}
 
-	/** @return Una rappresentazione testuale del nodo radice dell'albero */
+	/**
+	 * Restituisce una rappresentazione testuale dell'albero a partire dalla radice.
+	 *
+	 * @return la descrizione testuale dell'albero
+	 */
 	public String toString() {
 		String tree = root.toString() + "\n";
 		if (root instanceof LeafNode) {
@@ -198,7 +230,7 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Stampa a console le regole di regressione dedotte dall'albero.
+	 * Stampa a console le regole di regressione ricavate dall'albero.
 	 */
 	public void printRules() {
 		System.out.println("********* RULES **********");
@@ -217,8 +249,10 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Metodo di supporto ricorsivo per la stampa delle regole con le condizioni accumulate.
-	 * @param current La stringa contenente le condizioni accumulate dai nodi antenati.
+	 * Metodo ricorsivo di supporto a {@link #printRules()} che accumula le condizioni
+	 * incontrate lungo il percorso e le stampa quando raggiunge una foglia.
+	 *
+	 * @param current la stringa con le condizioni accumulate dai nodi antenati
 	 */
 	private void printRules(String current) {
 		if (root instanceof LeafNode) {
@@ -235,10 +269,11 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Serializza l'albero di regressione in un file.
-	 * @param nomeFile Nome del file in cui salvare l'albero.
-	 * @throws FileNotFoundException Se il file non può essere caricato
-	 * @throws IOException Se si verifica un errore durante la scrittura
+	 * Salva l'albero su file serializzandolo.
+	 *
+	 * @param nomeFile il nome del file in cui salvare l'albero
+	 * @throws FileNotFoundException se il file non può essere creato o aperto
+	 * @throws IOException se si verifica un errore durante la scrittura
 	 */
 	public void salva(String nomeFile) throws FileNotFoundException, IOException {
 		ObjectOutputStream oos = null;
@@ -252,12 +287,13 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Carica un albero di regressione precedentemente salvato da un file.
-	 * @param nomeFile Nome del file da cui caricare l'albero
-	 * @return L'albero di regressione contenuto nel file
-	 * @throws FileNotFoundException Se il file non esiste
-	 * @throws IOException Se si verifica un errore durante la lettura
-	 * @throws ClassNotFoundException Se la classe dell'oggetto non viene trovata
+	 * Carica da file un albero precedentemente salvato.
+	 *
+	 * @param nomeFile il nome del file da cui caricare l'albero
+	 * @return l'albero di regressione contenuto nel file
+	 * @throws FileNotFoundException se il file non esiste
+	 * @throws IOException se si verifica un errore durante la lettura
+	 * @throws ClassNotFoundException se la classe dell'oggetto letto non viene trovata
 	 */
 	public static RegressionTree carica(String nomeFile) throws FileNotFoundException, IOException, ClassNotFoundException {
 		ObjectInputStream ois = null;
