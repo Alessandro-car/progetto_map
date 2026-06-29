@@ -1,5 +1,11 @@
 ---
 title: Package server
+config:
+  themeCSS: |
+    .active rect {
+      outline: 1.5px solid #9370DB;
+      outline-offset: 3px;
+    }
 ---
 classDiagram
     namespace server {
@@ -7,14 +13,13 @@ classDiagram
         class ServerOneClient
         class UnknownValueException
     }
-
     class MultiServer {
         - PORT: int = 8080
         + MultiServer(in port: int)
         - run()
     }
 
-    class ServerOneClient{
+    class ServerOneClient:::active {
         - socket: Socket
         - in: ObjectInputStream
         - out: ObjectOutputStream
