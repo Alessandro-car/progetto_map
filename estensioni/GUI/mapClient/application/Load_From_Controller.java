@@ -29,14 +29,31 @@ public class Load_From_Controller {
     /** Nome della tabella o del file selezionato dall'utente. */
     private String tableName;
 
+    /** Menu a tendina per selezionare il nome della tabella o del file da cui caricare i dati. */
     @FXML private ComboBox<String> tableNameValue;
+
+    /** Campo di testo in cui l'utente inserisce il ramo scelto durante la fase di predizione. */
     @FXML private TextField branchValue;
+
+    /** Area di testo in cui vengono mostrati i messaggi, le domande e il risultato della predizione. */
     @FXML private TextArea  output;
+
+    /** Pulsante che avvia la costruzione/caricamento dell'albero e la fase di predizione. */
     @FXML private Button    executionButton;
+
+    /** Pulsante che avvia una nuova esecuzione riportando la schermata allo stato iniziale. */
     @FXML private Button    newExecutionButton;
+
+    /** Pulsante che chiude l'applicazione. */
     @FXML private Button    exitButton;
+
+    /** Pulsante di conferma del ramo inserito durante la fase di predizione. */
     @FXML private Button    okButton;
+
+    /** Pulsante che riporta l'utente al menu principale. */
     @FXML private Button    menuButton;
+
+    /** Etichetta descrittiva associata alla selezione del nome della tabella o del file. */
     @FXML private Label tableNameLabel;
 
     /**
@@ -184,6 +201,7 @@ public class Load_From_Controller {
 
         executionTask.setOnFailed(e -> {
             output.appendText("\nError: " + executionTask.getException().getMessage());
+            Controller.refreshConnection();
             tableNameValue.setDisable(false);
             executionButton.setDisable(false);
             newExecutionButton.setDisable(false);
@@ -209,8 +227,14 @@ public class Load_From_Controller {
             branchValue.requestFocus();
             return;
         }
-
-        int branch = Integer.parseInt(branchText);
+				int branch;
+				try {
+					branch = Integer.parseInt(branchText);
+				} catch (NumberFormatException e) {
+					output.appendText("\nPlease enter a valid branch number.\n");
+          branchValue.requestFocus();
+          return;
+				}
         output.appendText("\nChoice: " + branch + " — processing...");
         okButton.setDisable(true);
         branchValue.setDisable(true);

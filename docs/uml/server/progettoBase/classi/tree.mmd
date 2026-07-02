@@ -74,7 +74,7 @@ class SplitInfo {
 }
 
 class ContinuousNode {
-  ~ ContinuousNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: ContinuousNode)
+  ~ ContinuousNode(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: ContinuousAttribute)
   ~ setSplitInfo(in trainingSet: Data, in beginExampleIndex: int, in endExampleIndex: int, in attribute: Attribute)
   ~ testCondition(in value: Object) int
   + toString() String

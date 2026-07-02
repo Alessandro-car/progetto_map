@@ -55,6 +55,10 @@ public class MainTest {
     public static void main(String[] args) {
 				Properties cfg = new Properties();
 				try (InputStream is = openConfig()) {
+					if (is == null) {
+						System.err.println("config.properties not found: place it in the working directory or include it in the jar");
+						System.exit(1);
+					}
 					cfg.load(is);
 				} catch (IOException e) {
 					System.err.println("Unable to read config.properties: " + e.getMessage());

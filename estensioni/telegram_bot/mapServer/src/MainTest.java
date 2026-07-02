@@ -21,7 +21,7 @@ public class MainTest {
 	 */
 	public static void main(String[] args) {
 		if (args.length < 1) {
-				System.err.println("Usage: java server.MainTest <port>");
+				System.err.println("Usage: java MainTest <port>");
 				System.exit(1);
 		}
 

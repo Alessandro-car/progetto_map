@@ -61,61 +61,63 @@ public class Data {
 		} catch (DatabaseConnectionException e) {
 			throw new TrainingDataException(e.toString());
 		}
-
-		TableSchema schema;
 		try {
-			schema = new TableSchema(db, tableName);
-		} catch (SQLException e) {
-			throw new TrainingDataException(e.toString());
-		}
-
-		if (schema.getNumberOfAttributes() < 2) {
-			throw new TrainingDataException("La tabella ha meno di due colonne.");
-		}
-
-		Column lastColumn = schema.getColumn(schema.getNumberOfAttributes() - 1);
-		if (!lastColumn.isNumber()) {
-			throw new TrainingDataException(
-					"L'attributo corrispondente all'ultima colonna non e' numerico.");
-		}
-
-		int iAttribute = 0;
-		for (int i = 0; i < schema.getNumberOfAttributes() - 1; i++) {
-			Column col = schema.getColumn(i);
-			if (col.isNumber()) {
-				explanatorySet.add(new ContinuousAttribute(col.getColumnName(), iAttribute));
-			} else {
-				Set<String> distinctValues;
-				try {
-					distinctValues = (Set<String>)(Set<?>)
-							new TableData(db).getDistinctColumnValues(tableName, col);
-				} catch (SQLException e) {
-					throw new TrainingDataException(e.toString());
-				}
-				explanatorySet.add(
-						new DiscreteAttribute(col.getColumnName(), iAttribute, distinctValues));
+			TableSchema schema;
+			try {
+				schema = new TableSchema(db, tableName);
+			} catch (SQLException e) {
+				throw new TrainingDataException(e.toString());
 			}
-			iAttribute++;
-		}
 
-		classAttribute = new ContinuousAttribute(lastColumn.getColumnName(), iAttribute);
+			if (schema.getNumberOfAttributes() < 2) {
+				throw new TrainingDataException("La tabella ha meno di due colonne.");
+			}
 
-		TableData tableData = new TableData(db);
-		List<Example> examples;
-		try {
-			examples = tableData.getTransazioni(tableName);
-		} catch (SQLException e) {
-			throw new TrainingDataException(e.toString());
-		} catch (EmptySetException e) {
-			throw new TrainingDataException("La tabella ha zero tuple.");
-		}
+			Column lastColumn = schema.getColumn(schema.getNumberOfAttributes() - 1);
+			if (!lastColumn.isNumber()) {
+				throw new TrainingDataException(
+						"L'attributo corrispondente all'ultima colonna non e' numerico.");
+			}
 
-		data = new ArrayList<>(examples);
-		numberOfExamples = data.size();
-		try {
-			db.closeConnection();
-		} catch (SQLException e) {
-			throw new TrainingDataException(e.toString());
+			int iAttribute = 0;
+			for (int i = 0; i < schema.getNumberOfAttributes() - 1; i++) {
+				Column col = schema.getColumn(i);
+				if (col.isNumber()) {
+					explanatorySet.add(new ContinuousAttribute(col.getColumnName(), iAttribute));
+				} else {
+					Set<String> distinctValues;
+					try {
+						distinctValues = (Set<String>)(Set<?>)
+								new TableData(db).getDistinctColumnValues(tableName, col);
+					} catch (SQLException e) {
+						throw new TrainingDataException(e.toString());
+					}
+					explanatorySet.add(
+							new DiscreteAttribute(col.getColumnName(), iAttribute, distinctValues));
+				}
+				iAttribute++;
+			}
+
+			classAttribute = new ContinuousAttribute(lastColumn.getColumnName(), iAttribute);
+
+			TableData tableData = new TableData(db);
+			List<Example> examples;
+			try {
+				examples = tableData.getTransazioni(tableName);
+			} catch (SQLException e) {
+				throw new TrainingDataException(e.toString());
+			} catch (EmptySetException e) {
+				throw new TrainingDataException("La tabella ha zero tuple.");
+			}
+
+			data = new ArrayList<>(examples);
+			numberOfExamples = data.size();
+		} finally {
+			try {
+				db.closeConnection();
+			} catch (SQLException e) {
+				throw new TrainingDataException(e.toString());
+			}
 		}
 	}
 

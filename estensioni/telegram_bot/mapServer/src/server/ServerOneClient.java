@@ -114,33 +114,23 @@ class ServerOneClient extends Thread {
 					case 0:
 						try {
 							while (true) {
+								tableName = in.readObject().toString();
 								try {
-									tableName = in.readObject().toString();
 									trainingSet = new Data(tableName);
 									out.writeObject("Table found!");
 									out.flush();
 									break;
-								} catch (SQLException e) {
+								} catch (SQLException | TrainingDataException e) {
 									out.writeObject("No such table!");
 									out.flush();
-								} catch (TrainingDataException e) {
-									out.writeObject("No such table!");
-									out.flush();
-								}
 							}
-						} catch (IOException e) {
-							System.out.println(e);
-						} catch (ClassNotFoundException e) {
-							System.out.println(e);
 						}
-
-						try {
-							out.writeObject("OK");
-							out.flush();
-						} catch (IOException e) {
-							System.out.println(e);
-						}
-						break;
+						out.writeObject("OK");
+						out.flush();
+					} catch (IOException | ClassNotFoundException e) {
+						System.out.println(e);
+					}
+					break;
 					case 1:
 						if (trainingSet == null) {
 							try {
@@ -151,11 +141,15 @@ class ServerOneClient extends Thread {
 							}
 							break;
 						}
-						tree = new RegressionTree(trainingSet);
 						try {
+							tree = new RegressionTree(trainingSet);
 							tree.salva(tableName + ".dmp");
 							out.writeObject("OK");
 							out.flush();
+						} catch (RuntimeException e) {
+							out.writeObject("Error building tree: " + e.toString());
+							out.flush();
+							System.out.println(e);
 						} catch (IOException e) {
 							out.writeObject("Error saving tree: " + e.toString());
 							out.flush();
@@ -171,7 +165,6 @@ class ServerOneClient extends Thread {
 								out.flush();
 								break;
 							} catch (ClassNotFoundException e) {
-								new File(tableName + ".dmp").delete();
 								out.writeObject("The table " + tableName + " doesn't exist!");
 								out.flush();
 								System.out.println(e);
@@ -218,9 +211,9 @@ class ServerOneClient extends Thread {
 							ArrayList<String> tables = db.getListOfTables();
 							out.writeObject(tables);
 							out.flush();
-						} catch (DatabaseConnectionException e) {
-							System.err.println(e);
-						} catch (SQLException e) {
+						} catch (DatabaseConnectionException | SQLException e) {
+							out.writeObject("Error retrieving table: " + e.toString());
+							out.flush();
 							System.err.println(e);
 						} finally {
 							try { db.closeConnection(); } catch (SQLException ignored) {}
@@ -248,6 +241,8 @@ class ServerOneClient extends Thread {
 							out.flush();
 
 						} catch (Exception e) {
+							out.writeObject("Error listing saved trees: " + e.toString());
+							out.flush();
 							System.err.println(e);
 						}
 						break;

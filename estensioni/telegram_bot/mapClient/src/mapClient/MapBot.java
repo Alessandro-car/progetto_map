@@ -50,7 +50,16 @@ public class MapBot extends TelegramLongPollingBot {
      *   <li>{@code PREDICTION}: è in corso una predizione interattiva.</li>
      * </ul>
      */
-    private enum Status { START, WAITING_OPTION, WAITING_TABLE, PREDICTION }
+    private enum Status {
+        /** Nessuna sessione attiva. */
+        START,
+        /** Il bot attende che l'utente scelga tra {@code /learn} e {@code /load}. */
+        WAITING_OPTION,
+        /** Il bot attende che l'utente scelga una tabella o un albero salvato. */
+        WAITING_TABLE,
+        /** È in corso una predizione interattiva. */
+        PREDICTION
+    }
 
     /** Stato corrente della conversazione di ciascun utente, indicizzato per {@code chatId}. */
     private final Map<Long, Status> userStatus = new ConcurrentHashMap<>();
@@ -369,9 +378,12 @@ public class MapBot extends TelegramLongPollingBot {
     /**
      * Fa avanzare la predizione leggendo la prossima risposta del server.
      * <p>
-     * Se il server comunica il risultato finale ({@code "OK"}), mostra la classe
-     * predetta e chiude la sessione. Altrimenti mostra la domanda relativa al nodo
-     * di split corrente e i pulsanti per scegliere il ramo successivo.
+     * Se il server segnala una nuova domanda ({@code "QUERY"}) mostra il nodo di
+     * split corrente e i pulsanti dei rami, ricavati dagli indici presenti nel
+     * testo della domanda. Se comunica il risultato finale ({@code "OK"}) mostra
+     * la classe predetta e chiude la sessione. Qualsiasi altra risposta (ad
+     * esempio un ramo non valido) viene trattata come errore terminale e la
+     * sessione viene ripristinata.
      *
      * @param chatId l'identificativo della chat dell'utente
      * @throws Exception se si verifica un errore nella comunicazione con il server
@@ -380,17 +392,21 @@ public class MapBot extends TelegramLongPollingBot {
         ServerConnection conn = connections.get(chatId);
         String answer = conn.readAnswer();
 
-        if (answer.equals("QUERY")) {
-            answer = conn.readAnswer();
+        if (!answer.equals("QUERY")) {
+            String safeAnswer = answer.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+            send(chatId, "Prediction error: " + safeAnswer + "\n\nType /start to begin a new prediction.");
+            resetUser(chatId);
+            return;
         }
 
+        answer = conn.readAnswer();
         if (answer.equals("OK")) {
             String pred = conn.readAnswer();
             send(chatId, "Predicted class: " + pred + "\n\nType /start to begin a new prediction.");
             resetUser(chatId);
         } else {
             String sanitizedAnswer = answer.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-            ArrayList<String> branches = getBranches(chatId);
+            ArrayList<String> branches = conn.showBranches();
             String msg = "<b>Choose a branch:</b>\n" + sanitizedAnswer;
             createButtons(chatId, msg, branches);
         }
@@ -410,18 +426,6 @@ public class MapBot extends TelegramLongPollingBot {
         }
         userStatus.remove(chatId);
         learnMode.remove(chatId);
-    }
-
-    /**
-     * Recupera dal server l'elenco dei rami selezionabili per il nodo corrente.
-     *
-     * @param chatId l'identificativo della chat dell'utente
-     * @return la lista dei rami disponibili
-     * @throws Exception se si verifica un errore nella comunicazione con il server
-     */
-    private ArrayList<String> getBranches(long chatId) throws Exception {
-        ServerConnection conn = connections.get(chatId);
-        return conn.showBranches();
     }
 
     /**
