@@ -89,7 +89,9 @@ class RegressionTree {
   - determineBestSplitNode(in trainingSet: Data, in begin: int, in end: int) SplitNode
   - learnTree(in trainingSet: Data, in begin: int, in end: int, in numberOfExamplesPerLeaf: int)
   + predictClass() Double
+  - getArrayOfChildren() ArrayList~String~
   + predictClass(in in: ObjectInputStream, in out: ObjectOutputStream) Double
+  + predictClass(in in: ObjectInputStream, in out: ObjectOutputStream, in sendBranches: boolean) Double
   + printTree()
   + printRules()
   - printRules(in current: String)

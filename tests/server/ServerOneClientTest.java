@@ -108,6 +108,7 @@ class ServerOneClientTest {
 		String tableName = "doesntexists";
 		out.writeObject(2);
 		out.writeObject(tableName);
+		out.flush();
 		assertEquals("The table " + tableName + " doesn't exist!", in.readObject());
 	}
 
@@ -167,6 +168,7 @@ class ServerOneClientTest {
 			assertTrue(dmp.exists());
 
 			out.writeObject(3);
+			out.flush();
 			assertEquals("QUERY", in.readObject());
 		} finally {
 			dmp.delete();
@@ -196,6 +198,47 @@ class ServerOneClientTest {
 			assertInstanceOf(List.class, answer);
 			List<?> files = (List<?>) answer;
 			assertTrue(files.contains(test));
+		} finally {
+			dmp.delete();
+		}
+	}
+
+	@Test
+	@DisplayName("Test case 6 without tree")
+	void case6withoutTreeReturnsError() throws Exception {
+		out.writeObject(6);
+		out.flush();
+		assertEquals("No tree available.", in.readObject(),
+				"Case 6 with tree == null returns error message.");
+	}
+
+	@Test
+	@DisplayName("Test case 6 with tree sends the branch list")
+	void case6withTree() throws Exception {
+		String tableName = "servo";
+		File dmp = new File(tableName + ".dmp");
+		try {
+			out.writeObject(0);
+			out.writeObject(tableName);
+			out.flush();
+			assertEquals("Table found!", in.readObject());
+			assertEquals("OK", in.readObject());
+
+			out.writeObject(1);
+			out.flush();
+			assertEquals("OK", in.readObject());
+
+			out.writeObject(6);
+			out.flush();
+			assertEquals("QUERY", in.readObject());
+
+			Object first = in.readObject();
+			if (!"OK".equals(first)) {
+				Object branches = in.readObject();
+				assertInstanceOf(List.class, branches,
+						"Case 6 must send the branch list after each question");
+				assertFalse(((List<?>) branches).isEmpty());
+			}
 		} finally {
 			dmp.delete();
 		}

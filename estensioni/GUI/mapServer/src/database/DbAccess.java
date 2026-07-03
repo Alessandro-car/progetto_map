@@ -41,11 +41,6 @@ public class DbAccess {
     private Connection conn;
 
     /**
-     * Costruisce un'istanza di {@code DbAccess} con i parametri di connessione predefiniti.
-     */
-    public DbAccess() {}
-
-    /**
      * Inizializza la connessione al database.
      * <p>
      * Carica il driver JDBC e stabilisce la connessione tramite {@link DriverManager}.

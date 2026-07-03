@@ -13,10 +13,4 @@ subgraph src["src"]
         Command ~~~ MainTest ~~~ MapBot ~~~ ServerConnection
     end
 
-    subgraph utilityPkg["utility"]
-        Keyboard["Keyboard"]
-    end
-
 end
-
-mapClientPkg -.->|import| utilityPkg

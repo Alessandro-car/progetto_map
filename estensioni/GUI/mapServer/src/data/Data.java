@@ -116,7 +116,7 @@ public class Data {
 			try {
 				db.closeConnection();
 			} catch (SQLException e) {
-				throw new TrainingDataException(e.toString());
+				System.err.println("Error closing connection: " + e);
 			}
 		}
 	}

@@ -256,7 +256,11 @@ public class Controller {
     }
 
 
-    /** Evidenzia il pulsante di connessione quando il mouse vi passa sopra. */
+    /**
+     * Evidenzia il pulsante di connessione quando il mouse vi passa sopra.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void hoverConnect(MouseEvent e) {
         buttonConnection.setStyle(
             "-fx-background-color: #5C72FF;" +
@@ -265,7 +269,11 @@ public class Controller {
             "-fx-background-radius: 6;" +
             "-fx-cursor: hand;");
     }
-    /** Ripristina lo stile del pulsante di connessione quando il mouse esce. */
+    /**
+     * Ripristina lo stile del pulsante di connessione quando il mouse esce.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void exitConnect(MouseEvent e) {
         buttonConnection.setStyle(
             "-fx-background-color: #3D5AFE;" +
@@ -275,7 +283,11 @@ public class Controller {
             "-fx-cursor: hand;");
     }
 
-    /** Evidenzia il pulsante "riprova" quando il mouse vi passa sopra. */
+    /**
+     * Evidenzia il pulsante "riprova" quando il mouse vi passa sopra.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void hoverRetry(MouseEvent e) {
         buttonRetry.setStyle(
             "-fx-background-color: #757575;" +
@@ -286,7 +298,11 @@ public class Controller {
             "-fx-background-radius: 6;" +
             "-fx-cursor: hand;");
     }
-    /** Ripristina lo stile del pulsante "riprova" quando il mouse esce. */
+    /**
+     * Ripristina lo stile del pulsante "riprova" quando il mouse esce.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void exitRetry(MouseEvent e) {
         buttonRetry.setStyle(
             "-fx-background-color: transparent;" +
@@ -298,7 +314,11 @@ public class Controller {
             "-fx-cursor: hand;");
     }
 
-    /** Evidenzia il pulsante "carica da DB" quando il mouse vi passa sopra. */
+    /**
+     * Evidenzia il pulsante "carica da DB" quando il mouse vi passa sopra.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void hoverDB(MouseEvent e) {
         buttonFromDB.setStyle(
             "-fx-background-color: #43A047;" +
@@ -310,7 +330,11 @@ public class Controller {
             "-fx-background-radius: 6;" +
             "-fx-cursor: hand;");
     }
-    /** Ripristina lo stile del pulsante "carica da DB" quando il mouse esce. */
+    /**
+     * Ripristina lo stile del pulsante "carica da DB" quando il mouse esce.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void exitDB(MouseEvent e) {
         buttonFromDB.setStyle(
             "-fx-background-color: transparent;" +
@@ -323,7 +347,11 @@ public class Controller {
             "-fx-cursor: hand;");
     }
 
-    /** Evidenzia il pulsante "carica da file" quando il mouse vi passa sopra. */
+    /**
+     * Evidenzia il pulsante "carica da file" quando il mouse vi passa sopra.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void hoverFile(MouseEvent e) {
         fromFileButton.setStyle(
             "-fx-background-color: #FB8C00;" +
@@ -335,7 +363,11 @@ public class Controller {
             "-fx-background-radius: 6;" +
             "-fx-cursor: hand;");
     }
-    /** Ripristina lo stile del pulsante "carica da file" quando il mouse esce. */
+    /**
+     * Ripristina lo stile del pulsante "carica da file" quando il mouse esce.
+     *
+     * @param e l'evento del mouse che ha innescato l'azione
+     */
     @FXML private void exitFile(MouseEvent e) {
         fromFileButton.setStyle(
             "-fx-background-color: transparent;" +

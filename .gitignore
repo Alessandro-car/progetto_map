@@ -32,6 +32,4 @@ config.properties
 *.classpath
 *.project
 *.dmp
-lib/
-build/
 libjfxwebkit.so

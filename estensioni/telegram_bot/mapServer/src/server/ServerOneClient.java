@@ -30,6 +30,8 @@ import database.*;
  *   <li>{@code 3} – Esegue una predizione interattiva sull'albero caricato.</li>
  *   <li>{@code 4} – Invia al client l'elenco delle tabelle presenti nel database.</li>
  *   <li>{@code 5} – Invia al client l'elenco degli alberi già salvati su disco (file {@code .dmp}).</li>
+ *   <li>{@code 6} - Come il codice 3, ma dopo ogni domanda invia anche la lista degli indici dei rami selezionabili.
+ *   </li>
  * </ul>
  */
 class ServerOneClient extends Thread {
@@ -94,6 +96,10 @@ class ServerOneClient extends Thread {
 	 *       client la lista delle tabelle disponibili.</li>
 	 *   <li><b>5 – Elenco alberi salvati:</b> cerca nella cartella corrente i file
 	 *       con estensione {@code .dmp} e invia al client i relativi nomi (senza estensione).</li>
+	 *   <li><b>6 – Predizione con lista dei rami:</b> come il codice 3, ma dopo ogni
+	 *       domanda invia anche la lista degli indici dei rami selezionabili
+	 *       (usato dal bot Telegram per costruire i pulsanti).
+	 *   </li>
 	 * </ul>
 	 */
 	@Override
@@ -244,6 +250,29 @@ class ServerOneClient extends Thread {
 							out.writeObject("Error listing saved trees: " + e.toString());
 							out.flush();
 							System.err.println(e);
+						}
+						break;
+					case 6:
+						if (tree == null) {
+							try {
+								out.writeObject("No tree available.");
+								out.flush();
+							} catch (IOException e) {
+								System.out.println(e);
+							}
+							break;
+						}
+						try {
+							out.writeObject("QUERY");
+							out.flush();
+							Double predictionExt = tree.predictClass(in, out, true);
+							out.writeObject("OK");
+							out.writeObject(predictionExt);
+							out.flush();
+						} catch (UnknownValueException e) {
+							System.out.println(e);
+						} catch (ClassNotFoundException | IOException e) {
+							System.out.println("I/O error: " + e.toString());
 						}
 						break;
 				}

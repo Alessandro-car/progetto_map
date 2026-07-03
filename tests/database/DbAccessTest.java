@@ -24,6 +24,16 @@ class DbAccessTest {
 		conn = null;
 	}
 
+	@AfterEach
+	void closeResources() {
+		try {
+			if (conn != null && !conn.isClosed()) conn.close();
+		} catch (SQLException ignored) {}
+		try {
+			if (db != null) db.closeConnection();
+		} catch (SQLException ignored) {}
+	}
+
 	@Test
 	@DisplayName("Test init connection with wrong credentials")
 	void testInitConnectionWithWrongCredentials() {

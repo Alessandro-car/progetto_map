@@ -154,7 +154,7 @@ public class ServerConnection {
      * @throws IOException se si verifica un errore di comunicazione
      */
     public void startPrediction() throws IOException {
-        out.writeObject(3);
+        out.writeObject(6);
         out.flush();
     }
 

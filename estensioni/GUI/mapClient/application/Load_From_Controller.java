@@ -64,6 +64,12 @@ public class Load_From_Controller {
      */
     @FunctionalInterface
     private interface NamesSupplier {
+        /**
+         * Restituisce la lista dei nomi (tabelle o file) da mostrare all'utente.
+         *
+         * @return la lista dei nomi disponibili
+         * @throws Exception se il recupero dei nomi fallisce
+         */
         List<String> get() throws Exception;
     }
 

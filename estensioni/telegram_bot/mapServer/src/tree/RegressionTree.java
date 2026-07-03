@@ -170,38 +170,58 @@ public class RegressionTree implements Serializable {
 	}
 
 	/**
-	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O.
-	 * <p>
-	 * Se il nodo corrente è una foglia restituisce direttamente il valore predetto.
-	 * Se è un nodo di split, invia al client la domanda e l'elenco dei rami, attende
-	 * la risposta (un intero) e prosegue la navigazione sul figlio scelto.
+	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O,
+	 * secondo il protocollo base (codice azione 3): per ogni nodo di split viene
+	 * inviata solo la domanda formulata dal nodo.
 	 *
 	 * @param in lo stream da cui leggere la risposta del client (l'indice del ramo da seguire)
 	 * @param out lo stream su cui inviare la domanda formulata dal nodo
 	 * @return il valore della classe predetta
-	 * @throws UnknownValueException se l'indice ricevuto non è valido (negativo o troppo grande)
+	 * @throws UnknownValueException se l'indice ricevuto non è valido
 	 * @throws ClassNotFoundException se l'oggetto letto dallo stream non è riconosciuto
 	 * @throws IOException se si verifica un errore durante la lettura o la scrittura
 	 */
-	public Double predictClass(ObjectInputStream in, ObjectOutputStream out) throws UnknownValueException, ClassNotFoundException, IOException {
+	public Double predictClass(ObjectInputStream in, ObjectOutputStream out)
+			throws UnknownValueException, ClassNotFoundException, IOException {
+		return predictClass(in, out, false);
+	}
+
+	/**
+	 * Esegue una predizione interattiva comunicando con un client tramite stream di I/O.
+	 * <p>
+	 * Se {@code sendBranches} è {@code true} (protocollo esteso, codice azione 6),
+	 * dopo ogni domanda viene inviata anche la lista degli indici dei rami
+	 * selezionabili, usata dal bot Telegram per costruire i pulsanti.
+	 *
+	 * @param in lo stream da cui leggere la risposta del client
+	 * @param out lo stream su cui inviare la domanda formulata dal nodo
+	 * @param sendBranches se {@code true} invia anche la lista dei rami dopo ogni domanda
+	 * @return il valore della classe predetta
+	 * @throws UnknownValueException se l'indice ricevuto non è valido
+	 * @throws ClassNotFoundException se l'oggetto letto dallo stream non è riconosciuto
+	 * @throws IOException se si verifica un errore durante la lettura o la scrittura
+	 */
+	public Double predictClass(ObjectInputStream in, ObjectOutputStream out, boolean sendBranches)
+			throws UnknownValueException, ClassNotFoundException, IOException {
 		if (root instanceof LeafNode) {
 			return ((LeafNode) root).getPredictedClassValue();
-		} else {
-			int risp = 0;
-			out.writeObject(((SplitNode) root).formulateQuery());
-			out.writeObject(this.getArrayOfChildren());
-			out.flush();
-			risp = (Integer) in.readObject();
-			if (risp < 0 || risp >= root.getNumberOfChildren()) {
-				out.writeObject("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
-				out.flush();
-				throw new UnknownValueException("The answer should be an integer between 0 and " + (root.getNumberOfChildren() - 1) + "!");
-			} else {
-				out.writeObject("QUERY");
-				out.flush();
-				return childTree[risp].predictClass(in, out);
-			}
 		}
+		out.writeObject(((SplitNode) root).formulateQuery());
+		if (sendBranches) {
+			out.writeObject(this.getArrayOfChildren());
+		}
+		out.flush();
+		int risp = (Integer) in.readObject();
+		if (risp < 0 || risp >= root.getNumberOfChildren()) {
+			String msg = "The answer should be an integer between 0 and "
+					+ (root.getNumberOfChildren() - 1) + "!";
+			out.writeObject(msg);
+			out.flush();
+			throw new UnknownValueException(msg);
+		}
+		out.writeObject("QUERY");
+		out.flush();
+		return childTree[risp].predictClass(in, out, sendBranches);
 	}
 
 	/**

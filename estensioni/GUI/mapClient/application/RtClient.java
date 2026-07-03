@@ -27,19 +27,44 @@ public class RtClient {
     /** Porta su cui il server è in ascolto. */
     private final int          port = 8080;
 
+    /** Indirizzo IP del server, conservato per eventuali riconnessioni. */
+    private final String ip;
+
     /**
-     * Apre la connessione verso il server all'indirizzo indicato.
+     * Crea un nuovo client e apre immediatamente la connessione verso il server.
      *
      * @param ip l'indirizzo IP del server a cui connettersi
      * @throws IOException se la connessione o la creazione degli stream fallisce
      */
     public RtClient(String ip) throws IOException {
+        this.ip = ip;
+        connect();
+    }
+
+    /**
+     * Apre (o riapre) la connessione verso il server e inizializza gli stream.
+     *
+     * @throws IOException se la connessione o la creazione degli stream fallisce
+     */
+    private void connect() throws IOException {
         InetAddress addr = InetAddress.getByName(ip);
         Socket socket    = new Socket(addr, port);
         out = new ObjectOutputStream(socket.getOutputStream());
         in  = new ObjectInputStream(socket.getInputStream());
     }
 
+    /**
+     * Ripristina la connessione dopo un errore di protocollo: il server, in caso di
+     * tabella o archivio non trovato, resta in attesa di un nuovo nome; riaprendo la
+     * connessione gli stream tornano sincronizzati.
+     */
+    private void resetConnection() {
+        close();
+        try {
+            connect();
+        } catch (IOException ignored) {
+        }
+    }
 
     /**
      * Chiede al server di caricare i dati di addestramento dalla tabella indicata.
@@ -51,12 +76,13 @@ public class RtClient {
      */
     public void storeTableFromDb(String tableName)
             throws IOException, ClassNotFoundException, ServerException {
-        out.writeObject(0);
+				out.writeObject(0);
         out.writeObject(tableName);
         out.flush();
 
         String result = in.readObject().toString();
         if (!result.equals("Table found!")) {
+						resetConnection();
             throw new ServerException("Table not found: " + result);
         }
 
@@ -122,6 +148,7 @@ public class RtClient {
 
         String result = in.readObject().toString();
         if (!result.equals("Table found!")) {
+						resetConnection();
             throw new ServerException("File not found: " + result);
         }
 
