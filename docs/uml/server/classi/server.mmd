@@ -37,13 +37,9 @@ classDiagram
     class IOException{
     }
 
-    class DbAccess{
-    }
-
     ServerOneClient --|> Thread
     ServerOneClient ..> UnknownValueException
     ServerOneClient ..> IOException
-    ServerOneClient ..> DbAccess
     MultiServer ..> ServerOneClient
     UnknownValueException --|> Exception
 

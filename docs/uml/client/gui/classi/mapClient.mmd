@@ -73,7 +73,10 @@ class RtClient {
   - out: ObjectOutputStream
   - in: ObjectInputStream
   - port: int = 8080
+  - ip: String
   + RtClient(in ip: String)
+  - connect()
+  - resetConnection()
   + storeTableFromDb(in tableName: String)
   + learningFromDbTable() String
   + learningFromDbTable(in branch: int) String
@@ -104,7 +107,6 @@ Load_From_Controller *.. NamesSupplier : inner interface
 
 Launcher ..> Main
 Controller o-- RtClient
-Main ..> Controller
 Load_From_Controller ..> Controller
 Load_From_Controller ..> RtClient
 Controller ..> RtClient

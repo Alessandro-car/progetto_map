@@ -148,8 +148,9 @@ public class ServerConnection {
     }
 
     /**
-     * Chiede al server di avviare la fase di predizione interattiva
-     * (codice azione 3).
+     * Chiede al server di avviare la fase di predizione interattiva con invio
+     * della lista dei rami dopo ogni domanda (codice azione 6), così da poter
+     * costruire i pulsanti tramite {@link #showBranches()}.
      *
      * @throws IOException se si verifica un errore di comunicazione
      */

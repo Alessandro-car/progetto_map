@@ -379,8 +379,8 @@ public class MapBot extends TelegramLongPollingBot {
      * Fa avanzare la predizione leggendo la prossima risposta del server.
      * <p>
      * Se il server segnala una nuova domanda ({@code "QUERY"}) mostra il nodo di
-     * split corrente e i pulsanti dei rami, ricavati dagli indici presenti nel
-     * testo della domanda. Se comunica il risultato finale ({@code "OK"}) mostra
+     * split corrente e i pulsanti dei rami, la cui lista viene letta dal server
+     * tramite {@link ServerConnection#showBranches()}. Se comunica il risultato finale ({@code "OK"}) mostra
      * la classe predetta e chiude la sessione. Qualsiasi altra risposta (ad
      * esempio un ramo non valido) viene trattata come errore terminale e la
      * sessione viene ripristinata.

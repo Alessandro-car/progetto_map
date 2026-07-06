@@ -52,7 +52,9 @@ public class Data {
 	 *
 	 * @param tableName nome della tabella del database da cui caricare i dati
 	 * @throws TrainingDataException se si verifica un errore nel caricamento dei dati
-	 * @throws SQLException se si verifica un errore di accesso al database
+	 *         (inclusi gli errori di accesso al database, incapsulati in questa eccezione)
+	 * @throws SQLException dichiarata dalla firma ma di fatto mai sollevata: ogni errore
+	 *         SQL viene convertito in {@link TrainingDataException}
 	 */
 	public Data(String tableName) throws TrainingDataException, SQLException {
 		DbAccess db = new DbAccess();
