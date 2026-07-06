@@ -6,6 +6,7 @@ namespace mapClient {
   class Command
   class MainTest
   class MapBot
+  class Status
   class ServerConnection
 }
 
@@ -74,8 +75,7 @@ class ServerConnection {
   + close()
 }
 
-class TelegramLongPollingBot {
-  <<TelegramBots abstract>>
+class TelegramLongPollingBot["<i>TelegramLongPollingBot</i>"] {
   + getBotUsername()* String
   + getBotToken()* String
   + onUpdateReceived(in update: Update)*
