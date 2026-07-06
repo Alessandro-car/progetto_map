@@ -75,10 +75,14 @@ class ServerConnection {
 }
 
 class TelegramLongPollingBot {
+  <<TelegramBots abstract>>
+  + getBotUsername()* String
+  + getBotToken()* String
+  + onUpdateReceived(in update: Update)*
 }
 
 MapBot --|> TelegramLongPollingBot
-MapBot *.. Status : inner enum
 MapBot o-- ServerConnection
 MapBot ..> Command
+MapBot *.. Status : inner enum
 MainTest ..> MapBot
