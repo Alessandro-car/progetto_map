@@ -148,6 +148,10 @@ public class MainTest {
 
 			System.out.println("Would you repeat ? (y/n)");
 			risp=Keyboard.readChar();
+			while(Character.toUpperCase(risp)!='Y' && Character.toUpperCase(risp)!='N'){
+				System.out.println("Please type y or n");
+				risp=Keyboard.readChar();
+			}
 
 		}while (Character.toUpperCase(risp)=='Y');
 
