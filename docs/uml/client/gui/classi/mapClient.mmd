@@ -9,6 +9,7 @@ namespace application {
   class Load_From_Controller
   class RtClient
   class ServerException
+  class NamesSupplier
 }
 
 class Launcher {
@@ -93,13 +94,14 @@ class ServerException {
   + ServerException(in message: String)
 }
 
-class Application {
+class Application["<i>Application</i>"]{
   <<JavaFX abstract>>
+  + start(in primaryStage: Stage)*
 }
 
-class Exception {
-}
+class Exception
 
+Main ..> Controller : loads FXML
 Main --|> Application
 ServerException --|> Exception
 
