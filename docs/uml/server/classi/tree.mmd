@@ -106,8 +106,8 @@ DiscreteNode --|> SplitNode
 
 SplitNode *.. SplitInfo : inner class
 
-RegressionTree o-- Node
-RegressionTree *-- RegressionTree
-RegressionTree --> ClassNotFoundException
-RegressionTree --> IOException
-RegressionTree --> FileNotFoundException
+RegressionTree "1" o-- "1" Node
+RegressionTree "1" *-- "0..*" RegressionTree
+RegressionTree ..> ClassNotFoundException
+RegressionTree ..> IOException
+RegressionTree ..> FileNotFoundException

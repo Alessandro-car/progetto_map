@@ -80,9 +80,9 @@ classDiagram
     DbAccess ..> DatabaseConnectionException
 
     TableSchema ..> DbAccess
-    TableSchema o--  Column
+    TableSchema "1" o-- "1..*" Column
 
-    TableData o-- DbAccess
+    TableData "1" o-- "1" DbAccess
     TableData ..> TableSchema
     TableData ..> Column
     TableData ..> Example

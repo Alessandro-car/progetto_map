@@ -106,8 +106,7 @@ ServerException --|> Exception
 Load_From_Controller *.. NamesSupplier : inner interface
 
 Launcher ..> Main
-Controller o-- RtClient
+Controller "1" o-- "1" RtClient
 Load_From_Controller ..> Controller
 Load_From_Controller ..> RtClient
-Controller ..> RtClient
 RtClient ..> ServerException

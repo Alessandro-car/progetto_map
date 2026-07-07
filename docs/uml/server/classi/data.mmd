@@ -64,8 +64,8 @@ classDiagram
   ContinuousAttribute --|> Attribute
   DiscreteAttribute --|> Attribute
 
-  Data o-- Attribute
-  Data o-- ContinuousAttribute
+  Data "1" o-- "1..*" Attribute
+  Data "1" o-- "1" ContinuousAttribute
 
   Data ..> TrainingDataException
 

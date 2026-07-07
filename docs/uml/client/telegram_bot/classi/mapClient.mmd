@@ -12,6 +12,10 @@ namespace mapClient {
 
 class Command {
   <<enumeration>>
+  START
+  LEARN
+  LOAD
+  END
   - command: String
   - description: String
   ~ Command(in command: String, in description: String)
@@ -82,7 +86,7 @@ class TelegramLongPollingBot["<i>TelegramLongPollingBot</i>"] {
 }
 
 MapBot --|> TelegramLongPollingBot
-MapBot o-- ServerConnection
+MapBot "1" o-- "0..*" ServerConnection
 MapBot ..> Command
 MapBot *.. Status : inner enum
 MainTest ..> MapBot
